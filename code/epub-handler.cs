@@ -52,31 +52,76 @@ public class Ebook
     public string NavigationFilePath { get; set; }
     public string InBookPosition { get; set; }
     public string ScrollValue { get; set; }
-
     public Dictionary<string, List<string>> NavData { get; set; }
+}
 
-    /*
-    public void ClearAttributes()
+public class AllBooks
+{
+    // List containing path to ebook's jsonDataFiles
+    public List<string> Books { get; set; }
+
+    public void LoadAllBooksFromJson()
     {
-        // Ebook attributes
-        Title = string.Empty;
-        Author = string.Empty;
-        Language = string.Empty;
-        Publisher = string.Empty;
-        Description = string.Empty;
-        DateAdded = string.Empty;
-        DateLastOpened = string.Empty;
-        Format = string.Empty;
+        try
+        {
+            string path = FileManagment.GetEbookAllBooksJsonFile();
+            Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
+        }
+        catch
+        {
+            List<string> emptyList = new List<string>();
+            string path = FileManagment.GetEbookAllBooksJsonFile();
+            File.WriteAllText(path, JsonSerializer.Serialize(emptyList));
+            Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
+        }
 
-        // Paths
-        EbookFolderPath = string.Empty;
-        EbookDataFolderPath = string.Empty;
-        ContainerPath = string.Empty;
-        ContentPath = string.Empty;
-        CoverPath = string.Empty;
-        JsonDataPath = string.Empty;
+
     }
-    */
+    
+
+    public void AddBook(string ebookDataJsonPath)
+    {
+        Books.Add(ebookDataJsonPath);
+    }
+    public void AddBookStore(string ebookDataJsonPath)
+    {
+        LoadAllBooksFromJson();
+        Books.Add(ebookDataJsonPath);
+        StoreBooksToJson();
+    }
+
+    public void StoreBooksToJson()
+    {
+        string path = FileManagment.GetEbookAllBooksJsonFile();
+        File.WriteAllText(path, JsonSerializer.Serialize(Books));
+    }
+
+    public void RemoveBook(string ebookDataJsonPath)
+    {
+        Books.Remove(ebookDataJsonPath);
+    }
+
+    public void RemoveBookStore(string ebookDataJsonPath)
+    {
+        LoadAllBooksFromJson();
+        Books.Remove(ebookDataJsonPath);
+        StoreBooksToJson();
+    }
+
+    public void PrintAllBooks()
+    {
+        LoadAllBooksFromJson();
+        Debug.WriteLine("");
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            Debug.WriteLine($"Title: {book.Title}");
+        }
+        Debug.WriteLine("");
+    }
+
+
 }
 
 public class JsonHandler
@@ -86,7 +131,7 @@ public class JsonHandler
     /// </summary>
     /// <param name="jsonPath">a path of the ebook's json data file</param>
     /// <returns>Ebook object (.Title, .Author, ...)</returns>
-    public static Ebook ReadJsonFile(string jsonPath)
+    public static Ebook ReadEbookJsonFile(string jsonPath)
     {
         try
         {
@@ -117,9 +162,7 @@ public class JsonHandler
             Debug.WriteLine( $"StoreJsonEbookFile() - Fail - {ex.Message}" );
         }
     }
-    
 }
-
 public class ContentHandler
 {
     app_logging logger = new app_logging();
@@ -192,7 +235,6 @@ public class ContentHandler
     }
 
 }
-
 public class RecentEbooksHandler
 {
     public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
@@ -278,7 +320,7 @@ public class RecentEbooksHandler
         {
             if (File.Exists(jsonFile))
             {
-                Ebook ebook = JsonHandler.ReadJsonFile(jsonFile);
+                Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
                 if (!string.IsNullOrEmpty(ebook.CoverPath))
                 {
                     coverPaths.Add($"{ebook.CoverPath}{MetaSplitter}{ebook.Title}{MetaSplitter}{ebook.EbookFolderPath}{MetaSplitter}{ebook.InBookPosition}{MetaSplitter}{ebook.ScrollValue}");
@@ -468,8 +510,13 @@ public class EpubHandler
 
             app_controls.UpdateXhtmls(_ebook.EbookFolderPath);
 
+            // store ebook to all books
+            AllBooks allBooks = new AllBooks();
+            allBooks.AddBookStore(_ebook.JsonDataPath);
 
             Debug.WriteLine( logger.AddBookMessageSuccess );
+
+            allBooks.PrintAllBooks();
         }
         catch (Exception ex)
         {
@@ -480,7 +527,7 @@ public class EpubHandler
     public static string GetEbookPosition()
     {
         string ebookPosition = "";
-        Ebook ebook = JsonHandler.ReadJsonFile("ebook.JsonDataPath");
+        Ebook ebook = JsonHandler.ReadEbookJsonFile("ebook.JsonDataPath");
         ebookPosition = ebook.InBookPosition;
 
 
@@ -618,7 +665,7 @@ public class Navigation
     /// Sets the navData dictionary with the extracted data from the .ncx file
     /// </summary>
     /// <param name="navFilePath"></param>
-    public void ExtractNavData(string navFilePath)
+    public void ExtractNavDataFromNcx(string navFilePath)
     {
         try
         {

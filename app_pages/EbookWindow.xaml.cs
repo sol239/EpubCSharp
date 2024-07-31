@@ -161,7 +161,7 @@ namespace EpubReader.app_pages
         /// <returns></returns>
         private async Task RestorePositionAsync()
         {
-            _ebook = JsonHandler.ReadJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
             await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
             _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 
@@ -220,7 +220,7 @@ namespace EpubReader.app_pages
         private void OpenEbookMessage((string ebookPlayOrder, string ebookFolderPath) data)
         {
             _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
-            _ebook = JsonHandler.ReadJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
 
             Debug.WriteLine("");
             Debug.WriteLine("******************************");

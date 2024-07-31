@@ -20,6 +20,7 @@ public class FileManagment
     // /DATA
     public static string ebookDataFolderName = "DATA";
     public static string eboookDataFileName = "ebookData.json";
+    public static string ebookAllBooksFileName = "allBooks.json";
 
     
 
@@ -170,9 +171,14 @@ public class FileManagment
         return ebookFolderPath + "\\" + ebookDataFolderName + "\\" + eboookDataFileName;
     }
 
+    public static string GetEbookAllBooksJsonFile()
+    {
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _settingsFolderName + "\\" + ebookAllBooksFileName;
+    }
+
     public static string GetBookContentFilePath(string ebookFolderPath, string playOrder)
     {
-        var ebook = JsonHandler.ReadJsonFile(GetEbookDataJsonFile(ebookFolderPath));
+        var ebook = JsonHandler.ReadEbookJsonFile(GetEbookDataJsonFile(ebookFolderPath));
         string xhtmlPath = ebook.NavData[playOrder][0].ToString();
         //return $"{ebookFolderPath}\\{xhtmlPath}";
         return xhtmlPath;

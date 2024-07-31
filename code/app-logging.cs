@@ -18,8 +18,8 @@ public class app_logging
     // epub-handler.cs:
 
     // class: JsonHandler
-    public string ReadJsonFileSuccess = "ReadJsonFile() - Success\n";
-    public string ReadJsonFileFail = "ReadJsonFile() - Fail - ";
+    public string ReadJsonFileSuccess = "ReadEbookJsonFile() - Success\n";
+    public string ReadJsonFileFail = "ReadEbookJsonFile() - Fail - ";
 
     public string StoreJsonEbookFile = "StoreJsonEbookFile() - Success\n";
     public string StoreJsonEbookFileFail = "StoreJsonEbookFile() - Fail";

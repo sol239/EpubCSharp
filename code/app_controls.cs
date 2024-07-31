@@ -107,7 +107,7 @@ namespace EpubReader.code
             try
             {
                 string jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
-                var ebook = JsonHandler.ReadJsonFile(jsonDataFilePath);
+                var ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
                 
                 foreach (KeyValuePair<string, List<string>> kvp in ebook.NavData)
                 {

@@ -376,7 +376,7 @@ namespace EpubReader
             Debug.WriteLine("********************************");
             Debug.WriteLine("Restore Position");
             Debug.WriteLine("********************************¨\n");
-            _ebook = JsonHandler.ReadJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
             await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
             // load playorder
             _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
