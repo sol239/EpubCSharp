@@ -121,6 +121,7 @@ namespace EpubReader.app_pages
             {
                 _ebook.ScrollValue = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
                 _ebook.InBookPosition = navValueTuple.ebookPlayOrder;
+                _ebook.DateLastOpened = DateTime.Now.ToString();
 
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");

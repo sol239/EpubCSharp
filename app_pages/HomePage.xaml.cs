@@ -48,7 +48,7 @@ namespace EpubReader.app_pages
             // Clear existing images
             ImageStackPanel.Children.Clear();
 
-            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPaths();
+            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated();
 
             foreach (var ebookPath in ebookPaths)
             {

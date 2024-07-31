@@ -184,7 +184,7 @@ public class AllBooks
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateLastOpened
+    // Returns a list of books ebub folder sorted by DateAdded
     public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
@@ -216,19 +216,26 @@ public class AllBooks
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateAdded
+    // Returns a list of books ebub folder sorted by DateLastOpened
     public List<string> GetBooksEpubFoldersByDateLastOpened(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
-        Dictionary<string, string> books = new Dictionary<string, string>();
+        Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
+
+        Debug.WriteLine("*****************************");
 
         foreach (string ebookDataJsonPath in Books)
         {
             var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.DateLastOpened);
+
+
+            DateTime dateLastOpened = DateTime.ParseExact(_book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            books.Add(_book.JsonDataPath, dateLastOpened);
+            Debug.WriteLine($"*   {_book.Title}   {_book.DateLastOpened}");
         }
 
-        // _book.DateLastOpened = "27/07/2024 08:21:56"
+        Debug.WriteLine("*****************************");
+
         if (ascendingOrder)
         {
             books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
@@ -247,7 +254,6 @@ public class AllBooks
 
         return Books;
     }
-
     // Returns a list of books ebub folder sorted by lenght TO-DO
     public List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder, bool print)
     {
@@ -558,6 +564,33 @@ public class RecentEbooksHandler
         return coverPaths;
     }
 
+    public static List<string> GetRecentEbooksPathsUpdated()
+    {
+        
+        AllBooks allBooks = new AllBooks();
+
+
+        List<string> coverPaths = new List<string>();
+
+        foreach (var jsonFile in allBooks.GetBooksEpubFoldersByName(false, true))
+        {
+            if (File.Exists(jsonFile))
+            {
+                Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
+                if (!string.IsNullOrEmpty(ebook.CoverPath))
+                {
+                    coverPaths.Add($"{ebook.CoverPath}{MetaSplitter}{ebook.Title}{MetaSplitter}{ebook.EbookFolderPath}{MetaSplitter}{ebook.InBookPosition}{MetaSplitter}{ebook.ScrollValue}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"File not found: {jsonFile}");
+            }
+        }
+        return coverPaths;
+    }
+
+
     public static void UpdateRecents()
     {
 
@@ -608,6 +641,8 @@ public class EpubHandler
                 _ebook.Format = "epub";
                 _ebook.FileName = fileName.Split(".epub")[0];
                 _ebook.DateAdded = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
+                //_ebook.DateLastOpened = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
+
                 //_ebook.DateLastOpened = _ebook.DateAdded;
 
                 Debug.WriteLine( logger.ExtractEpubSuccess);
