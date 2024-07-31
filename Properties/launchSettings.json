@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "EpubReader (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "EpubReader (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
