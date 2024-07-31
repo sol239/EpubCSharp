@@ -292,6 +292,11 @@ public class RecentEbooksHandler
         return coverPaths;
     }
 
+    public static void UpdateRecents()
+    {
+
+    }
+
     public static string GetMetaSplitter()
     {
         return MetaSplitter;
