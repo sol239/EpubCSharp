@@ -178,52 +178,173 @@ public class AllBooks
 
         if (print)
         {
-            Debug.WriteLine("");
-            foreach (string ebookDataJsonPath in Books)
-            {
-                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {book.Title}");
-            }
-            Debug.WriteLine("");
+            PrintAllBooks();
         }
 
-        return null;
+        return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateLastOpened TO-DO
-    public List<string> GetBooksEpubFoldersByDate(bool ascendingOrder)
+    // Returns a list of books ebub folder sorted by DateLastOpened
+    public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder, bool print)
     {
-        return null;
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.DateAdded);
+        }
+
+        // _book.DateAdded = "27/07/2024 08:21:56"
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            PrintAllBooks();
+        }
+
+        return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateAdded TO-DO
-    public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder)
+    // Returns a list of books ebub folder sorted by DateAdded
+    public List<string> GetBooksEpubFoldersByDateLastOpened(bool ascendingOrder, bool print)
     {
-        return null;
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.DateLastOpened);
+        }
+
+        // _book.DateLastOpened = "27/07/2024 08:21:56"
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            PrintAllBooks();
+        }
+
+        return Books;
     }
 
     // Returns a list of books ebub folder sorted by lenght TO-DO
-    public List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder)
+    public List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder, bool print)
     {
         return null;
     }
 
-    // Returns a list of books ebub folder sorted by Author alphabetically TO-DO
-    public List<string> GetBooksEpubFoldersByAuthor(bool ascendingOrder)
+    // Returns a list of books ebub folder sorted by Author alphabetically
+    public List<string> GetBooksEpubFoldersByAuthor(bool ascendingOrder, bool print)
     {
-        return null;
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.Author);
+        }
+
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            PrintAllBooks();
+        }
+
+        return Books;
     }
 
-    // Returns a list of books ebub folder sorted by Publisher alphabetically TO-DO
-    public List<string> GetBooksEpubFoldersByPublisher(bool ascendingOrder)
+    // Returns a list of books ebub folder sorted by Publisher alphabetically
+    public List<string> GetBooksEpubFoldersByPublisher(bool ascendingOrder, bool print)
     {
-        return null;
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.Publisher);
+        }
+
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            PrintAllBooks();
+        }
+
+        return Books;
     }
 
-    // Returns a list of books ebub folder sorted by Language TO-DO
-    public List<string> GetBooksEpubFoldersByLanguage(bool ascendingOrder)
+    // Returns a list of books ebub folder sorted by Language
+    public List<string> GetBooksEpubFoldersByLanguage(bool ascendingOrder, bool print)
     {
-        return null;
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.Language);
+        }
+
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            PrintAllBooks();
+        }
+
+        return Books;
     }
 }
 
@@ -619,7 +740,7 @@ public class EpubHandler
 
             Debug.WriteLine( logger.AddBookMessageSuccess );
 
-            allBooks.GetBooksEpubFoldersByName(false, true);
+            allBooks.GetBooksEpubFoldersByDateAdded(false, true);
 
 
         }
