@@ -55,11 +55,17 @@ public class Ebook
     public Dictionary<string, List<string>> NavData { get; set; }
 }
 
+/// <summary>
+/// Class for handling all books list
+/// </summary>
 public class AllBooks
 {
     // List containing path to ebook's jsonDataFiles
     public List<string> Books { get; set; }
 
+    /// <summary>
+    /// Loads allBooks JSON file into Books List
+    /// </summary>
     public void LoadAllBooksFromJson()
     {
         try
@@ -69,20 +75,27 @@ public class AllBooks
         }
         catch
         {
+            // if file does not exist, create a new one
             List<string> emptyList = new List<string>();
             string path = FileManagment.GetEbookAllBooksJsonFile();
             File.WriteAllText(path, JsonSerializer.Serialize(emptyList));
             Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
         }
-
-
     }
     
-
+    /// <summary>
+    /// Add a ebook's jsonDataPath to Books List
+    /// </summary>
+    /// <param name="ebookDataJsonPath"></param>
     public void AddBook(string ebookDataJsonPath)
     {
         Books.Add(ebookDataJsonPath);
     }
+
+    /// <summary>
+    /// Stores a ebook's jsonDataPath to allBooks JSON file
+    /// </summary>
+    /// <param name="ebookDataJsonPath"></param>
     public void AddBookStore(string ebookDataJsonPath)
     {
         LoadAllBooksFromJson();
@@ -90,17 +103,28 @@ public class AllBooks
         StoreBooksToJson();
     }
 
+    /// <summary>
+    /// Stores allBooks List to a allBooks JSON file
+    /// </summary>
     public void StoreBooksToJson()
     {
         string path = FileManagment.GetEbookAllBooksJsonFile();
         File.WriteAllText(path, JsonSerializer.Serialize(Books));
     }
 
+    /// <summary>
+    /// Removes a ebook's jsonDataPath from Books List
+    /// </summary>
+    /// <param name="ebookDataJsonPath"></param>
     public void RemoveBook(string ebookDataJsonPath)
     {
         Books.Remove(ebookDataJsonPath);
     }
 
+    /// <summary>
+    /// Removes a ebook's jsonDataPath from allBooks JSON file
+    /// </summary>
+    /// <param name="ebookDataJsonPath"></param>
     public void RemoveBookStore(string ebookDataJsonPath)
     {
         LoadAllBooksFromJson();
@@ -108,6 +132,9 @@ public class AllBooks
         StoreBooksToJson();
     }
 
+    /// <summary>
+    /// Prints Titles of all books on next line
+    /// </summary>
     public void PrintAllBooks()
     {
         LoadAllBooksFromJson();
@@ -120,6 +147,34 @@ public class AllBooks
         }
         Debug.WriteLine("");
     }
+
+    // Returns a list of books ebub folder sorted by Name TO-DO
+    public List<string> GetBooksEpubFolders(bool ascendingOrder)
+    {
+        return null;
+    }
+
+    // Returns a list of books ebub folder sorted by DateLastOpened TO-DO
+    public List<string> GetBooksEpubFoldersByDate(bool ascendingOrder)
+    {
+        return null;
+    }
+
+    // Returns a list of books ebub folder sorted by DateAdded TO-DO
+    public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder)
+    {
+        return null;
+    }
+
+    // Returns a list of books ebub folder sorted by lenght TO-DO
+    public List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder)
+    {
+        return null;
+    }
+
+
+
+
 
 
 }
