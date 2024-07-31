@@ -10,6 +10,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Button Content="▶" Width="50" Grid.Column="2" Margin="10"/>
 
-    </Grid>
+
+</Grid>
 </Page>

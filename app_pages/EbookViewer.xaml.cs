@@ -18,6 +18,7 @@ using Microsoft.UI.Xaml.Navigation;
 
 using EpubReader.code;
 using System.Text.Json;
+using EpubReader.app_pages;
 
 namespace EpubReader
 {
@@ -88,12 +89,32 @@ namespace EpubReader
         public EbookViewer()
         {
             this.InitializeComponent();
+            //NavigationViewService.SetNavigationViewVisibility(Visibility.Collapsed);
+
             this.Loaded += EbookViewer_Loaded;
             this.Unloaded += EbookViewer_Unloaded; 
             ChangeCommandBarColors();
+            MyWebView.Visibility = Visibility.Visible;
+
+
+
+
+
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs e)
+        {
+            // Call your method here
+            YourMethod();
             
         }
-        
+
+        private void YourMethod()
+        {
+            // Your logic here
+            System.Diagnostics.Debug.WriteLine("Window has been closed.");
+        }
+
         private async void MoveToNext()
         {
             // debug message
@@ -272,6 +293,13 @@ namespace EpubReader
 
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            // Show the NavigationView when navigating away from this page
+            NavigationViewService.SetNavigationViewVisibility(Visibility.Visible);
+        }
+
         /// <summary>
         /// Sets the nav tuple passed from the main window and sets the xhtml path.
         /// </summary>
@@ -304,6 +332,7 @@ namespace EpubReader
             {
                 _ebook.ScrollValue = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
                 _ebook.InBookPosition = navValueTuple.ebookPlayOrder;
+                _ebook.DateLastOpened = DateTime.Now.ToString();
 
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
@@ -470,7 +499,7 @@ namespace EpubReader
         /// <param name="e"></param>
         private void GoHomeAction(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(MainWindow));
+            Frame.Navigate(typeof(MyMainWindow));
         }
 
         /// <summary>

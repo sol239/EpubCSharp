@@ -195,8 +195,8 @@ public class ContentHandler
 
 public class RecentEbooksHandler
 {
-    public Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
-    public string MetaSplitter = "*cxlpfdsl?82349---";
+    public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
+    public static string MetaSplitter = "*cxlpfdsl?82349---";
 
     public void AddEbookToList(string ebookJsonDataPath, string ebookLatestTime)
     {
@@ -214,7 +214,7 @@ public class RecentEbooksHandler
         File.WriteAllText(FileManagment.GetRecentEbooksFilePath(), jsonString);
     }
 
-    public void LoadJsonToList()
+    public static void LoadJsonToList()
     {
         try
         {
@@ -268,7 +268,7 @@ public class RecentEbooksHandler
         recentEbooks = recentEbooks.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
     }
 
-    public List<string> GetRecentEbooksPaths()
+    public static List<string> GetRecentEbooksPaths()
     {
         LoadJsonToList();
         List<string> eBookDataJsonFiles = recentEbooks.Keys.ToList();
@@ -292,6 +292,10 @@ public class RecentEbooksHandler
         return coverPaths;
     }
 
+    public static string GetMetaSplitter()
+    {
+        return MetaSplitter;
+    }
 
 }
 
@@ -452,7 +456,7 @@ public class EpubHandler
 
             JsonHandler.StoreJsonEbookFile(_ebook,_ebook.EbookDataFolderPath);
 
-            REHandler.LoadJsonToList();
+            RecentEbooksHandler.LoadJsonToList();
             REHandler.AddEbookToList(_ebook.JsonDataPath, REHandler.GetNewerDate(_ebook.DateAdded, _ebook.DateLastOpened));
             REHandler.SortRecentsEbooks();
             REHandler.WriteListToJson();
