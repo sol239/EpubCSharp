@@ -148,7 +148,7 @@ public class AllBooks
         Debug.WriteLine("");
     }
 
-    // Returns a list of books ebub folder sorted by Name TO-DO
+    // Returns a list of books ebub folder sorted by Name alphabetically TO-DO
     public List<string> GetBooksEpubFolders(bool ascendingOrder)
     {
         return null;
@@ -172,11 +172,23 @@ public class AllBooks
         return null;
     }
 
+    // Returns a list of books ebub folder sorted by Author alphabetically TO-DO
+    public List<string> GetBooksEpubFoldersByAuthor(bool ascendingOrder)
+    {
+        return null;
+    }
 
+    // Returns a list of books ebub folder sorted by Publisher alphabetically TO-DO
+    public List<string> GetBooksEpubFoldersByPublisher(bool ascendingOrder)
+    {
+        return null;
+    }
 
-
-
-
+    // Returns a list of books ebub folder sorted by Language TO-DO
+    public List<string> GetBooksEpubFoldersByLanguage(bool ascendingOrder)
+    {
+        return null;
+    }
 }
 
 public class JsonHandler
