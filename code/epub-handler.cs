@@ -148,9 +148,45 @@ public class AllBooks
         Debug.WriteLine("");
     }
 
-    // Returns a list of books ebub folder sorted by Name alphabetically TO-DO
-    public List<string> GetBooksEpubFolders(bool ascendingOrder)
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by Name alphabetically
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
+    public List<string> GetBooksEpubFoldersByName(bool ascendingOrder = false, bool print = false)
     {
+        LoadAllBooksFromJson();
+        Dictionary<string, string> books = new Dictionary<string, string>();
+
+        foreach (string ebookDataJsonPath in Books)
+        {
+            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(_book.JsonDataPath, _book.Title);
+        }
+
+        if (ascendingOrder)
+        {
+            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+        else
+        {
+            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        Books = books.Keys.ToList();
+
+        if (print)
+        {
+            Debug.WriteLine("");
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
+            }
+            Debug.WriteLine("");
+        }
+
         return null;
     }
 
@@ -583,7 +619,9 @@ public class EpubHandler
 
             Debug.WriteLine( logger.AddBookMessageSuccess );
 
-            allBooks.PrintAllBooks();
+            allBooks.GetBooksEpubFoldersByName(false, true);
+
+
         }
         catch (Exception ex)
         {
