@@ -6,10 +6,53 @@
     xmlns:local="using:WinUI_ePubReader"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:epubReader="using:EpubReader"
+    mc:Ignorable="d">
 
-    <Grid>
 
+
+    <Page.Resources>
+        <DataTemplate x:Key="PhotoItemTemplate" x:DataType="epubReader:Photo">
+            <ItemContainer Height="205"  Width="205" AutomationProperties.Name="{x:Bind Title}">
+                <Grid>
+                    <Image Source="{x:Bind PhotoBitmapImage, Mode=OneWay}" 
+                           MinWidth="70" Width="200" Height="200"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Vertical" Height="40" Opacity=".75"
+                                VerticalAlignment="Bottom" Padding="5,1,5,1" 
+                                Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}">
+                        <TextBlock Text="{x:Bind Title}" 
+                                   Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
+                        <!--
+                        <StackPanel Orientation="Horizontal">
+                            
+                            <TextBlock Text="{x:Bind Likes}"
+                                       Style="{ThemeResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/> 
+                            <TextBlock Text=" Likes"
+                                       Style="{ThemeResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/> 
+                        </StackPanel>
+                        -->
+                    </StackPanel>
+                </Grid>
+            </ItemContainer>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid x:Name="rootGrid">
+        <ItemsView Name="AllBooksView"
+                   ItemsSource="{x:Bind Photos}" Width="480" Height="400"
+                   ItemTemplate="{StaticResource PhotoItemTemplate}"
+                   SelectionMode="None"
+                   IsItemInvokedEnabled="True"
+                   ItemInvoked="AllBooksView_ItemClick">
+            <ItemsView.Layout>
+                <UniformGridLayout MaximumRowsOrColumns="5" 
+                           MinRowSpacing="5" 
+                           MinColumnSpacing="5"/>
+            </ItemsView.Layout>
+        </ItemsView>
     </Grid>
+    
 </Page>

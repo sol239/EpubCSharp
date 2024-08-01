@@ -8,24 +8,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid >
+    <Grid Background="#efe0cd"> <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Row for the top menu -->
             <RowDefinition Height="*"/>
             <!-- Row for the WebView -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row for the navigation buttons -->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-
-
         <Grid>
             <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact">
-
-
                 <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72B;" />
@@ -58,7 +56,6 @@
             </CommandBar>
         </Grid>
 
-
         <!-- WebView -->
         <WebView2 x:Name="MyWebView"
                    Grid.Row="1"
@@ -66,10 +63,8 @@
                    Source=""
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
-                   Margin="10,10,10,10"/>
+                   Margin="40,40,40,40"/>
+        
         <Frame x:Name="EbookFrame" />
-
     </Grid>
-
-
 </Window>
