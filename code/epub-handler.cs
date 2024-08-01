@@ -176,11 +176,15 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
-
         return Books;
     }
 
@@ -188,15 +192,22 @@ public class AllBooks
     public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
-        Dictionary<string, string> books = new Dictionary<string, string>();
+        Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
+
+        Debug.WriteLine("*****************************");
 
         foreach (string ebookDataJsonPath in Books)
         {
             var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.DateAdded);
+
+
+            DateTime dateLastOpened = DateTime.ParseExact(_book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            books.Add(_book.JsonDataPath, dateLastOpened);
+            Debug.WriteLine($"*   {_book.Title}   {_book.DateAdded}");
         }
 
-        // _book.DateAdded = "27/07/2024 08:21:56"
+        Debug.WriteLine("*****************************");
+
         if (ascendingOrder)
         {
             books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
@@ -208,9 +219,14 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
 
         return Books;
@@ -247,9 +263,14 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
 
         return Books;
@@ -283,9 +304,14 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
 
         return Books;
@@ -314,9 +340,14 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
 
         return Books;
@@ -345,9 +376,14 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
+        // print he books
         if (print)
         {
-            PrintAllBooks();
+            foreach (string ebookDataJsonPath in Books)
+            {
+                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {_book.Title}");
+            }
         }
 
         return Books;
@@ -470,100 +506,6 @@ public class RecentEbooksHandler
     public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
     public static string MetaSplitter = "*cxlpfdsl?82349---";
 
-    public void AddEbookToList(string ebookJsonDataPath, string ebookLatestTime)
-    {
-        recentEbooks.Add(ebookJsonDataPath, ebookLatestTime);
-    }
-
-    public void RemoveEbookFromList(string ebookFolderPath)
-    {
-        recentEbooks.Remove(ebookFolderPath);
-    }
-
-    public void WriteListToJson()
-    {
-        string jsonString = JsonSerializer.Serialize(recentEbooks);
-        File.WriteAllText(FileManagment.GetRecentEbooksFilePath(), jsonString);
-    }
-
-    public static void LoadJsonToList()
-    {
-        try
-        {
-            string path = FileManagment.GetRecentEbooksFilePath();
-            if (!File.Exists(path))
-            {
-                Debug.WriteLine("File not found, creating a new one.");
-                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-                File.WriteAllText(path, "{}"); // Create an empty JSON file
-            }
-            string jsonString = File.ReadAllText(path);
-            recentEbooks = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"An error occurred: {ex.Message}");
-        }
-    }
-
-    public string GetNewerDate(string date1, string date2)
-    {
-
-        if (date1 == null)
-        {
-            return date2;
-        }
-
-        if (date2 == null)
-        {
-            return date1;
-        }
-
-        // date format: 27/07/2024 08:21:56
-
-        DateTime dateTime1 = DateTime.ParseExact(date1, "DD/MM/yyyy HH:MM:SS", CultureInfo.InvariantCulture);
-        DateTime dateTime2 = DateTime.ParseExact(date2, "DD/MM/yyyy HH:MM:SS", CultureInfo.InvariantCulture);
-
-        if (DateTime.Compare(dateTime1, dateTime2) > 0)
-        {
-            return date1;
-        }
-        else
-        {
-            return date2;
-        }
-    }
-
-    // sort recent ebooks by date in format: 27/07/2024 08:21:56
-    public void SortRecentsEbooks()
-    {
-        recentEbooks = recentEbooks.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-    }
-
-    public static List<string> GetRecentEbooksPaths()
-    {
-        LoadJsonToList();
-        List<string> eBookDataJsonFiles = recentEbooks.Keys.ToList();
-        List<string> coverPaths = new List<string>();
-
-        foreach (var jsonFile in eBookDataJsonFiles)
-        {
-            if (File.Exists(jsonFile))
-            {
-                Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
-                if (!string.IsNullOrEmpty(ebook.CoverPath))
-                {
-                    coverPaths.Add($"{ebook.CoverPath}{MetaSplitter}{ebook.Title}{MetaSplitter}{ebook.EbookFolderPath}{MetaSplitter}{ebook.InBookPosition}{MetaSplitter}{ebook.ScrollValue}");
-                }
-            }
-            else
-            {
-                Debug.WriteLine($"File not found: {jsonFile}");
-            }
-        }
-        return coverPaths;
-    }
-
     public static List<string> GetRecentEbooksPathsUpdated()
     {
         
@@ -572,7 +514,7 @@ public class RecentEbooksHandler
 
         List<string> coverPaths = new List<string>();
 
-        foreach (var jsonFile in allBooks.GetBooksEpubFoldersByName(false, true))
+        foreach (var jsonFile in allBooks.GetBooksEpubFoldersByDateLastOpened(false, true))
         {
             if (File.Exists(jsonFile))
             {
@@ -589,25 +531,12 @@ public class RecentEbooksHandler
         }
         return coverPaths;
     }
-
-
-    public static void UpdateRecents()
-    {
-
-    }
-
-    public static string GetMetaSplitter()
-    {
-        return MetaSplitter;
-    }
-
 }
 
 public class EpubHandler
 {
     app_logging logger = new app_logging();
     ContentHandler contentHandler = new ContentHandler();
-    RecentEbooksHandler REHandler = new RecentEbooksHandler();
     Navigation nvg = new Navigation();
 
     public event Action BookAdded;
@@ -641,7 +570,7 @@ public class EpubHandler
                 _ebook.Format = "epub";
                 _ebook.FileName = fileName.Split(".epub")[0];
                 _ebook.DateAdded = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
-                //_ebook.DateLastOpened = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
+                _ebook.DateLastOpened = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
 
                 //_ebook.DateLastOpened = _ebook.DateAdded;
 
@@ -708,14 +637,6 @@ public class EpubHandler
         }
     }
 
-    // Prints content of .opf file
-    public void PrintContentFile()
-    {
-        XmlDocument doc = new XmlDocument();
-        doc.Load(_contentFilePath);
-        Debug.WriteLine(doc.OuterXml);
-    }
-
     // Adds book to the library
     public async Task AddEpub(string epubFilePath, string destination, string fileName)
     {
@@ -762,10 +683,10 @@ public class EpubHandler
 
             JsonHandler.StoreJsonEbookFile(_ebook,_ebook.EbookDataFolderPath);
 
-            RecentEbooksHandler.LoadJsonToList();
-            REHandler.AddEbookToList(_ebook.JsonDataPath, REHandler.GetNewerDate(_ebook.DateAdded, _ebook.DateLastOpened));
-            REHandler.SortRecentsEbooks();
-            REHandler.WriteListToJson();
+            //RecentEbooksHandler.LoadJsonToList();
+            //REHandler.AddEbookToList(_ebook.JsonDataPath, REHandler.GetNewerDate(_ebook.DateAdded, _ebook.DateLastOpened));
+            //REHandler.SortRecentsEbooks();
+            //REHandler.WriteListToJson();
 
             app_controls.UpdateXhtmls(_ebook.EbookFolderPath);
 
@@ -774,30 +695,13 @@ public class EpubHandler
             allBooks.AddBookStore(_ebook.JsonDataPath);
 
             Debug.WriteLine( logger.AddBookMessageSuccess );
-
-            allBooks.GetBooksEpubFoldersByDateAdded(false, true);
-
-
+            
         }
         catch (Exception ex)
         {
             Debug.WriteLine( $"{logger.AddBookMessageFail}: {ex.Message}" );
         }
     }
-
-    public static string GetEbookPosition()
-    {
-        string ebookPosition = "";
-        Ebook ebook = JsonHandler.ReadEbookJsonFile("ebook.JsonDataPath");
-        ebookPosition = ebook.InBookPosition;
-
-
-
-        return ebookPosition;
-    }
-
-    
-
 }
 
 /// <summary>
@@ -842,8 +746,12 @@ public class Navigation
         }
         return null;
     }
-
-
+    
+    /// <summary>
+    /// Method to extract the navigation data from the .opf file
+    /// </summary>
+    /// <param name="opfFilePath"></param>
+    /// <returns></returns>
     public async Task ExtractNavDataFromOPF(string opfFilePath)
     {
 
@@ -885,17 +793,6 @@ public class Navigation
             Debug.WriteLine("");
 
         }
-        /*
-        foreach (var item in manifest.Elements(ns + "itemref"))
-        {
-            string idref = item.Attribute("idref")?.Value;
-            spineData.Add(idref);
-
-            Debug.WriteLine("");
-            Debug.WriteLine($"IDREF: {idref}");
-            Debug.WriteLine("");
-        }
-        */
 
         Debug.WriteLine("\nSpine Finished\n");
 
@@ -918,12 +815,10 @@ public class Navigation
 
         Debug.WriteLine("\nSync Finished\n");
 
-
-
     }
 
     /// <summary>
-    /// Sets the navData dictionary with the extracted data from the .ncx file
+    /// Sets the navData dictionary with the extracted data from the .ncx file, does not work correctly with every .epub file
     /// </summary>
     /// <param name="navFilePath"></param>
     public void ExtractNavDataFromNcx(string navFilePath)
