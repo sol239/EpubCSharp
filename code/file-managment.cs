@@ -17,16 +17,18 @@ public class FileManagment
     public static List<String> SupportedEbooksFormats = new List<string>() {".epub"};
     public static string recentEbooksFileName = "recentEbooks.json";
     public static string ebookViewerStyleFileName = "ebook_viewer-style.css";
+    public static string globalSettings = "globalSettings.json";
 
     // /DATA
     public static string ebookDataFolderName = "DATA";
     public static string eboookDataFileName = "ebookData.json";
     public static string ebookAllBooksFileName = "allBooks.json";
 
+
     
 
     // Write text to a file
-    public async Task WriteTextToFileAsync(string fileName, string content)
+    public static async Task WriteTextToFileAsync(string fileName, string content)
     {
         // Get the local folder
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
@@ -39,7 +41,7 @@ public class FileManagment
     }
 
     // Read text from a file
-    public async Task<string> ReadTextFromFileAsync(string fileName)
+    public static async Task<string> ReadTextFromFileAsync(string fileName)
     {
         // Get the local folder
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
@@ -52,7 +54,7 @@ public class FileManagment
     }
 
     // Create folder
-    public async Task CreateFolderAsync(string folderName)
+    public static async Task CreateFolderAsync(string folderName)
     {
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 
@@ -61,7 +63,7 @@ public class FileManagment
     }
 
     // Does folder exist
-    public async Task<bool> DoesFolderExistAsync(string folderName)
+    public static async Task<bool> DoesFolderExistAsync(string folderName)
     {
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 
@@ -82,7 +84,7 @@ public class FileManagment
     }
 
     // Does file exist
-    public async Task<bool> DoesFileExistAsync(string fileName)
+    public static async Task<bool> DoesFileExistAsync(string fileName)
     {
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 
@@ -186,7 +188,7 @@ public class FileManagment
     }
     
     // Create CSS settings file
-    public async Task CreateCssSettingsFile()
+    public static async Task CreateCssSettingsFile()
     {
         string cssContent = @"/* Hide scrollbars for WebKit-based browsers */
                             body {
@@ -225,12 +227,14 @@ public class FileManagment
 
         // Check if the file already exists
 
-        string css_file_path = GetSettingsFolderPath + "\\" + ebookViewerStyleFileName;
+        string css_file_path = GetAppAddress() + "\\" + ebookViewerStyleFileName;
 
         if (!File.Exists(css_file_path))
         {
             await WriteTextToFileAsync(ebookViewerStyleFileName, cssContent);
+            Debug.WriteLine($"CreateCssSettingsFile() - Success - css file created\n");
         }
+
     }
 
 
@@ -258,21 +262,32 @@ public class FileManagment
     }
 
     // StartUp operations run when the app starts
-    public async Task StartUp()
+    public static async Task StartUp()
     {
-        // Create the ebooks storage folder if it doesn't exist
-        if (!await DoesFolderExistAsync(_ebookFolderName))
+        try
         {
-            await CreateFolderAsync(_ebookFolderName);
+            // Create the ebooks storage folder if it doesn't exist
+            if (!await DoesFolderExistAsync(_ebookFolderName))
+            {
+                await CreateFolderAsync(_ebookFolderName);
+            }
+
+            // Create settings file if it doesn't exist
+            if (!await DoesFolderExistAsync(_settingsFolderName))
+            {
+                await CreateFolderAsync(_settingsFolderName);
+            }
+
+            await CreateCssSettingsFile();
+
+            Debug.WriteLine($"StartUp() - Settings\n");
+
         }
 
-        // Create settings file if it doesn't exist
-        if (!await DoesFolderExistAsync(_settingsFolderName))
+        catch
         {
-            await CreateFolderAsync(_settingsFolderName);
+            Debug.WriteLine($"StartUp() - Fail\n");
         }
-
-        await CreateCssSettingsFile();
 
     }
 

@@ -7,7 +7,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -21,7 +20,20 @@
                 x:Name="fontsComboBox" 
                 Width="200" 
                 Margin="10"
-                SelectionChanged="OnComboBoxSelectionChanged">
+                SelectionChanged="fontsComboBoxSelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontFamily="{Binding}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            
+            <ComboBox 
+                Header="Background color"
+                x:Name="backgroundcolorComboBox" 
+                Width="200" 
+                Margin="10"
+                SelectionChanged="backgroundcolorComboBoxSelectionChanged">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" FontFamily="{Binding}" />

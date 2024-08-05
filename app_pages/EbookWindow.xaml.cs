@@ -95,9 +95,6 @@ namespace EpubReader.app_pages
         public EbookWindow( (string ebookPlayOrder, string ebookFolderPath) data )
         {
             this.InitializeComponent();
-            //NavigationViewService.SetNavigationViewVisibility(Visibility.Collapsed);
-
-            //this.Loaded += EbookViewer_Loaded;
             ChangeCommandBarColors();
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
@@ -315,6 +312,10 @@ namespace EpubReader.app_pages
 
         }
 
+        /// <summary>
+        /// Prints log messages to the Output window.
+        /// </summary>
+        /// <param name="data"></param>
         private void OpenEbookMessage((string ebookPlayOrder, string ebookFolderPath) data)
         {
             _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
@@ -619,8 +620,13 @@ namespace EpubReader.app_pages
         /// <summary>
         /// Changes the colors of the CommandBar buttons.
         /// </summary>
-        private void ChangeCommandBarColors()
+        private async void ChangeCommandBarColors()
         {
+            string color_string = await (SettingsPage.LoadBackgroundColorComboBox());
+            string font_string = await (SettingsPage.LoadFontComboBox());
+            Windows.UI.Color _viewerBackgroundColor = ParseHexColor(color_string);
+            ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
+
             MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
             MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);
             Settings.Foreground = Home.Foreground = UpdateCSS.Foreground = new SolidColorBrush(_buttonColor);

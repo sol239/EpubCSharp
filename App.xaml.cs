@@ -16,6 +16,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using EpubReader.app_pages;
+using EpubReader.code;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,15 +35,27 @@ namespace EpubReader
             this.InitializeComponent();
         }
 
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            try
+            {
+                // Ensure FileManagment.StartUp() runs first
+                await FileManagment.StartUp();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (you can replace this with your logging mechanism)
+                System.Diagnostics.Debug.WriteLine($"Exception in FileManagment.StartUp: {ex.Message}");
+                throw; // Re-throw the exception if you want to halt the application
+            }
 
+            // Proceed with the rest of the initialization
             Window = new Window();
             Frame rootFrame = new Frame();
             rootFrame.NavigationFailed += OnNavigationFailed;
             rootFrame.Navigate(typeof(MyMainWindow), args.Arguments);
             Window.Content = rootFrame;
-            Window.Activate(); 
+            Window.Activate();
         }
 
         private void OnNavigationFailed(object sender, Microsoft.UI.Xaml.Navigation.NavigationFailedEventArgs e)

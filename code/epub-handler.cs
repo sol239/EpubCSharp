@@ -80,10 +80,12 @@ public class AllBooks
             string path = FileManagment.GetEbookAllBooksJsonFile();
             Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
         }
-        catch
+        catch (Exception ex)
         {
             // if file does not exist, create a new one
             List<string> emptyList = new List<string>();
+
+            // create empty file
             string path = FileManagment.GetEbookAllBooksJsonFile();
             File.WriteAllText(path, JsonSerializer.Serialize(emptyList));
             Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));

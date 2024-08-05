@@ -67,7 +67,6 @@ namespace EpubReader
         public MyMainWindow()
         {
             this.InitializeComponent();
-            fileManagment.StartUp();
             Debug.WriteLine("\nMY MAIN WINDOW CONSTRUCTOR CALLED\n");
 
             ContentFrame.Navigate(typeof(HomePage));

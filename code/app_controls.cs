@@ -151,28 +151,43 @@ namespace EpubReader.code
         /// <returns></returns>
         public static async Task UpdateCssPath(string xhtmlPath, string newCssPath)
         {
-            try
-            {
-                XDocument xhtmlDocument = XDocument.Load(xhtmlPath);
-                var linkElement = xhtmlDocument.Descendants()
-                    .FirstOrDefault(e => e.Name.LocalName == "link" && e.Attribute("rel")?.Value == "stylesheet");
+            const int maxRetries = 10;
+            const int delayMilliseconds = 100;
 
-                if (linkElement != null)
-                {
-                    linkElement.SetAttributeValue("href", newCssPath);
-                    xhtmlDocument.Save(xhtmlPath);
-                }
-                else
-                {
-                    Debug.WriteLine("No <link> element with rel=\"stylesheet\" found.");
-                }
-                Debug.WriteLine($"UpdateCssPath() - Success");
-
-            }
-            catch (Exception ex)
+            for (int attempt = 0; attempt < maxRetries; attempt++)
             {
-                Debug.WriteLine($"UpdateCssPath() - Fail - {ex.Message}");
-                throw;
+                try
+                {
+                    XDocument xhtmlDocument = XDocument.Load(xhtmlPath);
+                    var linkElement = xhtmlDocument.Descendants()
+                        .FirstOrDefault(e => e.Name.LocalName == "link" && e.Attribute("rel")?.Value == "stylesheet");
+
+                    if (linkElement != null)
+                    {
+                        linkElement.SetAttributeValue("href", newCssPath);
+                        xhtmlDocument.Save(xhtmlPath);
+                    }
+                    else
+                    {
+                        //Debug.WriteLine("No <link> element with rel=\"stylesheet\" found.");
+                    }
+                    //Debug.WriteLine($"UpdateCssPath() - Success");
+                    return; // Exit the method if successful
+                }
+                catch (IOException ex) when (ex is IOException)
+                {
+                    Debug.WriteLine($"UpdateCssPath() - Attempt {attempt + 1} failed - {ex.Message}");
+                    if (attempt == maxRetries - 1)
+                    {
+                        throw; // Re-throw the exception if the last attempt fails
+                    }
+                    await Task.Delay(delayMilliseconds); // Wait before retrying
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"UpdateCssPath() - Fail - {ex.Message}");
+                    throw;
+                }
             }
         }
 

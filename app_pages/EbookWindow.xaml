@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Background="#efe0cd"> <!-- Set the background color for the Grid -->
+    <Grid Name="ViewerGrid" Background="#ffffff"> <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Row for the top menu -->
