@@ -68,25 +68,38 @@ namespace EpubReader.app_pages
     function handleKeyDown(event) {
         if (event.key === 'ArrowDown') {
             scrollDown();
-        } else if (event.key === 'ArrowUp') {
-            scrollUp();
+            window.chrome.webview.postMessage('scrolledDown');
+
+        } else if (event.key === 'ArrowRight') {
+            scrollDown();
+            window.chrome.webview.postMessage('scrolledDown');
+
         }
+
+            else if (event.key === 'ArrowLeft') {
+            scrollUp();
+            window.chrome.webview.postMessage('scrolledUp');
+
+        }
+          else if (event.key === 'ArrowUp') {
+            scrollUp();
+            window.chrome.webview.postMessage('scrolledUp');
+
+        }
+
     }
 
     function setupEventListeners() {
-        window.addEventListener('scroll', checkScroll);
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('resize', adjustLayout);
-        window.addEventListener('load', adjustLayout);
+    window.addEventListener('scroll', checkScroll);
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('selectionchange', handleSelection);
     }
+    
 
-    function adjustLayout() {
-        // Your layout adjustment code here
-    }
+
 
     // Re-attach event listeners
     setupEventListeners();
-    adjustLayout();
     ";
 
         /// <summary>
@@ -99,6 +112,8 @@ namespace EpubReader.app_pages
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
             EbookViewer_Loaded();
+            ViewerGrid.Focus(FocusState.Programmatic);
+
         }
 
         // Event handler for the Closed event
@@ -149,13 +164,13 @@ namespace EpubReader.app_pages
                     // Store the JSON ebook file
                     await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
 
-                    Debug.WriteLine("JSON ebook file stored successfully.");
+                    Debug.WriteLine("SavePosition() - Success");
                     Debug.WriteLine("********************************\n");
 
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"An error occurred while storing JSON ebook file: {ex.Message}");
+                    Debug.WriteLine($"SavePosition() - Fail - {ex.Message}");
                     Debug.WriteLine("********************************\n");
 
                 }
@@ -209,24 +224,18 @@ namespace EpubReader.app_pages
                 {
                     if (_ebook.StatsRecord1.ContainsKey(currentDate))
                     {
-
-                        Debug.WriteLine("Key exists in StatsRecord1 dictionary for the current date.");
-
                         TimeSpan _timeSpan = new TimeSpan(0, 0, 0, 0);
                         _timeSpan = TimeSpan.Parse(_ebook.StatsRecord1[currentDate]);
                         _ebook.StatsRecord1[currentDate] = (_timeSpan + timeDifference).ToString();
                     }
                     else
                     {
-                        Debug.WriteLine("Key does not exist in StatsRecord1 dictionary for the current date.");
                         _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
                     }
 
-                    Debug.WriteLine("No change!");
                 }
                 else if (_ebook.StatsRecord1 == null)
                 {
-                    Debug.WriteLine("StatsRecord1 dictionary is null.");
                     _ebook.StatsRecord1 = new Dictionary<string, string>();
                     _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
                 }
@@ -235,15 +244,16 @@ namespace EpubReader.app_pages
                 {
                     _ebook.StatsRecord1 = new Dictionary<string, string>();
                     _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
-                    Debug.WriteLine("StatsRecord1 dictionary is empty.");
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An error occurred while accessing StatsRecord1 dictionary: {ex.Message}");
+
+                Debug.WriteLine($"Store1() - Success\n");
+
             }
 
-            Debug.WriteLine("StatsRecord1 dictionary updated successfully.");
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Store1() - Fail - {ex.Message}\n");
+            }
         }
 
 
@@ -253,13 +263,26 @@ namespace EpubReader.app_pages
         /// <returns></returns>
         private async Task RestorePositionAsync()
         {
-            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
-            await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
-            _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
+            try
+            {
+                _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+                
+                Debug.WriteLine("\n********************************");
+                Debug.WriteLine($"Restore Position: {_xhtmlPath} - Scroll = {_ebook.ScrollValue}");
+                Debug.WriteLine("*********************************\n");
+                Debug.WriteLine($"RestorePositionAsync() - Success\n");
+                await MyWebView.EnsureCoreWebView2Async(null);
 
-            Debug.WriteLine("\n********************************");
-            Debug.WriteLine($"Restore Position: {_xhtmlPath} - Scroll = {_ebook.ScrollValue}");
-            Debug.WriteLine("*********************************\n");
+                await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
+                _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
+
+                
+            }
+
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"RestorePositionAsync() - Fail - {ex.Message}\n");
+            }
         }
 
         /// <summary>
@@ -268,14 +291,24 @@ namespace EpubReader.app_pages
         /// <returns></returns>
         private async Task ExecuteJavaScriptAsync()
         {
-            if (MyWebView.CoreWebView2 != null)
+            try
             {
-                var result = await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
-                Debug.WriteLine($"JavaScript executed with result: {result}");
+                if (MyWebView.CoreWebView2 != null)
+                {
+                    var result = await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
+                    Debug.WriteLine($"JavaScript executed with result: {result}");
+                }
+                else
+                {
+                    Debug.WriteLine("CoreWebView2 is not initialized.");
+                }
+
+                Debug.WriteLine("ExecuteJavaScriptAsync() - Success\n");
             }
-            else
+
+            catch
             {
-                Debug.WriteLine("CoreWebView2 is not initialized.");
+                Debug.WriteLine("ExecuteJavaScriptAsync() - Fail\n");
             }
         }
 
@@ -286,30 +319,41 @@ namespace EpubReader.app_pages
         /// <param name="e"></param>
         private async void EbookViewer_Loaded()
         {
-            await InitializeWebViewAsync();
-            await UpdateCssPath(_xhtmlPath, _cssPath);
-            _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
-            MyWebView.Source = new Uri(_xhtmlPath);
-            await RestorePositionAsync(); // Restore scroll position
-
-
-            MyWebView.NavigationCompleted += async (s, args) =>
+            try
             {
-                if (args.IsSuccess)
+                await InitializeWebViewAsync();
+                await UpdateCssPath(_xhtmlPath, _cssPath);
+                _xhtmlPath =
+                    FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                MyWebView.Source = new Uri(_xhtmlPath);
+                await RestorePositionAsync(); // Restore scroll position
+
+
+                MyWebView.NavigationCompleted += async (s, args) =>
                 {
-                    await ExecuteJavaScriptAsync(); // Execute JavaScript after the WebView has loaded
-                }
-                else
-                {
-                    Debug.WriteLine("Navigation failed.");
-                }
-            };
+                    if (args.IsSuccess)
+                    {
+                        await ExecuteJavaScriptAsync(); // Execute JavaScript after the WebView has loaded
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Navigation failed.");
+                    }
+                };
+                MyWebView.Focus(FocusState.Programmatic);
+                await SaveBookOpenTime();
+                Debug.WriteLine("EbookViewer_Loaded() - Success\n");
+            }
 
-            MyWebView.Focus(FocusState.Programmatic);
+            catch
+            {
+                Debug.WriteLine("EbookViewer_Loaded() - Fail\n");
+            }
 
-            await SaveBookOpenTime();
-
-
+            finally
+            {
+                await RestorePositionAsync();
+            }
         }
 
         /// <summary>
@@ -337,8 +381,37 @@ namespace EpubReader.app_pages
         /// <returns></returns>
         private async Task InitializeWebViewAsync()
         {
-            await MyWebView.EnsureCoreWebView2Async(null);
-            await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
+            try
+            {
+                await MyWebView.EnsureCoreWebView2Async(null);
+                MyWebView.CoreWebView2.Settings.IsScriptEnabled = true;
+                await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
+
+                //await MyWebView.CoreWebView2.ExecuteScriptAsync(script);
+
+                // Handle messacges from JavaScript
+                MyWebView.CoreWebView2.WebMessageReceived += (sender, e) =>
+                {
+                    string tappedWord = e.TryGetWebMessageAsString();
+                    Debug.WriteLine($"Message = {tappedWord}");
+                    if (tappedWord == "scrolledDown")
+                    {
+                        CheckForward();
+                    }
+
+                    else if (tappedWord == "scrolledUp")
+                    {
+                        CheckBackward();
+                    }
+
+                };
+
+                Debug.WriteLine($"InitializeWebViewAsync() - Success\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"InitializeWebViewAsync() - Fail - {ex.Message}\n");
+            }
         }
 
         /// <summary>
@@ -359,7 +432,7 @@ namespace EpubReader.app_pages
                 {
                     linkElement.SetAttributeValue("href", newCssPath);
                     xhtmlDocument.Save(xhtmlPath);
-                    Debug.WriteLine("CSS path updated successfully.");
+                    Debug.WriteLine("UpdateCssPath() - Success\n");
                 }
                 else
                 {
@@ -368,7 +441,7 @@ namespace EpubReader.app_pages
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error occurred: {ex.Message}");
+                Debug.WriteLine($"UpdateCssPath() - Fail - {ex.Message}\n");
             }
         }
 
@@ -379,21 +452,31 @@ namespace EpubReader.app_pages
         /// <param name="e"></param>
         private async void UpdateCSSAction(object sender, RoutedEventArgs e)
         {
-            await Task.Run(() => app_controls.GlobalCssInjector());
-            MyWebView.Reload(); // Reload the WebView to apply CSS changes
-
-            // Wait for the WebView to finish loading
-            MyWebView.NavigationCompleted += async (s, args) =>
+            try
             {
-                if (args.IsSuccess)
+                await Task.Run(() => app_controls.GlobalCssInjector());
+                MyWebView.Reload(); // Reload the WebView to apply CSS changes
+
+                // Wait for the WebView to finish loading
+                MyWebView.NavigationCompleted += async (s, args) =>
                 {
-                    await ExecuteJavaScriptAsync(); // Re-execute JavaScript after reload
-                }
-                else
-                {
-                    Debug.WriteLine("Navigation failed.");
-                }
-            };
+                    if (args.IsSuccess)
+                    {
+                        await ExecuteJavaScriptAsync(); // Re-execute JavaScript after reload
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Navigation failed.");
+                    }
+                };
+
+                Debug.WriteLine("UpdateCSSAction() - Success\n");
+            }
+
+            catch
+            {
+                Debug.WriteLine("UpdateCSSAction() - Fail\n");
+            }
         }
 
         /// <summary>
@@ -403,13 +486,19 @@ namespace EpubReader.app_pages
         /// <param name="e"></param>
         private async void GoHomeAction(object sender, RoutedEventArgs e)
         {
-            await SavePosition();
-            await CalculateTimeDifference();
+            try
+            {
+                await SavePosition();
+                await CalculateTimeDifference();
+                WindowClosed?.Invoke(this, EventArgs.Empty);
+                this.Close();
 
-            WindowClosed?.Invoke(this, EventArgs.Empty);
-
-            this.Close();
-            //EbookFrame.Navigate(typeof(MyMainWindow));
+                Debug.WriteLine("GoHomeAction() - Success\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n");
+            }
         }
         
         /// <summary>
@@ -419,9 +508,18 @@ namespace EpubReader.app_pages
         /// <param name="e"></param>
         private async void Backward_Click(object sender, RoutedEventArgs e)
         {
-            await MyWebView.CoreWebView2.ExecuteScriptAsync("scrollUp();");
-            await SavePosition();
-            CheckBackward();
+            try
+            {
+                await MyWebView.CoreWebView2.ExecuteScriptAsync("scrollUp();");
+                await SavePosition();
+                CheckBackward();
+                Debug.WriteLine("Backward_Click() - Success\n");
+            }
+            catch
+            {
+                Debug.WriteLine("Backward_Click() - Fail\n");
+            }
+            
         }
 
         /// <summary>
@@ -431,9 +529,19 @@ namespace EpubReader.app_pages
         /// <param name="e"></param>
         private async void Forward_Click(object sender, RoutedEventArgs e)
         {
-            await MyWebView.CoreWebView2.ExecuteScriptAsync("scrollDown();");
-            await SavePosition();
-            CheckForward();
+            try
+            {
+                await MyWebView.CoreWebView2.ExecuteScriptAsync("scrollDown();");
+                await SavePosition();
+                CheckForward();
+
+                Debug.WriteLine("Forward_Click() - Success\n");
+            }
+
+            catch
+            {
+                Debug.WriteLine("Forward_Click() - Fail\n");
+            }
         }
 
         private async void MoveToNext()
@@ -453,13 +561,16 @@ namespace EpubReader.app_pages
                 }
 
                 int playOrder = int.Parse(navValueTuple.ebookPlayOrder);
+                
+                // TO-DO fix book finished error
+
+
                 navValueTuple.ebookPlayOrder = (playOrder + 1).ToString();
                 _xhtmlPath =
                     FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                 Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
-                Debug.WriteLine("***************");
-                Debug.WriteLine("");
+                
 
 
                 // Ensure MyWebView is initialized
@@ -489,10 +600,14 @@ namespace EpubReader.app_pages
                 };
 
                 await SavePosition();
+
+                Debug.WriteLine("MoveToNext() - Success");
+                Debug.WriteLine("***************");
+                Debug.WriteLine("");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error occurred in MoveToNext: {ex.Message}");
+                Debug.WriteLine($"MoveToNext() - Fail - {ex.Message}\n");
             }
         }
 
@@ -529,8 +644,7 @@ namespace EpubReader.app_pages
                     FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                 Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
-                Debug.WriteLine("***************");
-                Debug.WriteLine("");
+                
 
                 // Ensure MyWebView is initialized
                 if (MyWebView == null)
@@ -563,11 +677,15 @@ namespace EpubReader.app_pages
 
                 await SavePosition();
 
+                Debug.WriteLine("MoveToPrevious() - Success");
+                Debug.WriteLine("***************");
+                Debug.WriteLine("");
+
 
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error occurred in MoveToNext: {ex.Message}");
+                Debug.WriteLine($"MoveToPrevious() - Fail - {ex.Message}\n");
             }
         }
 
@@ -587,16 +705,17 @@ namespace EpubReader.app_pages
                 {
                     MoveToNext();
                 }
+
+                Debug.WriteLine("CheckForward() - Success\n");
             }
 
             catch
             {
-                Debug.WriteLine("CheckForward() - Fail");
+                Debug.WriteLine("CheckForward() - Fail\n");
             }
 
             //Debug.WriteLine($"scrollY: {scrollY}, documentHeight: {documentHeight}, windowHeight: {windowHeight}\n");
             lastScroll = scrollY;
-
         }
 
         /// <summary>
@@ -607,16 +726,40 @@ namespace EpubReader.app_pages
             var scrollY = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
             var documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
             var windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
-            Debug.WriteLine($"scrollY: {scrollY}, documentHeight: {documentHeight}, windowHeight: {windowHeight}\n");
-            if (scrollY == lastScroll)
+
+            try
             {
-                MoveToPrevious();
+                if (scrollY == lastScroll)
+                {
+                    MoveToPrevious();
+                }
+                Debug.WriteLine("CheckBackward() - Success\n");
             }
 
+            catch
+            {
+                Debug.WriteLine("CheckBackward() - Fail\n");
+            }
+
+            //Debug.WriteLine($"scrollY: {scrollY}, documentHeight: {documentHeight}, windowHeight: {windowHeight}\n");
             lastScroll = scrollY;
-
-
         }
+
+        private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Left)
+            {
+                Debug.WriteLine("Left key pressed");
+                Backward_Click(sender, e);
+            }
+            else if (e.Key == Windows.System.VirtualKey.Right)
+            {
+                Debug.WriteLine("Left key pressed");
+
+                Forward_Click(sender, e);
+            }
+        }
+
         /// <summary>
         /// Changes the colors of the CommandBar buttons.
         /// </summary>

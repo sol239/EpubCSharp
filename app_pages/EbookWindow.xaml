@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Name="ViewerGrid" Background="#ffffff"> <!-- Set the background color for the Grid -->
+    <Grid Name="ViewerGrid" Background="#ffffff" KeyDown="Page_KeyDown"> <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Row for the top menu -->
@@ -57,7 +57,7 @@
         </Grid>
 
         <!-- WebView -->
-        <WebView2 x:Name="MyWebView"
+        <WebView2 x:Name="MyWebView"  KeyDown="Page_KeyDown"
                    Grid.Row="1"
                    Grid.ColumnSpan="2"
                    Source=""

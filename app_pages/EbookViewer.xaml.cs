@@ -43,44 +43,39 @@ namespace EpubReader
         private string lastScroll = "0";
 
         // JavaScript code to manage scrolling and key events
-        private string _script = @"
-    function scrollDown() {
-        window.scrollBy(0, window.innerHeight);
-    }
+        private string _script = @"function scrollDown() {
+    window.scrollBy(0, window.innerHeight);
+}
 
-    function scrollUp() {
-        window.scrollBy(0, -window.innerHeight);
-    }
+function scrollUp() {
+    window.scrollBy(0, -window.innerHeight);
+}
 
-    function checkScroll() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            // Notify C# when scrolled to the bottom
+function checkScroll() {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        // Notify C# when scrolled to the bottom
+        if (window.chrome && window.chrome.webview) {
             window.chrome.webview.postMessage('scrolledToBottom');
         }
     }
+}
 
-    function handleKeyDown(event) {
-        if (event.key === 'ArrowDown') {
-            scrollDown();
-        } else if (event.key === 'ArrowUp') {
-            scrollUp();
-        }
+function handleKeyDown(event) {
+    if (event.key === 'ArrowDown') {
+        scrollDown();
+    } else if (event.key === 'ArrowUp') {
+        scrollUp();
     }
+}
 
-    function setupEventListeners() {
-        window.addEventListener('scroll', checkScroll);
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('resize', adjustLayout);
-        window.addEventListener('load', adjustLayout);
-    }
+function setupEventListeners() {
+    window.addEventListener('scroll', checkScroll);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('load', adjustLayout);
+}
 
-    function adjustLayout() {
-        // Your layout adjustment code here
-    }
-
-    // Re-attach event listeners
-    setupEventListeners();
-    adjustLayout();
+// Attach event listeners
+setupEventListeners();
     ";
 
         /// <summary>
@@ -95,26 +90,11 @@ namespace EpubReader
             this.Unloaded += EbookViewer_Unloaded; 
             ChangeCommandBarColors();
             MyWebView.Visibility = Visibility.Visible;
-
-
-
+            RestorePositionAsync();
 
 
         }
-
-        private void MainWindow_Closed(object sender, WindowEventArgs e)
-        {
-            // Call your method here
-            YourMethod();
-            
-        }
-
-        private void YourMethod()
-        {
-            // Your logic here
-            System.Diagnostics.Debug.WriteLine("Window has been closed.");
-        }
-
+        
         private async void MoveToNext()
         {
             // debug message
@@ -377,7 +357,7 @@ namespace EpubReader
             Debug.WriteLine("Restore Position");
             Debug.WriteLine("********************************¨\n");
             _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
-            await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
+            await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scroll(100, {_ebook.InBookPosition});");
             // load playorder
             _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 
@@ -435,6 +415,7 @@ namespace EpubReader
         {
             await MyWebView.EnsureCoreWebView2Async(null);
             await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
+
         }
 
         /// <summary>
@@ -560,6 +541,7 @@ namespace EpubReader
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+
         {
             if (e.Key == Windows.System.VirtualKey.Left)
             {

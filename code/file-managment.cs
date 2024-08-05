@@ -182,7 +182,19 @@ public class FileManagment
     public static string GetBookContentFilePath(string ebookFolderPath, string playOrder)
     {
         var ebook = JsonHandler.ReadEbookJsonFile(GetEbookDataJsonFile(ebookFolderPath));
-        string xhtmlPath = ebook.NavData[playOrder][0].ToString();
+        string xhtmlPath;
+
+        try
+        {
+            xhtmlPath = ebook.NavData[playOrder][0].ToString();
+        }
+
+        catch (KeyNotFoundException)
+        {
+            xhtmlPath = ebook.NavData["1"][0].ToString();
+
+        }
+
         //return $"{ebookFolderPath}\\{xhtmlPath}";
         return xhtmlPath;
     }
