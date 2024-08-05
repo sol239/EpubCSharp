@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -170,24 +170,27 @@ namespace EpubReader.app_pages
                         // Calculate the time the book was open
             DateTime openTime = DateTime.Parse(_ebook.BookOpenTime);
             DateTime closeTime = DateTime.Parse(_ebook.BookCloseTime);
-            TimeSpan readTime = new TimeSpan(0, 0, 0);
-            ;
+            TimeSpan readTime = new TimeSpan(0,0, 0, 0);
+            TimeSpan timeDifference = new TimeSpan(0, 0, 0, 0);
+            TimeSpan totalTime;
+
             try
             {
-                readTime = TimeSpan.Parse(_ebook.BookReadTime);
+                readTime = readTime + TimeSpan.Parse(_ebook.BookReadTime);
             }
 
             catch
             {
-                readTime = new TimeSpan(0, 0, 0);
+                readTime = new TimeSpan(0, 0, 0, 0);
             }
 
             finally
             {
-                TimeSpan timeDifference = closeTime - openTime;
-                TimeSpan totalTime = readTime + timeDifference;
+                timeDifference = closeTime - openTime;
+                totalTime = readTime + timeDifference;
                 _ebook.BookReadTime = totalTime.ToString();
 
+                await Store1(timeDifference);
                 // Get the file path
                 string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
                 filePath = Path.GetDirectoryName(filePath);
@@ -196,6 +199,54 @@ namespace EpubReader.app_pages
                 await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
             }
             
+        }
+
+        public async Task Store1(TimeSpan timeDifference)
+        {
+            try
+            {
+                string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+
+                // Check if StatsRecord1 is null or empty
+                if (_ebook.StatsRecord1 != null && _ebook.StatsRecord1.Count > 0)
+                {
+                    if (_ebook.StatsRecord1.ContainsKey(currentDate))
+                    {
+
+                        Debug.WriteLine("Key exists in StatsRecord1 dictionary for the current date.");
+
+                        TimeSpan _timeSpan = new TimeSpan(0, 0, 0, 0);
+                        _timeSpan = TimeSpan.Parse(_ebook.StatsRecord1[currentDate]);
+                        _ebook.StatsRecord1[currentDate] = (_timeSpan + timeDifference).ToString();
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Key does not exist in StatsRecord1 dictionary for the current date.");
+                        _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
+                    }
+
+                    Debug.WriteLine("No change!");
+                }
+                else if (_ebook.StatsRecord1 == null)
+                {
+                    Debug.WriteLine("StatsRecord1 dictionary is null.");
+                    _ebook.StatsRecord1 = new Dictionary<string, string>();
+                    _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
+                }
+
+                else
+                {
+                    _ebook.StatsRecord1 = new Dictionary<string, string>();
+                    _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
+                    Debug.WriteLine("StatsRecord1 dictionary is empty.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error occurred while accessing StatsRecord1 dictionary: {ex.Message}");
+            }
+
+            Debug.WriteLine("StatsRecord1 dictionary updated successfully.");
         }
 
 

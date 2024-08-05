@@ -42,11 +42,14 @@ public class Ebook
     public string FileName { get; set; }
     public string InBookPosition { get; set; }
     public string ScrollValue { get; set; }
-    public Dictionary<string, List<string>> NavData { get; set; }
     public string BookOpenTime { get; set; }
     public string BookCloseTime { get; set; }
-
     public string BookReadTime { get; set; }
+    public Dictionary<string, string> StatsRecord1 { get; set; }
+    public string StatsRecord2 { get; set; }
+    public Dictionary<string, List<string>> NavData { get; set; }
+
+
 
     // Paths
     public string EbookFolderPath { get; set; }
@@ -678,6 +681,7 @@ public class EpubHandler
             nvg.navData.Clear();
             await nvg.ExtractNavDataFromOPF(_ebook.ContentPath);
             _ebook.NavData = nvg.navData;
+            _ebook.StatsRecord1 = new Dictionary<string, string>();
 
             // select value with key 1
             _ebook.InBookPosition = "1";
