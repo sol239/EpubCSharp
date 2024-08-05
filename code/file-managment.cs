@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -162,7 +163,7 @@ public class FileManagment
     // Get the ebook viewer style file path = LocalState/settings/ebook_viewer-style.css
     public static string GetEbookViewerStyleFilePath()
     {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _settingsFolderName + "\\" + ebookViewerStyleFileName;
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + ebookViewerStyleFileName;
     }
 
     // Get the ebook data json file path = LocalState/ebooks/ebookName/DATA/ebookData.json
@@ -183,9 +184,54 @@ public class FileManagment
         //return $"{ebookFolderPath}\\{xhtmlPath}";
         return xhtmlPath;
     }
+    
+    // Create CSS settings file
+    public async Task CreateCssSettingsFile()
+    {
+        string cssContent = @"/* Hide scrollbars for WebKit-based browsers */
+                            body {
+                                font-family: 'Verdana', serif;
+                                font-size: 150%;
+                                color: #000000;
+                                /*
+                                background colors I like:display: EFE0CD, E4D8CD, E2D3C4, D4C2AF
+                                */
+                                background-color: #efe0cd;
+                                
+                                text-align: justify;
+                                overflow: hidden; /*  Hide scrollbars for the body element */
+                            
+                            }
+                            
+                            /* Hide scrollbars for other elements */
+                            * {
+                                scrollbar-width: none; /* Firefox */
+                                -ms-overflow-style: none; /* Internet Explorer and Edge */
+                            }
+                            
+                            ::-webkit-scrollbar {
+                                display: none; /* WebKit browsers */
+                            }
+                            
+                            /* Center images and ensure they fit within the viewport */
+                            img {
+                                display: block;
+                                margin: 0 auto;
+                                max-width: 100%;
+                                height: auto;
+                            }";
 
+        string settingsFolderPath = GetSettingsFolderPath();
 
+        // Check if the file already exists
 
+        string css_file_path = GetSettingsFolderPath + "\\" + ebookViewerStyleFileName;
+
+        if (!File.Exists(css_file_path))
+        {
+            await WriteTextToFileAsync(ebookViewerStyleFileName, cssContent);
+        }
+    }
 
 
     // Delete all ebooks folders
@@ -225,6 +271,8 @@ public class FileManagment
         {
             await CreateFolderAsync(_settingsFolderName);
         }
+
+        await CreateCssSettingsFile();
 
     }
 
