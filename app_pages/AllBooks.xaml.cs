@@ -37,6 +37,9 @@ namespace EpubReader
     /// </summary>
     public sealed partial class AllBooks : Page
     {
+
+        private Frame contentFrame;
+
         public AllBooks()
         {
             this.InitializeComponent();
@@ -96,9 +99,15 @@ namespace EpubReader
 
             (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebookPlayOrder, ebookFolderPath);
 
+            /*
             EbookWindow secondWindow = new EbookWindow(naValueTuple);
             secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
             secondWindow.Activate();
+            */
+
+
+
+
 
         }
 

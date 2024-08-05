@@ -10,7 +10,6 @@
     mc:Ignorable="d">
 
 
-
     <Page.Resources>
         <DataTemplate x:Key="PhotoItemTemplate" x:DataType="epubReader:Photo">
             <ItemContainer Height="205"  Width="205" AutomationProperties.Name="{x:Bind Title}">
@@ -23,6 +22,7 @@
                                 Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}">
                         <TextBlock Text="{x:Bind Title}" 
                                    Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
+                        
                         <!--
                         <StackPanel Orientation="Horizontal">
                             
@@ -41,6 +41,7 @@
     </Page.Resources>
 
     <Grid x:Name="rootGrid">
+
         <ItemsView Name="AllBooksView"
                    ItemsSource="{x:Bind Photos}" Width="480" Height="400"
                    ItemTemplate="{StaticResource PhotoItemTemplate}"

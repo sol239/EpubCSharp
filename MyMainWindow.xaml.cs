@@ -29,6 +29,7 @@ using Windows.Networking.NetworkOperators;
 using EpubReader.code;
 using EpubReader;
 using EpubReader.app_pages;
+using System.Security.AccessControl;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -59,17 +60,20 @@ namespace EpubReader
         app_controls appControls = new app_controls();
         RecentEbooksHandler REHandler = new RecentEbooksHandler();
 
+        public static MyMainWindow Instance { get; private set; }
+
+        public Frame contentFrame { get; private set; }
 
         public MyMainWindow()
         {
             this.InitializeComponent();
             fileManagment.StartUp();
+            Debug.WriteLine("\nMY MAIN WINDOW CONSTRUCTOR CALLED\n");
+
             ContentFrame.Navigate(typeof(HomePage));
 
             // Subscribe to visibility change events
             NavigationViewService.NavigationViewVisibilityChanged += OnNavigationViewVisibilityChanged;
-
-            Debug.WriteLine("Subscribed to BookAdded event");
 
             //LoadImages();
 
@@ -86,29 +90,6 @@ namespace EpubReader
             Debug.WriteLine("AddBookButtonAction");
 
         }
-
-
-
-
-
-        /*
-        private void NavigateToStats(object sender, RoutedEventArgs e)
-        {
-            MainFrame.Navigate(typeof(MyMainWindow));
-        }
-        private void NavigateToHome(object sender, RoutedEventArgs e)
-        {
-            MainFrame.Navigate(typeof(MyMainWindow));
-        }
-        private void NavigateToDictionary(object sender, RoutedEventArgs e)
-        {
-            MainFrame.Navigate(typeof(Dictionary));
-        }
-        private void NavigateToSettings(object sender, RoutedEventArgs e)
-        {
-            MainFrame.Navigate(typeof(SettingsPage));
-        }
-        */
 
         private void OnNavigationViewVisibilityChanged(Visibility visibility)
         {
@@ -143,11 +124,25 @@ namespace EpubReader
                 pageType = typeof(HomePage);
             }
 
-            _ = ContentFrame.Navigate(pageType);
+            ContentFrame.Navigate(pageType);
+        }
+
+        public void NavigateToEbookInfoPage()
+        {
+            Type pageType = typeof(EbookInfoPage);
+            if (ContentFrame != null)
+            {
+                _ = ContentFrame.Navigate(pageType);
+            }
+            else
+            {
+                // Handle the null case, possibly log an error or delay the navigation
+                Debug.WriteLine("ContentFrame is null");
+            }
         }
 
         // In the SecondWindow.xaml.cs or any other part where you have a reference to the window
-        
+
 
 
     }

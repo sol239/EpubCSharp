@@ -13,9 +13,11 @@
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="app_pages\EbookInfoPage.xaml" />
     <None Remove="app_pages\EbookViewerWindow.xaml" />
     <None Remove="app_pages\EbookWindow.xaml" />
     <None Remove="app_pages\HomePage.xaml" />
+    <None Remove="MainWindow.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,4 +71,16 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="app_pages\EbookInfoPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="app_pages\EbookInfoPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="MainWindow.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="MainWindow.xaml" />
+  </ItemGroup>
 </Project>
