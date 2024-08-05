@@ -182,8 +182,29 @@ namespace EpubReader.app_pages
             // Calculate the time the book was open
             try
             {
-                DateTime openTime = DateTime.Parse(_ebook.BookOpenTime);
-                DateTime closeTime = DateTime.Parse(_ebook.BookCloseTime);
+                DateTime openTime = DateTime.Now;
+                DateTime closeTime = DateTime.Now;
+                try
+                {
+                    openTime = DateTime.Parse(_ebook.BookOpenTime);
+                }
+
+                catch
+                {
+
+                }
+
+                try
+                {
+                    closeTime = DateTime.Parse(_ebook.BookCloseTime);
+
+                }
+
+                catch
+                {
+
+                }
+
                 TimeSpan readTime = new TimeSpan(0, 0, 0, 0);
                 TimeSpan timeDifference = new TimeSpan(0, 0, 0, 0);
                 TimeSpan totalTime;
@@ -351,7 +372,6 @@ namespace EpubReader.app_pages
                     }
                 };
                 MyWebView.Focus(FocusState.Programmatic);
-                await SaveBookOpenTime();
                 Debug.WriteLine("EbookViewer_Loaded() - Success\n");
             }
 
@@ -363,6 +383,8 @@ namespace EpubReader.app_pages
             finally
             {
                 await RestorePositionAsync();
+                await SaveBookOpenTime();
+
             }
         }
 

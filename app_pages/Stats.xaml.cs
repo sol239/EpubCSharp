@@ -57,95 +57,180 @@ namespace EpubReader
         public async Task LoadBooks()
         {
 
-            // combined dict
-
-            foreach (string ebookFolderPath in app_controls.GetListOfAllEbooks())
+            try
             {
-                string jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
-                var ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
+                // combined dict
 
-                _timeSpan += TimeSpan.Parse(ebook.BookReadTime);
-
-                //Books.Add(new Book { Name = "Auto Nomní", TimeDict = ebook.StatsRecord1 });
-
-                foreach (var entry in ebook.StatsRecord1)
+                foreach (string ebookFolderPath in app_controls.GetListOfAllEbooks())
                 {
-                    if (!_combinedDict.ContainsKey(entry.Key))
+
+                    Ebook ebook = new Ebook();
+                    string jsonDataFilePath = string.Empty;
+
+                    try
                     {
-                        _combinedDict.Add(entry.Key, entry.Value);
+                        jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
+                        Debug.WriteLine($"LoadBooks() 1 - Success\n");
                     }
-                    else
+
+                    catch (Exception ex)
                     {
-                        TimeSpan timeSpan = TimeSpan.Parse(_combinedDict[entry.Key]);
-                        TimeSpan timeSpan2 = TimeSpan.Parse(entry.Value);
-                        TimeSpan newTimeSpan = timeSpan.Add(timeSpan2);
-                        _combinedDict[entry.Key] = newTimeSpan.ToString();
+                        Debug.WriteLine($"LoadBooks() 1 - Fail - {ex.Message}\n");
                     }
+
+                    try
+                    {
+                        ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
+                        Debug.WriteLine($"LoadBooks() 1.1 - Success\n");
+                    }
+                    catch
+                    {
+                        Debug.WriteLine($"LoadBooks() 1.1 - Fail\n");
+                    }
+
+                    try
+                    {
+                        _timeSpan += TimeSpan.Parse(ebook.BookReadTime);
+                        Debug.WriteLine($"LoadBooks() 1.2 - Success\n");
+                    }
+
+                    catch
+                    {
+                        Debug.WriteLine($"LoadBooks() 1.2 - Fail\n");
+                        _timeSpan += TimeSpan.Parse("00:00:00");
+                    }
+
+                    finally
+                    {
+                        foreach (var entry in ebook.StatsRecord1)
+                        {
+                            try
+                            {
+                                if (!_combinedDict.ContainsKey(entry.Key))
+                                {
+                                    _combinedDict.Add(entry.Key, entry.Value);
+                                }
+                                else
+                                {
+                                    TimeSpan timeSpan = TimeSpan.Parse(_combinedDict[entry.Key]);
+                                    TimeSpan timeSpan2 = TimeSpan.Parse(entry.Value);
+                                    TimeSpan newTimeSpan = timeSpan.Add(timeSpan2);
+                                    _combinedDict[entry.Key] = newTimeSpan.ToString();
+                                }
+
+                                Debug.WriteLine($"LoadBooks() 2 - Success\n");
+                            }
+
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"LoadBooks() 2 - Fail - {ex.Message}\n");
+                            }
+                        }
+
+                    }
+
+                    //Books.Add(new Book { Name = "Auto Nomní", TimeDict = ebook.StatsRecord1 });
+
                 }
+
+                try
+                {
+                    Books.Add(new Book { Name = "Combined", TimeDict = _combinedDict });
+                    timeSpan = $"{_timeSpan.Days}d {_timeSpan.Hours}h {_timeSpan.Minutes}m {_timeSpan.Seconds}s";
+                    // use today's date as the default selected date
+                    TimeSpentPerBookTextBlock.Text = _combinedDict[DateTime.Now.ToString("yyyy-MM-dd")];
+
+                    Debug.WriteLine($"LoadBooks() 3 - Success\n");
+                }
+
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"LoadBooks() 3 - Fail - {ex.Message}\n");
+                }
+
+                Debug.WriteLine($"LoadBooks() - Success\n");
             }
 
-            Books.Add(new Book { Name = "Combined", TimeDict = _combinedDict });
-            timeSpan = $"{_timeSpan.Days}d {_timeSpan.Hours}h {_timeSpan.Minutes}m {_timeSpan.Seconds}s";
-            // use today's date as the default selected date
-            TimeSpentPerBookTextBlock.Text = _combinedDict[DateTime.Now.ToString("yyyy-MM-dd")];
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"LoadBooks() - Fail - {ex.Message}\n");
+            }
 
         }
 
 
         private Color GetColorFromValue(string value)
         {
-            TimeSpan timeSpan = TimeSpan.Parse(value);
-            
-            TimeSpan interval0 = new TimeSpan(0, 0, 0, 0);
-            TimeSpan interval1 = new TimeSpan(0, 0, 5, 0);
-            TimeSpan interval2 = new TimeSpan(0, 0, 15, 0);
-            TimeSpan interval3 = new TimeSpan(0, 0, 30, 0);
-            TimeSpan interval4 = new TimeSpan(0, 0, 60, 0);
-            TimeSpan interval5 = new TimeSpan(0, 0, 90, 0);
+            try
+            {
+                TimeSpan timeSpan = TimeSpan.Parse(value);
 
-            var color0 = EbookWindow.ParseHexColor("#ffffff");
-            var color1 = EbookWindow.ParseHexColor("#adf295");
-            var color2 = EbookWindow.ParseHexColor("#7ceb55");
-            var color3 = EbookWindow.ParseHexColor("#4ce019");
-            var color4 = EbookWindow.ParseHexColor("#36a012");
-            var color5 = EbookWindow.ParseHexColor("#2b800e");
-            var color6 = EbookWindow.ParseHexColor("#154007");
+                TimeSpan interval0 = new TimeSpan(0, 0, 0, 0);
+                TimeSpan interval1 = new TimeSpan(0, 0, 5, 0);
+                TimeSpan interval2 = new TimeSpan(0, 0, 15, 0);
+                TimeSpan interval3 = new TimeSpan(0, 0, 30, 0);
+                TimeSpan interval4 = new TimeSpan(0, 0, 60, 0);
+                TimeSpan interval5 = new TimeSpan(0, 0, 90, 0);
+
+                var color0 = EbookWindow.ParseHexColor("#ffffff");
+                var color1 = EbookWindow.ParseHexColor("#adf295");
+                var color2 = EbookWindow.ParseHexColor("#7ceb55");
+                var color3 = EbookWindow.ParseHexColor("#4ce019");
+                var color4 = EbookWindow.ParseHexColor("#36a012");
+                var color5 = EbookWindow.ParseHexColor("#2b800e");
+                var color6 = EbookWindow.ParseHexColor("#154007");
 
 
-            if (timeSpan <= interval0)
-            {
-                return color0;
-            }
-            else if (timeSpan > interval0 && timeSpan <= interval1)
-            {
-                return color1;
-            }
-            else if (timeSpan > interval1 && timeSpan <= interval2)
-            {
-                return color2;
+                if (timeSpan <= interval0)
+                {
+                    return color0;
+                    Debug.WriteLine("Color 0");
+                }
+                else if (timeSpan > interval0 && timeSpan <= interval1)
+                {
+                    Debug.WriteLine("Color 1");
+                    return color1;
+                }
+                else if (timeSpan > interval1 && timeSpan <= interval2)
+                {
+                    Debug.WriteLine("Color 2");
+                    return color2;
+                }
+
+                else if (timeSpan > interval2 && timeSpan <= interval3)
+                {
+                    Debug.WriteLine("Color 3");
+                    return color3;
+                }
+
+                else if (timeSpan > interval3 && timeSpan <= interval4)
+                {
+                    Debug.WriteLine("Color 4");
+                    return color4;
+                }
+
+                else if (timeSpan > interval4 && timeSpan <= interval5)
+                {
+                    Debug.WriteLine("Color 5");
+                    return color5;
+                }
+
+                else if (timeSpan > interval5)
+                {
+                    Debug.WriteLine("Color 6");
+                    return color6;
+                }
+                else
+                {
+                    Debug.WriteLine("Color No Interval");
+                    return EbookWindow.ParseHexColor("#000000");
+                } 
+                Debug.WriteLine($"GetColorFromValue() - Success\n");
             }
 
-            else if (timeSpan > interval2 && timeSpan <= interval3)
+            catch (Exception ex)
             {
-                return color3;
-            }
-
-            else if (timeSpan > interval3 && timeSpan <= interval4)
-            {
-                return color4;
-            }
-
-            else if (timeSpan > interval4 && timeSpan <= interval5)
-            {
-                return color5;
-            }
-
-            else if (timeSpan > interval5)
-            {
-                return color6;
-            }
-            else
-            {
+                Debug.WriteLine($"GetColorFromValue() - Fail - {ex.Message}\n");
                 return EbookWindow.ParseHexColor("#000000");
             }
 
@@ -154,53 +239,73 @@ namespace EpubReader
 
         private void CalendarView_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
         {
-            var day = args.Item as CalendarViewDayItem;
-            var dateKey = day.Date.ToString("yyyy-MM-dd");
+            try
+            {
+                var day = args.Item as CalendarViewDayItem;
+                var dateKey = day.Date.ToString("yyyy-MM-dd");
 
-            // Check if the date exists in any book's TimeDict and get the corresponding value
-            var bookEntry = Books.FirstOrDefault(book => book.TimeDict.ContainsKey(dateKey));
-            if (bookEntry != null)
-            {
-                var value = bookEntry.TimeDict[dateKey];
-                // Set day item background color based on the value
-                day.Background = new SolidColorBrush(GetColorFromValue(value));
+                // Check if the date exists in any book's TimeDict and get the corresponding value
+                var bookEntry = Books.FirstOrDefault(book => book.TimeDict.ContainsKey(dateKey));
+                if (bookEntry != null)
+                {
+                    var value = bookEntry.TimeDict[dateKey];
+                    // Set day item background color based on the value
+                    day.Background = new SolidColorBrush(GetColorFromValue(value));
+                }
+                else
+                {
+                    day.Background = new SolidColorBrush(Colors.White);
+                }
+
+                //Debug.WriteLine($"CalendarView_CalendarViewDayItemChanging() - Success\n");
             }
-            else
+
+            catch (Exception ex)
             {
-                day.Background = new SolidColorBrush(Colors.White);
+                Debug.WriteLine($"CalendarView_CalendarViewDayItemChanging() - Fail - {ex.Message}\n");
             }
 
         }
 
         private void CalendarView_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
         {
-            // Check if there are any selected dates
-            if (sender.SelectedDates.Count > 0)
+            try
             {
-                // Get the first selected date
-                DateTime selectedDate = sender.SelectedDates[0].DateTime;
-                string formattedDate = selectedDate.ToString("yyyy-MM-dd");
-
-                if (_combinedDict.ContainsKey(formattedDate))
+                // Check if there are any selected dates
+                if (sender.SelectedDates.Count > 0)
                 {
+                    // Get the first selected date
+                    DateTime selectedDate = sender.SelectedDates[0].DateTime;
+                    string formattedDate = selectedDate.ToString("yyyy-MM-dd");
 
-                    TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[formattedDate]);
-                    TimeSpentPerBookTextBlock.Text = $"{_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
+                    if (_combinedDict.ContainsKey(formattedDate))
+                    {
+
+                        TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[formattedDate]);
+                        TimeSpentPerBookTextBlock.Text = $"{_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
+                    }
+                    else
+                    {
+                        TimeSpentPerBookTextBlock.Text = "No data";
+                    }
+
+
+                    Debug.WriteLine(formattedDate);
+
+                    // print all keys
+                    foreach (var entry in _combinedDict)
+                    {
+                        Debug.WriteLine(entry.Key);
+                    }
+
                 }
-                else
-                {
-                    TimeSpentPerBookTextBlock.Text = "No data";
-                }
 
+                Debug.WriteLine($"CalendarView_SelectedDatesChanged() - Success\n");
+            }
 
-                Debug.WriteLine(formattedDate);
-
-                // print all keys
-                foreach (var entry in _combinedDict)
-                {
-                    Debug.WriteLine(entry.Key);
-                }
-
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"CalendarView_SelectedDatesChanged() - Fail - {ex.Message}\n");
             }
            
         }
