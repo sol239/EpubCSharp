@@ -179,38 +179,48 @@ namespace EpubReader.app_pages
 
         public async Task CalculateTimeDifference()
         {
-                        // Calculate the time the book was open
-            DateTime openTime = DateTime.Parse(_ebook.BookOpenTime);
-            DateTime closeTime = DateTime.Parse(_ebook.BookCloseTime);
-            TimeSpan readTime = new TimeSpan(0,0, 0, 0);
-            TimeSpan timeDifference = new TimeSpan(0, 0, 0, 0);
-            TimeSpan totalTime;
-
+            // Calculate the time the book was open
             try
             {
-                readTime = readTime + TimeSpan.Parse(_ebook.BookReadTime);
+                DateTime openTime = DateTime.Parse(_ebook.BookOpenTime);
+                DateTime closeTime = DateTime.Parse(_ebook.BookCloseTime);
+                TimeSpan readTime = new TimeSpan(0, 0, 0, 0);
+                TimeSpan timeDifference = new TimeSpan(0, 0, 0, 0);
+                TimeSpan totalTime;
+
+                try
+                {
+                    readTime = readTime + TimeSpan.Parse(_ebook.BookReadTime);
+                }
+
+                catch
+                {
+                    readTime = new TimeSpan(0, 0, 0, 0);
+                }
+
+                finally
+                {
+                    timeDifference = closeTime - openTime;
+                    totalTime = readTime + timeDifference;
+                    _ebook.BookReadTime = totalTime.ToString();
+
+                    await Store1(timeDifference);
+                    // Get the file path
+                    string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
+                    filePath = Path.GetDirectoryName(filePath);
+
+                    // Store the JSON ebook file
+                    await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
+                }
+
+                Debug.WriteLine($"CalculateTimeDifference() - Success\n");
             }
 
-            catch
+            catch (Exception ex)
             {
-                readTime = new TimeSpan(0, 0, 0, 0);
+                Debug.WriteLine($"CalculateTimeDifference() - Fail - {ex.Message}\n");
             }
 
-            finally
-            {
-                timeDifference = closeTime - openTime;
-                totalTime = readTime + timeDifference;
-                _ebook.BookReadTime = totalTime.ToString();
-
-                await Store1(timeDifference);
-                // Get the file path
-                string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
-                filePath = Path.GetDirectoryName(filePath);
-
-                // Store the JSON ebook file
-                await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
-            }
-            
         }
 
         public async Task Store1(TimeSpan timeDifference)
@@ -765,10 +775,21 @@ namespace EpubReader.app_pages
         /// </summary>
         private async void ChangeCommandBarColors()
         {
-            string color_string = await (SettingsPage.LoadBackgroundColorComboBox());
-            string font_string = await (SettingsPage.LoadFontComboBox());
-            Windows.UI.Color _viewerBackgroundColor = ParseHexColor(color_string);
-            ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
+            string color_string = "#efe0cd";
+            string font_string;
+
+            try
+            {
+                color_string = await (SettingsPage.LoadBackgroundColorComboBox());
+                Debug.WriteLine($"Color:{color_string}");
+                font_string = await (SettingsPage.LoadFontComboBox());
+            }
+
+            finally
+            {
+                Windows.UI.Color _viewerBackgroundColor = ParseHexColor(color_string);
+                ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
+            }
 
             MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
             MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);

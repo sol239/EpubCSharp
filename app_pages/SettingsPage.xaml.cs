@@ -249,7 +249,7 @@ namespace EpubReader
                 if (match.Success)
                 {
                     Debug.WriteLine($"\nColor changed to {match.Value}");
-                    return match.Value;
+                    return match.Value.Trim();
                 }
             }
             Debug.WriteLine($"Color not changed!");
