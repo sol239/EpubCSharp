@@ -39,8 +39,14 @@ public class Ebook
     public string DateAdded { get; set; }
     public string DateLastOpened { get; set; }
     public string Format { get; set; }
-
     public string FileName { get; set; }
+    public string InBookPosition { get; set; }
+    public string ScrollValue { get; set; }
+    public Dictionary<string, List<string>> NavData { get; set; }
+    public string BookOpenTime { get; set; }
+    public string BookCloseTime { get; set; }
+
+    public string BookReadTime { get; set; }
 
     // Paths
     public string EbookFolderPath { get; set; }
@@ -50,9 +56,7 @@ public class Ebook
     public string CoverPath { get; set; }
     public string JsonDataPath { get; set; }
     public string NavigationFilePath { get; set; }
-    public string InBookPosition { get; set; }
-    public string ScrollValue { get; set; }
-    public Dictionary<string, List<string>> NavData { get; set; }
+    
 }
 
 /// <summary>

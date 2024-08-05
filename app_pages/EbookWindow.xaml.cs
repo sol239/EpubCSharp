@@ -111,6 +111,12 @@ namespace EpubReader.app_pages
             WindowClosed?.Invoke(this, EventArgs.Empty);
         }
 
+        private async Task SaveBookOpenTime()
+        {   
+            // Save the time the book was opened
+            _ebook.BookOpenTime = DateTime.Now.ToString();
+        }
+
         /// <summary>
         /// Saves playorder and scroll position of the WebView and stores it in the ebookData.json file.
         /// </summary>
@@ -136,6 +142,9 @@ namespace EpubReader.app_pages
             {
                 try
                 {
+
+                    _ebook.BookCloseTime = DateTime.Now.ToString();
+
                     // Get the file path
                     string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
                     filePath = Path.GetDirectoryName(filePath);
@@ -155,6 +164,40 @@ namespace EpubReader.app_pages
                 }
             }
         }
+
+        public async Task CalculateTimeDifference()
+        {
+                        // Calculate the time the book was open
+            DateTime openTime = DateTime.Parse(_ebook.BookOpenTime);
+            DateTime closeTime = DateTime.Parse(_ebook.BookCloseTime);
+            TimeSpan readTime = new TimeSpan(0, 0, 0);
+            ;
+            try
+            {
+                readTime = TimeSpan.Parse(_ebook.BookReadTime);
+            }
+
+            catch
+            {
+                readTime = new TimeSpan(0, 0, 0);
+            }
+
+            finally
+            {
+                TimeSpan timeDifference = closeTime - openTime;
+                TimeSpan totalTime = readTime + timeDifference;
+                _ebook.BookReadTime = totalTime.ToString();
+
+                // Get the file path
+                string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
+                filePath = Path.GetDirectoryName(filePath);
+
+                // Store the JSON ebook file
+                await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
+            }
+            
+        }
+
 
         /// <summary>
         /// Loads the playorder and scroll position of the WebView from the ebookData.json file.
@@ -215,6 +258,9 @@ namespace EpubReader.app_pages
             };
 
             MyWebView.Focus(FocusState.Programmatic);
+
+            await SaveBookOpenTime();
+
 
         }
 
@@ -306,6 +352,7 @@ namespace EpubReader.app_pages
         private async void GoHomeAction(object sender, RoutedEventArgs e)
         {
             await SavePosition();
+            await CalculateTimeDifference();
 
             WindowClosed?.Invoke(this, EventArgs.Empty);
 
