@@ -45,9 +45,13 @@ public class Ebook
     public string BookOpenTime { get; set; }
     public string BookCloseTime { get; set; }
     public string BookReadTime { get; set; }
+
+    public string Status { get; set; }   // Finished, Not Started, Reading
     public Dictionary<string, string> StatsRecord1 { get; set; }
     public string StatsRecord2 { get; set; }
     public Dictionary<string, List<string>> NavData { get; set; }
+
+
 
 
 
@@ -722,6 +726,7 @@ public class EpubHandler
             // select value with key 1
             _ebook.InBookPosition = "1";
             _ebook.ScrollValue = "0";
+            _ebook.Status = "Not Started";
 
             
 

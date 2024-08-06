@@ -20,6 +20,7 @@ using HarfBuzzSharp;
 using System.Reflection;
 using Windows.System;
 using Microsoft.Web.WebView2.Core;
+using System.Text.Json;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -62,19 +63,35 @@ namespace EpubReader.app_pages
         {
             this.InitializeComponent();
             ChangeCommandBarColors();
-
-            
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
             EbookViewer_Loaded();
             ViewerGrid.Focus(FocusState.Programmatic);
-            
             //epubjsWindowLoad();
+            ChangeBooksStatus();
 
 
 
         }
-        
+
+        private void ChangeBooksStatus()
+        {
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            if (_ebook.Status == "Finished")
+            {
+            }
+            else if (_ebook.Status == "Reading")
+            {
+            }
+            else if (_ebook.Status == "Not Started")
+            {
+                _ebook.Status = "Reading";
+            }
+            File.WriteAllText(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
+
+
+        }
+
         // Event handler for the Closed event
         private void EbookWindow_Closed(object sender, EventArgs e)
         {
@@ -96,9 +113,36 @@ namespace EpubReader.app_pages
         {
             try
             {
-                _ebook.ScrollValue = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
-                _ebook.InBookPosition = navValueTuple.ebookPlayOrder;
-                _ebook.DateLastOpened = DateTime.Now.ToString();
+                try
+                {
+                    _ebook.ScrollValue = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
+                    Debug.WriteLine($"SavePosition() 1 - Success");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"SavePosition() 1 - Fail - {ex.Message}");
+                    _ebook.ScrollValue = "0";
+                }
+
+                try
+                {
+                    _ebook.InBookPosition = navValueTuple.ebookPlayOrder;
+                    Debug.WriteLine($"SavePosition() 2 - Success");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"SavePosition() 2 - Fail - {ex.Message}");
+                }
+
+                try
+                {
+                    _ebook.DateLastOpened = DateTime.Now.ToString();
+                    Debug.WriteLine($"SavePosition() 3 - Success");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"SavePosition() 3 - Fail - {ex.Message}");
+                }
 
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
@@ -109,6 +153,7 @@ namespace EpubReader.app_pages
             {
                 Debug.WriteLine($"An error occurred in SavePosition: {ex.Message}");
             }
+
             finally
             {
                 try
@@ -562,40 +607,97 @@ namespace EpubReader.app_pages
                 
                 // TO-DO fix book finished error
 
+                List<string> playOrderList = _ebook.NavData.Keys.ToList();
+                int maxPlayOrder = playOrderList.Count;
 
-                navValueTuple.ebookPlayOrder = (playOrder + 1).ToString();
-                _xhtmlPath =
-                    FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
-
-                Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
-                
-
-
-                // Ensure MyWebView is initialized
-                if (MyWebView == null)
+                if ( (playOrder + 1) > maxPlayOrder)
                 {
-                    throw new InvalidOperationException("MyWebView is not initialized.");
+                    // Show the ContentDialog after the method executes
+                    ContentDialog dialog = new ContentDialog
+                    {
+                        Title = "Ebook Finished",
+                        Content = "Do you want to keep reading?",
+                        PrimaryButtonText = "Yes",
+                        SecondaryButtonText = "Go Home",
+                        XamlRoot = this.Content.XamlRoot // Set the XamlRoot property
+
+                    };
+
+                    ContentDialogResult result = await dialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // Handle Yes response
+                    }
+                    else if (result == ContentDialogResult.Secondary)
+                    {
+                        try
+                        {
+                            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+
+                            _ebook.Status = "Finished";
+
+                            File.WriteAllText(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
+
+
+                            navValueTuple.ebookPlayOrder = 1.ToString();
+                            await SavePosition();
+                            await CalculateTimeDifference();
+                            WindowClosed?.Invoke(this, EventArgs.Empty);
+                            this.Close();
+
+                            Debug.WriteLine("GoHomeAction() - Success\n");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n");
+                        }
+                    }
+                    
+
+
                 }
 
-                MyWebView.Source = new Uri(_xhtmlPath); // Set the Source property
-
-                string documentHeight = null;
-                string windowHeight = null;
-
-                MyWebView.NavigationCompleted += async (s, args) =>
+                else
                 {
-                    if (args.IsSuccess)
+                    navValueTuple.ebookPlayOrder = (playOrder + 1).ToString();
+
+                    _xhtmlPath =
+                        FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+
+                    Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
+
+
+
+                    // Ensure MyWebView is initialized
+                    if (MyWebView == null)
                     {
-                        documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
-                        windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
-                        await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, 0);");
-                        return;
+                        throw new InvalidOperationException("MyWebView is not initialized.");
                     }
-                    else
+
+                    MyWebView.Source = new Uri(_xhtmlPath); // Set the Source property
+
+                    string documentHeight = null;
+                    string windowHeight = null;
+
+                    MyWebView.NavigationCompleted += async (s, args) =>
                     {
-                        Debug.WriteLine("Navigation failed.");
-                    }
-                };
+                        if (args.IsSuccess)
+                        {
+                            documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
+                            windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
+                            await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, 0);");
+                            return;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Navigation failed.");
+                        }
+                    };
+                }
+
+
+                
 
                 await SavePosition();
 
