@@ -634,9 +634,7 @@ namespace EpubReader.app_pages
                         try
                         {
                             _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
-
                             _ebook.Status = "Finished";
-
                             File.WriteAllText(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
 
 
