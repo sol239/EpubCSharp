@@ -471,6 +471,9 @@ public class ContentHandler
 
     public string GetCoverImagePath(string contentOpfPath, string extractedEpubDir)
     {
+
+        string coverId = "";
+
         try
         {
             // Load the content.opf file
@@ -484,12 +487,16 @@ public class ContentHandler
 
             if (coverMeta != null)
             {
-                string coverId = (string)coverMeta.Attribute("content");
+
+                Debug.WriteLine($"CoverMeta = {coverMeta}");
+                coverId = (string)coverMeta.Attribute("content");
 
                 // Find the item tag with the corresponding id
                 var coverItem = contentOpf.Descendants(ns + "item")
                     .FirstOrDefault(item => (string)item.Attribute("id") == coverId);
 
+                Debug.WriteLine($"CoverID = {coverId}");
+                Debug.WriteLine($"CoverItem = {coverItem}");
                 if (coverItem != null)
                 {
                     string coverImagePath = (string)coverItem.Attribute("href");
@@ -498,7 +505,7 @@ public class ContentHandler
                     coverImagePath = coverImagePath.Replace("/", "\\");
 
                     Debug.WriteLine( $"extractedEpubDir = {extractedEpubDir}");
-                    ;Debug.WriteLine( $"coverImagePath = {coverImagePath}");
+                    Debug.WriteLine( $"coverImagePath = {coverImagePath}");
 
                     string fullCoverImagePath = System.IO.Path.Combine(extractedEpubDir, coverImagePath);
 
@@ -515,7 +522,7 @@ public class ContentHandler
             Debug.WriteLine( $"{logger.GetCoverImagePathFail}: {ex.Message}" );
         }
 
-        return null;
+        return System.IO.Path.Combine(extractedEpubDir, coverId);
     }
 
 }

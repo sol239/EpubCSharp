@@ -28,8 +28,8 @@ public class app_logging
     public string AddMetaDataSuccess = "AddMetaData() - Success\n";
     public string AddMetaDataFail = "AddMetaData() - Fail - ";
 
-    public string GetCoverImagePathSuccess = "AddContent() - Success";
-    public string GetCoverImagePathFail = "AddContent() - Fail - ";
+    public string GetCoverImagePathSuccess = "GetCoverImagePathSuccess() - Success";
+    public string GetCoverImagePathFail = "GetCoverImagePathSuccess() - Fail - ";
 
     // class: RecentEbooksHandler
     // TO-DO

@@ -206,7 +206,7 @@ public class FileManagment
     {
         string cssContent = @"/* Hide scrollbars for WebKit-based browsers */
                             body {
-                                font-family: 'Verdana', serif;
+                                font-family: 'Merriweather', serif;
                                 font-size: 150%;
                                 color: #000000;
                                 /*
@@ -256,6 +256,8 @@ public class FileManagment
         string filePath = GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
         globalSettingsJson globalSettings = new globalSettingsJson();
         globalSettings.ebookViewer = "WebView2";
+        globalSettings.font = "Merriweather";
+        globalSettings.backgroundColor = "#efe0cd";
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 
