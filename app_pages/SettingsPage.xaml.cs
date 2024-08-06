@@ -19,6 +19,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using CSharpMarkup.WinUI;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 
 using EpubReader.code;
 using System.Threading.Tasks;
@@ -29,6 +30,14 @@ using Microsoft.UI.Xaml.Shapes;
 
 namespace EpubReader
 {
+
+    public class globalSettingsJson
+    {
+        public string font { get; set; }
+        public string backgroundColor { get; set; }
+        public string ebookViewer { get; set; }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -75,12 +84,20 @@ namespace EpubReader
 
         };
 
+        private List<string> _bookViewer = new List<string>
+        {
+            "WebView2",
+            "epubjs"
+        };
+
         Windows.UI.Color colorSelected;
+
+        private int _startUp = 0;
 
         public SettingsPage()
         {
             this.InitializeComponent();
-            fontsComboBoxSetup();
+            comboBoxesSetup();
             string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
             PageStartup();
 
@@ -90,10 +107,15 @@ namespace EpubReader
 
         public async void PageStartup()
         {
-            string _font = await LoadFontComboBox();
-            string _color = await LoadBackgroundColorComboBox();
-            fontsComboBox.SelectedIndex = _bookReadingFonts.IndexOf(_font);
-            backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_color);
+            //string _font = await LoadFontComboBox();
+            //string _color = await LoadBackgroundColorComboBox();
+
+            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+            fontsComboBox.SelectedIndex = _bookReadingFonts.IndexOf(_globalSettings.font);
+            backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
+            ebookViewerComboBox.SelectedIndex = _bookViewer.IndexOf(_globalSettings.ebookViewer);
+            
         }
 
         private void ColorPicker_ColorChanged(Microsoft.UI.Xaml.Controls.ColorPicker sender, ColorChangedEventArgs args)
@@ -102,7 +124,7 @@ namespace EpubReader
             Debug.WriteLine($"\nColor selected is ___{colorSelected.ToString()}___");
         }
 
-        private void fontsComboBoxSetup()
+        private void comboBoxesSetup()
         {
             foreach (var font in _bookReadingFonts)
             {
@@ -112,6 +134,11 @@ namespace EpubReader
             foreach (var color in _bookBackgroundColor)
             {
                 backgroundcolorComboBox.Items.Add(color);
+            }
+
+            foreach (var viewer in _bookViewer)
+            {
+                ebookViewerComboBox.Items.Add(viewer);
             }
         }
 
@@ -183,10 +210,24 @@ namespace EpubReader
 
         private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
-            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
-            string newFontFamily = _bookReadingFonts[fontsComboBox.SelectedIndex];
-            await UpdateBodyFontFamily(cssFilePath, newFontFamily);
+
+            if (_startUp >= 2)
+            {
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string newFontFamily = _bookReadingFonts[fontsComboBox.SelectedIndex];
+
+                // store to json
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.font = newFontFamily;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+
+                await UpdateBodyFontFamily(cssFilePath, newFontFamily);
+            }
+            else
+            {
+                _startUp++;
+            }
         }
 
         private static string Convert8DigitHexTo6Digit(string hexColor)
@@ -211,16 +252,29 @@ namespace EpubReader
         }
         private async void backgroundcolorComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
-            string color = _bookBackgroundColor[backgroundcolorComboBox.SelectedIndex];
-            
-            if (color == "Custom +")
+            if (_startUp >= 2)
             {
-                color = Convert8DigitHexTo6Digit(colorSelected.ToString());
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string color = _bookBackgroundColor[backgroundcolorComboBox.SelectedIndex];
 
+                if (color == "Custom +")
+                {
+                    color = Convert8DigitHexTo6Digit(colorSelected.ToString());
+
+                }
+
+                // store to json
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.backgroundColor = color;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+                await UpdateBodyBackgroundColor(cssFilePath, color);
             }
-            
-            await UpdateBodyBackgroundColor(cssFilePath, color);
+
+            else
+            {
+                _startUp++;
+            }
         }
 
         public async static Task<string> LoadFontComboBox()
@@ -256,6 +310,12 @@ namespace EpubReader
             return "#efe0cd";
         }
 
-
+        private void ebookViewerComboBoxComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string selectedViewer = _bookViewer[ebookViewerComboBox.SelectedIndex];
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            settings.ebookViewer = selectedViewer;
+            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+        }
     }
 }

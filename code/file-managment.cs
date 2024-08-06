@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace EpubReader.code;
 public class FileManagment
@@ -17,7 +19,7 @@ public class FileManagment
     public static List<String> SupportedEbooksFormats = new List<string>() {".epub"};
     public static string recentEbooksFileName = "recentEbooks.json";
     public static string ebookViewerStyleFileName = "ebook_viewer-style.css";
-    public static string globalSettings = "globalSettings.json";
+    public static string globalSettingsFileName = "globalSettings.json";
 
     // /DATA
     public static string ebookDataFolderName = "DATA";
@@ -249,6 +251,17 @@ public class FileManagment
 
     }
 
+    public static async Task CreateGlobalSettingsFile()
+    {
+        string filePath = GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
+        globalSettingsJson globalSettings = new globalSettingsJson();
+        File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
+    }
+
+    public static string GetGlobalSettingsFilePath()
+    {
+        return GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
+    }
 
     // Delete all ebooks folders
     public void DeleteEbooks()
@@ -288,6 +301,7 @@ public class FileManagment
             if (!await DoesFolderExistAsync(_settingsFolderName))
             {
                 await CreateFolderAsync(_settingsFolderName);
+                await CreateGlobalSettingsFile();
             }
 
             await CreateCssSettingsFile();

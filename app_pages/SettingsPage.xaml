@@ -41,6 +41,19 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
+            <ComboBox 
+                Header="Ebook Viewer"
+                x:Name="ebookViewerComboBox" 
+                Width="200" 
+                Margin="10"
+                SelectionChanged="ebookViewerComboBoxComboBoxSelectionChanged">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontFamily="{Binding}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
             <!-- Example settings -->
             <TextBlock Text="General Settings" FontSize="24" Margin="10"/>
             <ToggleSwitch Header="Enable Feature X" Margin="10"/>

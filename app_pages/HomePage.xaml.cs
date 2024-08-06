@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.AccessControl;
+using System.Text.Json;
 using EpubReader.code;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
@@ -97,9 +98,13 @@ namespace EpubReader.app_pages
                     Debug.WriteLine("******************************");
                     Debug.WriteLine("");
 
+                    /*
                     epubjsWindow1 secondWindow = new epubjsWindow1(naValueTuple);
                     secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
                     secondWindow.Activate();
+                    */
+
+                    SelectViewer(naValueTuple);
 
 
                 };
@@ -121,6 +126,27 @@ namespace EpubReader.app_pages
                 // Add the StackPanel to the ImageStackPanel
                 ImageStackPanel.Children.Add(imagePanel);
             }
+        }
+
+        private void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
+        {
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+            switch (settings.ebookViewer)
+            {
+                case "epubjs":
+                    epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
+                    secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    secondWindow.Activate();
+                    break;
+
+                case "WebView2":
+                    EbookWindow ebookWindow = new EbookWindow(navTuple);
+                    ebookWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    ebookWindow.Activate();
+                    break;
+            }
+
         }
 
         // Event handler for when the EbookWindow is closed
