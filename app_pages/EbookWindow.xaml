@@ -63,7 +63,10 @@
                    Source=""
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
-                   Margin="40,40,40,40"/>
+                   Margin="40,40,40,40"
+                   Height="400"
+                   Width="400"
+                   />
         
         <Frame x:Name="EbookFrame" />
     </Grid>

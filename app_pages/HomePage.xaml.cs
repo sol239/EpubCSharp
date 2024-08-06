@@ -97,7 +97,7 @@ namespace EpubReader.app_pages
                     Debug.WriteLine("******************************");
                     Debug.WriteLine("");
 
-                    EbookWindow secondWindow = new EbookWindow(naValueTuple);
+                    epubjsWindow1 secondWindow = new epubjsWindow1(naValueTuple);
                     secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
                     secondWindow.Activate();
 

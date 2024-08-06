@@ -13,11 +13,30 @@
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Assets\scripts\ebook.js" />
+    <Content Remove="Assets\scripts\epubjs-reader\css\main.css" />
+    <Content Remove="Assets\scripts\epubjs-reader\css\normalize.css" />
+    <Content Remove="Assets\scripts\epubjs-reader\css\popup.css" />
+    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.eot60518104" />
+    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.svg60518104" />
+    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.ttf60518104" />
+    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.woff60518104" />
+    <Content Remove="Assets\scripts\epubjs-reader\img\loader.gif" />
+    <Content Remove="Assets\scripts\epubjs-reader\index.html" />
+    <Content Remove="Assets\scripts\epubjs-reader\js\epub.js" />
+    <Content Remove="Assets\scripts\epubjs-reader\js\libs\jquery.min.js" />
+    <Content Remove="Assets\scripts\epubjs-reader\js\libs\screenfull.min.js" />
+    <Content Remove="Assets\scripts\epubjs-reader\js\libs\zip.min.js" />
+    <Content Remove="Assets\scripts\epubjs-reader\js\reader.js" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="app_pages\EbookInfoPage.xaml" />
     <None Remove="app_pages\EbookViewerWindow.xaml" />
     <None Remove="app_pages\EbookWindow.xaml" />
+    <None Remove="app_pages\epubjsWindow1.xaml" />
     <None Remove="app_pages\HomePage.xaml" />
     <None Remove="MainWindow.xaml" />
+    <None Remove="scripts\epubjs-reader\ebookLocator.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +47,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="scripts\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,9 +64,6 @@
   -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="code\" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="app_pages\EbookWindow.xaml">
@@ -83,5 +100,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Remove="MainWindow.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomAdditionalCompileInputs Remove="app_pages\epubjsWindow1.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="app_pages\epubjsWindow1.xaml" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,10 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using EpubReader.code;
+using HarfBuzzSharp;
+using System.Reflection;
+using Windows.System;
+using Microsoft.Web.WebView2.Core;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -49,58 +53,7 @@ namespace EpubReader.app_pages
         public event EventHandler WindowClosed;
 
         // JavaScript code to manage scrolling and key events
-        private string _script = @"
-    function scrollDown() {
-        window.scrollBy(0, window.innerHeight);
-    }
-
-    function scrollUp() {
-        window.scrollBy(0, -window.innerHeight);
-    }
-
-    function checkScroll() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            // Notify C# when scrolled to the bottom
-            window.chrome.webview.postMessage('scrolledToBottom');
-        }
-    }
-
-    function handleKeyDown(event) {
-        if (event.key === 'ArrowDown') {
-            scrollDown();
-            window.chrome.webview.postMessage('scrolledDown');
-
-        } else if (event.key === 'ArrowRight') {
-            scrollDown();
-            window.chrome.webview.postMessage('scrolledDown');
-
-        }
-
-            else if (event.key === 'ArrowLeft') {
-            scrollUp();
-            window.chrome.webview.postMessage('scrolledUp');
-
-        }
-          else if (event.key === 'ArrowUp') {
-            scrollUp();
-            window.chrome.webview.postMessage('scrolledUp');
-
-        }
-
-    }
-
-    function setupEventListeners() {
-    window.addEventListener('scroll', checkScroll);
-    window.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('selectionchange', handleSelection);
-    }
-    
-
-
-
-    // Re-attach event listeners
-    setupEventListeners();
-    ";
+        private string _script = "0";
 
         /// <summary>
         /// Constructor initializes the component and subscribes to Loaded and Unloaded events.
@@ -109,13 +62,19 @@ namespace EpubReader.app_pages
         {
             this.InitializeComponent();
             ChangeCommandBarColors();
+
+            
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
             EbookViewer_Loaded();
             ViewerGrid.Focus(FocusState.Programmatic);
+            
+            //epubjsWindowLoad();
+
+
 
         }
-
+        
         // Event handler for the Closed event
         private void EbookWindow_Closed(object sender, EventArgs e)
         {
@@ -322,6 +281,13 @@ namespace EpubReader.app_pages
         /// <returns></returns>
         private async Task ExecuteJavaScriptAsync()
         {
+
+            if (_script == "0")
+            {
+                _script = await File.ReadAllTextAsync("C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\scripts\\ebook.js");
+            }
+
+
             try
             {
                 if (MyWebView.CoreWebView2 != null)
