@@ -255,6 +255,7 @@ public class FileManagment
     {
         string filePath = GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
         globalSettingsJson globalSettings = new globalSettingsJson();
+        globalSettings.ebookViewer = "WebView2";
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 

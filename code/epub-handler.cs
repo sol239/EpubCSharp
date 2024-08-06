@@ -493,12 +493,21 @@ public class ContentHandler
                 if (coverItem != null)
                 {
                     string coverImagePath = (string)coverItem.Attribute("href");
+
+                    // convert / to \\
+                    coverImagePath = coverImagePath.Replace("/", "\\");
+
+                    Debug.WriteLine( $"extractedEpubDir = {extractedEpubDir}");
+                    ;Debug.WriteLine( $"coverImagePath = {coverImagePath}");
+
                     string fullCoverImagePath = System.IO.Path.Combine(extractedEpubDir, coverImagePath);
+
 
                     Debug.WriteLine( $"{logger.GetCoverImagePathSuccess}: {fullCoverImagePath}" );
                     return fullCoverImagePath;
                 }
             }
+
         }
 
         catch (Exception ex)
@@ -559,6 +568,16 @@ public class EpubHandler
     private List<string> _metadataTags = new List<string> { "dc:title", "dc:creator", "dc:language", "dc:publisher", "dc:description" };
 
     // Extracts epub file
+
+    private string GenerateRandomTag(int length)
+    {
+        Random random = new Random();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
+
+    }
+
     public void ExtractEpub(string epubFilePath, string destination, string fileName)
     {
         try
@@ -568,7 +587,15 @@ public class EpubHandler
 
                 _ebook = new Ebook();
 
-                destination = destination + "\\" + fileName;
+
+                // Old: paths in windows are limited to 260 characters
+                // Some cover paths couldnt be accessed because of this
+                //destination = destination + "\\" + fileName;
+
+                // New: generate random tag for the folder name
+                destination = destination + "\\" + GenerateRandomTag(5);
+
+
                 archive.ExtractToDirectory( destination );
                 Directory.CreateDirectory( destination + "\\" + "DATA");
 
@@ -782,11 +809,13 @@ public class Navigation
 
             manifestData.Add(id, new List<string> { href, mediaType });
 
+            /*
             Debug.WriteLine("");
             Debug.WriteLine($"ID: {id}");
             Debug.WriteLine($"HREF: {href}");   
             Debug.WriteLine($"Media Type: {mediaType}");
             Debug.WriteLine("");
+            */
         }
 
         Debug.WriteLine("\nManifest Finished\n");
@@ -798,9 +827,11 @@ public class Navigation
             string idref = (element.Attribute("idref")?.Value);
             spineData.Add(idref);
 
+            /*
             Debug.WriteLine("");
             Debug.WriteLine($"IDREF: {idref}");
             Debug.WriteLine("");
+            */
 
         }
 
@@ -815,12 +846,13 @@ public class Navigation
 
             navData.Add(playOrder.ToString(),
                 new List<string> { $"{System.IO.Path.GetDirectoryName(opfFilePath)}\\{source}", text });
-
+            /*
             Debug.WriteLine("");
             Debug.WriteLine($"Play Order: {playOrder}");
             Debug.WriteLine($"Source: {source}");
             Debug.WriteLine($"Text: {text}");
             Debug.WriteLine("");
+            */
         }
 
         Debug.WriteLine("\nSync Finished\n");
