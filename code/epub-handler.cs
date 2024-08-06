@@ -196,7 +196,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
         return Books;
@@ -208,7 +208,7 @@ public class AllBooks
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
-        Debug.WriteLine("*****************************");
+        //Debug.WriteLine("*****************************");
 
         foreach (string ebookDataJsonPath in Books)
         {
@@ -217,10 +217,10 @@ public class AllBooks
 
             DateTime dateLastOpened = DateTime.ParseExact(_book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             books.Add(_book.JsonDataPath, dateLastOpened);
-            Debug.WriteLine($"*   {_book.Title}   {_book.DateAdded}");
+            //Debug.WriteLine($"*   {_book.Title}   {_book.DateAdded}");
         }
 
-        Debug.WriteLine("*****************************");
+        //Debug.WriteLine("*****************************");
 
         if (ascendingOrder)
         {

@@ -143,6 +143,18 @@ namespace EpubReader
         // In the SecondWindow.xaml.cs or any other part where you have a reference to the window
 
 
+        public static event EventHandler< (double width, double height)> WindowResized;
 
+
+        private void FrameworkElement_OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            double actualWidth = e.NewSize.Width;
+            double actualHeight = e.NewSize.Height;
+
+            WindowResized?.Invoke(this, (actualWidth, actualHeight));
+
+            //Debug.WriteLine($"Width = {actualWidth}");
+            //Debug.WriteLine($"Height = {actualHeight}");
+        }
     }
 }

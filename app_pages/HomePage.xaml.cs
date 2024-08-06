@@ -45,7 +45,6 @@ namespace EpubReader.app_pages
         {
             this.InitializeComponent();
             epubHandler.BookAddedEvent += OnBookAdded; // Subscribe to the event
-
             LoadImages();
         }
 

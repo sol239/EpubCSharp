@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page
+<Page 
     x:Class="EpubReader.AllBooks"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,22 +10,22 @@
     mc:Ignorable="d">
 
 
-    <Page.Resources>
+     <Page.Resources>
         <DataTemplate x:Key="PhotoItemTemplate" x:DataType="epubReader:Photo">
-            <ItemContainer Height="205"  Width="205" AutomationProperties.Name="{x:Bind Title}">
-                <Grid>
+            <ItemContainer AutomationProperties.Name="{x:Bind Title}">
+                <Grid Width="210" Height="205">
                     <Image Source="{x:Bind PhotoBitmapImage, Mode=OneWay}" 
                            MinWidth="70" Width="200" Height="200"
                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <StackPanel Orientation="Vertical" Height="40" Opacity=".75"
-                                VerticalAlignment="Bottom" Padding="5,1,5,1" 
+                                VerticalAlignment="Bottom" Padding="0,0,0,0" 
                                 Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}">
                         <TextBlock Text="{x:Bind Title}" 
                                    Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
                         
+                        <!-- Uncomment if you need Likes -->
                         <!--
                         <StackPanel Orientation="Horizontal">
-                            
                             <TextBlock Text="{x:Bind Likes}"
                                        Style="{ThemeResource CaptionTextBlockStyle}"
                                        Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/> 
@@ -41,18 +41,25 @@
     </Page.Resources>
 
     <Grid x:Name="rootGrid">
-
+        <!-- Use * sizing to make ItemsView fill the entire Grid -->
         <ItemsView Name="AllBooksView"
-                   ItemsSource="{x:Bind Photos}" Width="480" Height="400"
+                   ItemsSource="{x:Bind Photos}"
                    ItemTemplate="{StaticResource PhotoItemTemplate}"
                    SelectionMode="None"
                    IsItemInvokedEnabled="True"
+                   Width="Auto"
+                   Height="574"
                    ItemInvoked="AllBooksView_ItemClick">
+
             <ItemsView.Layout>
-                <UniformGridLayout MaximumRowsOrColumns="5" 
-                           MinRowSpacing="5" 
-                           MinColumnSpacing="5"/>
+                <UniformGridLayout x:Name="AllLayout"
+                                   MaximumRowsOrColumns="5" 
+                                   MinRowSpacing="10" 
+                                   MinColumnSpacing="10"
+                                   MinItemWidth="210"
+                                   ItemsStretch="Fill"/>
             </ItemsView.Layout>
+
         </ItemsView>
     </Grid>
     

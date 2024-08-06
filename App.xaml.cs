@@ -51,6 +51,7 @@ namespace EpubReader
 
             // Proceed with the rest of the initialization
             Window = new Window();
+            Window.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(100, 100, 1200, 1000));
             Frame rootFrame = new Frame();
             rootFrame.NavigationFailed += OnNavigationFailed;
             rootFrame.Navigate(typeof(MyMainWindow), args.Arguments);

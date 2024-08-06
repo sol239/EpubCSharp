@@ -40,18 +40,99 @@ namespace EpubReader
 
         private Frame contentFrame;
 
+        private int BookGridWidth;
+        private int BookGridHeight;
+
+        private double BookCoverWidth;
+        private double BookCoverHeight;
+        private double BookCoverMinWidth;
+
+        private double BookStackPanelOpacity;
+        private double BookStackPanelHeight;
+
+        private double AllBooksViewWidth;
+        private double AllBooksViewHeight;
+
+        private double AllLayout_MaximumRowsOrColumns;
+        private double AllLayout_MinRowSpacing;
+        private double AllLayout_MinColumnSpacing;
+
+        double actualWidth;
+        double actualHeight;
+
+
+
         public AllBooks()
         {
             this.InitializeComponent();
             Photos = new ObservableCollection<Photo>();
             PopulatePhotos();
             SetDimensions();
+            ObtainDimensions();
+
+            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
+
         }
 
         public ObservableCollection<Photo> Photos
         {
             get; private set;
         }
+
+        private void ObtainDimensions()
+        {
+            /*
+            BookCoverWidth = BookCover.Width;
+            BookCoverHeight = BookCover.Height;
+            BookCoverMinWidth = BookCover.MinWidth; */
+
+            /*
+            BookStackPanelOpacity = BookStackPanel.Opacity;
+            BookStackPanelHeight = BookStackPanel.Height;*/
+
+            AllBooksViewWidth = AllBooksView.Width;
+            AllBooksViewHeight = AllBooksView.Height;
+
+            /*
+            AllLayout_MaximumRowsOrColumns = AllLayout.MaximumRowsOrColumns;
+            AllLayout_MinColumnSpacing = AllLayout.MinColumnSpacing;
+            AllLayout_MinRowSpacing = AllLayout.MinRowSpacing;
+            */
+
+            AllLayout_MaximumRowsOrColumns = AllLayout.MaximumRowsOrColumns;
+            AllLayout_MinColumnSpacing = AllLayout.MinColumnSpacing;
+            AllLayout_MinRowSpacing = AllLayout.MinRowSpacing;
+
+        }
+
+        private void ChangeDimensions()
+        {
+            /*
+            double width = actualWidth;
+            int grid_size = 210;
+            double x = 0;
+            x = width - (grid_size * ((int)width / grid_size));
+            double newPadding = x / ((int)width / grid_size);
+            AllLayout.MinColumnSpacing = newPadding;*/
+        }
+
+
+        private void OnSizeChanged( object sender, (double width, double height) tp )
+        {
+            actualWidth = tp.width;
+            actualHeight = tp.height;
+            AllBooksView.Height = actualHeight - 55;
+
+            Debug.WriteLine($"Width = {actualWidth}");
+            Debug.WriteLine($"Height = {actualHeight}");
+            //ChangeDimensions();
+
+            // Handle the new dimensions
+        }
+
+
+
+
 
 
         private void PopulatePhotos()
@@ -78,11 +159,13 @@ namespace EpubReader
         public void SetDimensions()
         {
             float bookCount = RecentEbooksHandler.GetRecentEbooksPathsUpdated().Count;
-
             int multiply = 210;
-
-            AllBooksView.Width = 5 * (multiply);
-            AllBooksView.Height = Math.Ceiling(bookCount / 5) * (multiply);
+            // Assuming 'this' is your Window
+            double width = this.ActualWidth;
+            double height = this.ActualHeight;
+            //AllBooksView_GridLayout.MaximumRowsOrColumns = 
+            //AllBooksView.Width = 5 * (multiply);
+            //AllBooksView.Height = Math.Ceiling(bookCount / 5) * (multiply);
         }
 
         private void AllBooksView_ItemClick(ItemsView sender, ItemsViewItemInvokedEventArgs args)
@@ -104,8 +187,6 @@ namespace EpubReader
             secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
             secondWindow.Activate();
             */
-
-
 
 
 
