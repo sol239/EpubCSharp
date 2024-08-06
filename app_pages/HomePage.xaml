@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="White">
 
     <Grid>
         <Grid Grid.Row="1">
@@ -21,7 +21,9 @@
             <Button Content="◀" Width="50" Click="ScrollLeft_Click" Margin="10"/>
 
             <!-- ScrollViewer with StackPanel for Images -->
-            <ScrollViewer x:Name="ImageScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Grid.Column="1">
+            <ScrollViewer x:Name="ImageScrollViewer"
+                          Background="White"
+                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Grid.Column="1">
                 <StackPanel Orientation="Horizontal" x:Name="ImageStackPanel">
                     <!-- Images will be added here -->
                 </StackPanel>
