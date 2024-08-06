@@ -24,6 +24,10 @@ using Windows.Foundation.Collections;
 
 namespace EpubReader.app_pages
 {
+
+
+
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -40,7 +44,21 @@ namespace EpubReader.app_pages
         public HomePage()
         {
             this.InitializeComponent();
+            epubHandler.BookAddedEvent += OnBookAdded; // Subscribe to the event
+
             LoadImages();
+        }
+
+        private async void OnBookAdded(object sender, string message)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "Book Addition Status",
+                Content = message,
+                CloseButtonText = "Ok"
+            };
+
+            await dialog.ShowAsync();
         }
 
 

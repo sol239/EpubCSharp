@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Shapes;
 using Path = Microsoft.UI.Xaml.Shapes.Path;
 using Windows.ApplicationModel;
+using Microsoft.UI.Xaml.Controls;
 
 
 namespace EpubReader.code;
@@ -744,12 +745,33 @@ public class EpubHandler
             allBooks.AddBookStore(_ebook.JsonDataPath);
 
             Debug.WriteLine( logger.AddBookMessageSuccess );
-            
+
+            BookAddedEvent?.Invoke(this ,"The book was added successfully.");
+
+
+
         }
         catch (Exception ex)
         {
             Debug.WriteLine( $"{logger.AddBookMessageFail}: {ex.Message}" );
+            BookAddedEvent?.Invoke(this, $"Failed to add the book: {ex.Message}");
+
         }
+    }
+
+    public event EventHandler<string> BookAddedEvent;
+
+
+    private async Task ShowDialog(string title, string content)
+    {
+        ContentDialog dialog = new ContentDialog
+        {
+            Title = title,
+            Content = content,
+            CloseButtonText = "Ok"
+        };
+
+        await dialog.ShowAsync();
     }
 }
 
