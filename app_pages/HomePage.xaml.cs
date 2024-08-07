@@ -50,6 +50,8 @@ namespace EpubReader.app_pages
 
         private async void OnBookAdded(object sender, string message)
         {
+            Debug.WriteLine($"OnBookAdded Event!");
+
             ContentDialog dialog = new ContentDialog
             {
                 Title = "Book Addition Status",
@@ -60,6 +62,40 @@ namespace EpubReader.app_pages
             await dialog.ShowAsync();
         }
 
+        private async void AddBookButtonAction(object sender, RoutedEventArgs e)
+        {
+            bool result = await appControls.AddBookButtonMethod();
+            Debug.WriteLine("AddBookButtonAction");
+
+            if (result)
+            {
+                OpenBookAddedDialogue("Book Added Successfully!");
+            }
+
+            else
+            {
+                OpenBookAddedDialogue("Book Addition Failed!");
+            }
+
+            LoadImages();
+
+
+        }
+
+        private async void OpenBookAddedDialogue(string message)
+        {
+
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "Book Addition Status",
+                Content = message,
+                CloseButtonText = "Ok",
+                XamlRoot = this.Content.XamlRoot // Set the XamlRoot property
+
+            };
+
+            await dialog.ShowAsync();
+        }
 
         public async void LoadImages()
         {

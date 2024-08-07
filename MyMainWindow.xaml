@@ -41,14 +41,7 @@
                 <NavigationViewItem Content="Stats" Name="NavView_Stats"/>
                 <NavigationViewItem Content="Dictionary" Name="NavView_Dictionary"/>
                 <NavigationViewItem Icon="Setting" Name="NavView_Settings"/>
-                
-                <NavigationViewItem>
-                    <NavigationViewItem.ContentTemplate>
-                        <DataTemplate>
-                            <Button Name="add_book_button" Content="Add book" Style="{StaticResource CustomButtonStyle}" Click="AddBookButtonAction"/>
-                        </DataTemplate>
-                    </NavigationViewItem.ContentTemplate>
-                </NavigationViewItem>
+
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>

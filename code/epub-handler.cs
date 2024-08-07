@@ -683,7 +683,7 @@ public class EpubHandler
     }
 
     // Adds book to the library
-    public async Task AddEpub(string epubFilePath, string destination, string fileName)
+    public async Task<bool> AddEpub(string epubFilePath, string destination, string fileName)
     {
         try
         {
@@ -744,6 +744,7 @@ public class EpubHandler
             Debug.WriteLine( logger.AddBookMessageSuccess );
 
             BookAddedEvent?.Invoke(this ,"The book was added successfully.");
+            return true;
 
 
 
@@ -752,6 +753,7 @@ public class EpubHandler
         {
             Debug.WriteLine( $"{logger.AddBookMessageFail}: {ex.Message}" );
             BookAddedEvent?.Invoke(this, $"Failed to add the book: {ex.Message}");
+            return false;
 
         }
     }

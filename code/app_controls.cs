@@ -23,14 +23,15 @@ namespace EpubReader.code
         /// <summary>
         /// Method to add a book to the library - ebook folder
         /// </summary>
-        public async Task AddBookButtonMethod()
+        public async Task<bool> AddBookButtonMethod()
         {
+            bool result = true;
             Debug.WriteLine("AddBookButtonMethod started");
 
             if (App.Window == null)
             {
                 Debug.WriteLine("App.Window is null");
-                return;
+                return false;
             }
 
             FileOpenPicker fileOpenPicker = new()
@@ -47,7 +48,7 @@ namespace EpubReader.code
             if (windowHandle == IntPtr.Zero)
             {
                 Debug.WriteLine("windowHandle is zero");
-                return;
+                return false;
             }
 
             InitializeWithWindow.Initialize(fileOpenPicker, windowHandle);
@@ -57,14 +58,17 @@ namespace EpubReader.code
             if (file != null)
             {
                 logger.addBookMessage(file.Name, file.FileType, file.Path);
-                await Task.Run(() => epubHandler.AddEpub(file.Path, FileManagment.GetEbooksFolderPath(), file.Name)); 
+                result = await Task.Run(() => epubHandler.AddEpub(file.Path, FileManagment.GetEbooksFolderPath(), file.Name)); 
 
                 
             }
             else
             {
                 Debug.WriteLine("No file picked");
+                result = false;
             }
+
+            return result;
         }
 
         /// <summary>
