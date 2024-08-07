@@ -152,14 +152,14 @@ public class AllBooks
     public void PrintAllBooks()
     {
         LoadAllBooksFromJson();
-        Debug.WriteLine("");
+        //Debug.WriteLine("");
 
         foreach (string ebookDataJsonPath in Books)
         {
             var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            Debug.WriteLine($"Title: {book.Title}");
+            //Debug.WriteLine($"Title: {book.Title}");
         }
-        Debug.WriteLine("");
+        //Debug.WriteLine("");
     }
 
     /// <summary>
@@ -239,7 +239,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
 
@@ -252,7 +252,6 @@ public class AllBooks
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
-        Debug.WriteLine("*****************************");
 
         foreach (string ebookDataJsonPath in Books)
         {
@@ -261,10 +260,8 @@ public class AllBooks
 
             DateTime dateLastOpened = DateTime.ParseExact(_book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             books.Add(_book.JsonDataPath, dateLastOpened);
-            Debug.WriteLine($"*   {_book.Title}   {_book.DateLastOpened}");
         }
 
-        Debug.WriteLine("*****************************");
 
         if (ascendingOrder)
         {
@@ -283,7 +280,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
 
@@ -324,7 +321,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
 
@@ -360,7 +357,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
 
@@ -396,7 +393,7 @@ public class AllBooks
             foreach (string ebookDataJsonPath in Books)
             {
                 var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {_book.Title}");
+                //Debug.WriteLine($"Title: {_book.Title}");
             }
         }
 
