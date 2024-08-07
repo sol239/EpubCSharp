@@ -119,7 +119,7 @@ namespace EpubReader.app_pages
             actualWidth = tp.width;
             actualHeight = tp.height;
 
-            // Causes lags
+            // Causes lags  
             //ImageScrollViewer.Width = actualWidth;
             //LoadImages(actualWidth / 5);
         }
@@ -129,7 +129,7 @@ namespace EpubReader.app_pages
             // Clear existing images
             ImageStackPanel.Children.Clear();
 
-            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated();
+            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened");
 
             foreach (var ebookPath in ebookPaths)
             {

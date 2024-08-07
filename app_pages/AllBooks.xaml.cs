@@ -65,13 +65,22 @@ namespace EpubReader
         public AllBooks()
         {
             this.InitializeComponent();
+
+            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
+            this.Unloaded += OnAllBooksUnloaded;
+
             Photos = new ObservableCollection<Photo>();
             PopulatePhotos();
             SetDimensions();
             ObtainDimensions();
+            SortComboBox.SelectedItem 
 
-            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
+            
+        }
 
+        private void OnAllBooksUnloaded(object sender, RoutedEventArgs e)
+        {
+            MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
         }
 
         public ObservableCollection<Photo> Photos
@@ -122,22 +131,10 @@ namespace EpubReader
             actualWidth = tp.width;
             actualHeight = tp.height;
             AllBooksView.Height = actualHeight - 55;
-
-            Debug.WriteLine($"Width = {actualWidth}");
-            Debug.WriteLine($"Height = {actualHeight}");
-            //ChangeDimensions();
-
-            // Handle the new dimensions
         }
-
-
-
-
-
 
         private void PopulatePhotos()
         {
-            // add photos into Photos collection
 
             List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated();
 
@@ -151,14 +148,12 @@ namespace EpubReader
                 (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebookPlayOrder, ebookFolderPath);
 
                 Photos.Add(new Photo { PhotoBitmapImage = new BitmapImage(new Uri(imagePath)), Title = ebookTitle, EbookPath = ebookPath });
-
-
             }
         }
 
         public void SetDimensions()
         {
-            float bookCount = RecentEbooksHandler.GetRecentEbooksPathsUpdated().Count;
+            float bookCount = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened").Count;
             int multiply = 210;
             // Assuming 'this' is your Window
             double width = this.ActualWidth;
@@ -171,15 +166,11 @@ namespace EpubReader
         private void AllBooksView_ItemClick(ItemsView sender, ItemsViewItemInvokedEventArgs args)
         {
             var invokedBook = args.InvokedItem as Photo;
-
             var ebookPath = invokedBook.EbookPath;
-
             var imagePath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[0];
             var ebookTitle = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[1];
             var ebookFolderPath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[2];
             var ebookPlayOrder = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[3];
-
-
             (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebookPlayOrder, ebookFolderPath);
 
             /*
@@ -187,9 +178,6 @@ namespace EpubReader
             secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
             secondWindow.Activate();
             */
-
-
-
         }
 
         // Event handler for when the EbookWindow is closed

@@ -41,8 +41,19 @@
     </Page.Resources>
 
     <Grid x:Name="rootGrid">
-        <!-- Use * sizing to make ItemsView fill the entire Grid -->
+        <!-- Define a Grid with two rows and two columns -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Place the ItemsView in the first cell -->
         <ItemsView Name="AllBooksView"
+                   Grid.RowSpan="2" Grid.ColumnSpan="2"
                    ItemsSource="{x:Bind Photos}"
                    ItemTemplate="{StaticResource PhotoItemTemplate}"
                    SelectionMode="None"
@@ -61,6 +72,20 @@
             </ItemsView.Layout>
 
         </ItemsView>
+
+        <!-- Place the ComboBox in the top right corner -->
+        <ComboBox Grid.Row="0" Grid.Column="1"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right"
+                  Margin="10"
+                  Opacity="0.99"
+                  Name="SortComboBox"
+                  >
+            <!-- Define ComboBox items here -->
+            <ComboBoxItem Content="Name"/>
+            <ComboBoxItem Content="Author"/>
+            <ComboBoxItem Content="Last opened"/>
+        </ComboBox>
     </Grid>
-    
+
 </Page>
