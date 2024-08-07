@@ -41,11 +41,23 @@ namespace EpubReader.app_pages
         app_controls appControls = new app_controls();
         RecentEbooksHandler REHandler = new RecentEbooksHandler();
 
+        private double actualWidth;
+        private double actualHeight;
+
         public HomePage()
         {
             this.InitializeComponent();
             epubHandler.BookAddedEvent += OnBookAdded; // Subscribe to the event
             LoadImages();
+            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
+
+            this.Unloaded += OnHomePageUnloaded;
+
+        }
+
+        private void OnHomePageUnloaded(object sender, RoutedEventArgs e)
+        {
+            MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
         }
 
         private async void OnBookAdded(object sender, string message)
@@ -97,7 +109,22 @@ namespace EpubReader.app_pages
             await dialog.ShowAsync();
         }
 
-        public async void LoadImages()
+        /// <summary>
+        /// Method to handle the window resize event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="tp"></param>
+        private void OnSizeChanged(object sender, (double width, double height) tp)
+        {
+            actualWidth = tp.width;
+            actualHeight = tp.height;
+
+            // Causes lags
+            //ImageScrollViewer.Width = actualWidth;
+            //LoadImages(actualWidth / 5);
+        }
+
+        public async void LoadImages(double stackPanelWidth=200)
         {
             // Clear existing images
             ImageStackPanel.Children.Clear();
@@ -120,7 +147,7 @@ namespace EpubReader.app_pages
                 {
                     Orientation = Orientation.Vertical,
                     Margin = new Thickness(10),
-                    Width = 200,
+                    Width = stackPanelWidth,
                 };
 
                 // Create the Image

@@ -53,7 +53,8 @@
                           Margin="0"
                           HorizontalScrollBarVisibility="Hidden" 
                           VerticalScrollBarVisibility="Disabled" 
-                          Grid.Column="1">
+                          Grid.Column="1"
+                          >
                 <StackPanel Orientation="Horizontal" x:Name="ImageStackPanel">
                     <!-- Images will be added here -->
                 </StackPanel>
