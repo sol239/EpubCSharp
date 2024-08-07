@@ -152,8 +152,6 @@ namespace EpubReader.app_pages
                     Source = new BitmapImage(new Uri(this.BaseUri, ebook.CoverPath)),
                     Width = 200,
                     Height = 200,
-
-
                 };
 
                 Button button = new Button

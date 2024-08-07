@@ -564,9 +564,6 @@ public class RecentEbooksHandler
 {
     public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
     public static string MetaSplitter = "*cxlpfdsl?82349---";
-
-
-
     public static List<Ebook> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder = true, bool print = false)
     {
 
