@@ -426,6 +426,8 @@ public class AllBooks
 
         return GetBooksEpubFoldersByName(ascendingOrder, print);
     }
+
+    public static List<string> sortingMethods = new List<string> { "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language" };
 }
 
 public class JsonHandler
@@ -560,7 +562,7 @@ public class RecentEbooksHandler
     public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
     public static string MetaSplitter = "*cxlpfdsl?82349---";
 
-    public static List<string> GetRecentEbooksPathsUpdated(string method)
+    public static List<string> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder=true, bool print=false)
     {
         
         AllBooks allBooks = new AllBooks();
@@ -569,7 +571,7 @@ public class RecentEbooksHandler
         List<string> coverPaths = new List<string>();
         
 
-        foreach (var jsonFile in allBooks.SelectSortMethod(method,false, true))
+        foreach (var jsonFile in allBooks.SelectSortMethod(method,ascendingOrder, print))
         {
             if (File.Exists(jsonFile))
             {

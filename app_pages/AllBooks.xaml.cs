@@ -70,12 +70,12 @@ namespace EpubReader
             this.Unloaded += OnAllBooksUnloaded;
 
             Photos = new ObservableCollection<Photo>();
-            PopulatePhotos();
+            PopulatePhotos("Name", true, false);
             SetDimensions();
             ObtainDimensions();
-            SortComboBox.SelectedItem 
+            comboBoxesSetup();
 
-            
+
         }
 
         private void OnAllBooksUnloaded(object sender, RoutedEventArgs e)
@@ -133,10 +133,12 @@ namespace EpubReader
             AllBooksView.Height = actualHeight - 55;
         }
 
-        private void PopulatePhotos()
+        private void PopulatePhotos(string method, bool ascendingOrder, bool print)
         {
+            // clear the Photos collection
+            Photos.Clear();
 
-            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated();
+            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
 
             foreach (var ebookPath in ebookPaths)
             {
@@ -186,10 +188,24 @@ namespace EpubReader
             // clear the Photos collection
             Photos.Clear();
 
-            // Call the method you want to run after the window is closed
-            PopulatePhotos();
         }
 
+        private void comboBoxesSetup()
+        {
+            foreach (var method in code.AllBooks.sortingMethods)
+            {
+                SortComboBox.Items.Add(method);
+            }
+
+            SortComboBox.SelectedIndex = code.AllBooks.sortingMethods.IndexOf("Name");
+
+        }
+
+        private void SortComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string method = (string)SortComboBox.SelectedValue;
+            PopulatePhotos(method, true, false);
+        }
     }
 
 

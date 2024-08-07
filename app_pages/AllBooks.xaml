@@ -80,11 +80,9 @@
                   Margin="10"
                   Opacity="0.99"
                   Name="SortComboBox"
+                  SelectionChanged="SortComboBox_OnSelectionChanged"
                   >
-            <!-- Define ComboBox items here -->
-            <ComboBoxItem Content="Name"/>
-            <ComboBoxItem Content="Author"/>
-            <ComboBoxItem Content="Last opened"/>
+            
         </ComboBox>
     </Grid>
 
