@@ -31,6 +31,12 @@ namespace EpubReader
         public string Title { get; set; } //public int Likes { get; set; }
 
         public string EbookPath{ get; set; }
+
+        public string Author { get; set; }
+        public string Language { get; set; }
+        public string Publisher { get; set; }
+        public string DateAdded { get; set; }
+        public string DateLastOpened { get; set; }
     }
 
     /// <summary>
@@ -40,6 +46,8 @@ namespace EpubReader
     {
 
         private Frame contentFrame;
+
+        private (string ebookPlayOrder, string ebookFolderPath) naValueTuple;
 
         private int BookGridWidth;
         private int BookGridHeight;
@@ -71,7 +79,7 @@ namespace EpubReader
             MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
             this.Unloaded += OnAllBooksUnloaded;
 
-            Photos = new ObservableCollection<Photo>();
+            Photos = new ObservableCollection<Ebook>();
             PopulatePhotos("Name", true, false);
             SetDimensions();
             ObtainDimensions();
@@ -85,7 +93,7 @@ namespace EpubReader
             MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
         }
 
-        public ObservableCollection<Photo> Photos
+        public ObservableCollection<Ebook> Photos
         {
             get; private set;
         }
@@ -140,18 +148,12 @@ namespace EpubReader
             // clear the Photos collection
             Photos.Clear();
 
-            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
+            List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
 
-            foreach (var ebookPath in ebookPaths)
+            foreach (var ebook in ebookPaths)
             {
 
-                var imagePath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[0];
-                var ebookTitle = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[1];
-                var ebookFolderPath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[2];
-                var ebookPlayOrder = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[3];
-                (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebookPlayOrder, ebookFolderPath);
-
-                Photos.Add(new Photo { PhotoBitmapImage = new BitmapImage(new Uri(imagePath)), Title = ebookTitle, EbookPath = ebookPath });
+                Photos.Add(ebook);
             }
         }
 
@@ -169,20 +171,11 @@ namespace EpubReader
 
         private void AllBooksView_ItemClick(ItemsView sender, ItemsViewItemInvokedEventArgs args)
         {
-            var invokedBook = args.InvokedItem as Photo;
-            var ebookPath = invokedBook.EbookPath;
-            var imagePath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[0];
-            var ebookTitle = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[1];
-            var ebookFolderPath = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[2];
-            var ebookPlayOrder = ebookPath.Split(RecentEbooksHandler.MetaSplitter)[3];
-            (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebookPlayOrder, ebookFolderPath);
+            Debug.WriteLine($"Args = {args}");
+            Debug.WriteLine($"Invoked Item = {args.InvokedItem}");
 
-            /*
-            EbookWindow secondWindow = new EbookWindow(naValueTuple);
-            secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
-            secondWindow.Activate();
-            */
-
+            var invokedBook = args.InvokedItem as Ebook;
+            naValueTuple = (invokedBook.InBookPosition, invokedBook.EbookFolderPath);
             SelectViewer(naValueTuple);
             
         }
@@ -233,6 +226,51 @@ namespace EpubReader
             method = (string)SortComboBox.SelectedValue;
             PopulatePhotos(method, true, false);
         }
+
+        private List<FrameworkElement> GetParents(FrameworkElement element)
+        {
+            var parents = new List<FrameworkElement>();
+            var parent = VisualTreeHelper.GetParent(element) as FrameworkElement;
+
+            while (parent != null)
+            {
+                parents.Add(parent);
+                parent = VisualTreeHelper.GetParent(parent) as FrameworkElement;
+            }
+
+            return parents;
+        }
+
+        private void AllBooksView_OnRightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            /*
+            // Get the original source of the event
+            var originalSource = e.OriginalSource as FrameworkElement;
+
+            if (originalSource != null)
+            {
+
+                // Get and print the parents of the element
+                var parents = GetParents(originalSource);
+                foreach (var parent in parents)
+                {
+
+                   // Debug.WriteLine($"Parent: {parent.Ty}");
+
+                    // Retrieve the data context of the tapped item
+                    var tappedEbook = parent.DataContext as Ebook;
+
+                    if (tappedEbook != null)
+                    {
+                        // Now you have the tapped ebook data
+                        Debug.WriteLine($"Right-tapped on ebook: {tappedEbook.Title} by {tappedEbook.Author}");
+                        // You can now perform any action with the tappedEbook data
+                    }
+                }
+            }
+            */
+        }
+
     }
 
 

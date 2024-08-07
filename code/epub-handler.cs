@@ -565,23 +565,25 @@ public class RecentEbooksHandler
     public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
     public static string MetaSplitter = "*cxlpfdsl?82349---";
 
-    public static List<string> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder=true, bool print=false)
+
+
+    public static List<Ebook> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder = true, bool print = false)
     {
-        
+
         AllBooks allBooks = new AllBooks();
 
 
-        List<string> coverPaths = new List<string>();
-        
+        List<Ebook> coverPaths = new List<Ebook>();
 
-        foreach (var jsonFile in allBooks.SelectSortMethod(method,ascendingOrder, print))
+
+        foreach (var jsonFile in allBooks.SelectSortMethod(method, ascendingOrder, print))
         {
             if (File.Exists(jsonFile))
             {
                 Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
                 if (!string.IsNullOrEmpty(ebook.CoverPath))
                 {
-                    coverPaths.Add($"{ebook.CoverPath}{MetaSplitter}{ebook.Title}{MetaSplitter}{ebook.EbookFolderPath}{MetaSplitter}{ebook.InBookPosition}{MetaSplitter}{ebook.ScrollValue}");
+                    coverPaths.Add(ebook);
                 }
             }
             else

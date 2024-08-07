@@ -7,33 +7,35 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:epubReader="using:EpubReader"
+    xmlns:code="using:EpubReader.code"
     mc:Ignorable="d">
 
 
      <Page.Resources>
-        <DataTemplate x:Key="PhotoItemTemplate" x:DataType="epubReader:Photo">
+        <DataTemplate x:Key="PhotoItemTemplate" x:DataType="code:Ebook">
             <ItemContainer AutomationProperties.Name="{x:Bind Title}">
-                <Grid Width="210" Height="205">
-                    <Image Source="{x:Bind PhotoBitmapImage, Mode=OneWay}" 
+                <Grid Width="210" Height="205" DataContext="">
+                    <Image Source="{x:Bind CoverPath, Mode=OneWay}" 
                            MinWidth="70" Width="200" Height="200"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <StackPanel Orientation="Vertical" Height="40" Opacity=".75"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           />
+                    <StackPanel Orientation="Vertical" Height="40" Opacity=".99"
                                 VerticalAlignment="Bottom" Padding="0,0,0,0" 
                                 Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}">
                         <TextBlock Text="{x:Bind Title}" 
-                                   Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
+                                                                      
+                                                                       Foreground="White"
+                                                                       FontWeight="Bold"
+                                                                       Margin="3, 2,0,0"/>
                         
-                        <!-- Uncomment if you need Likes -->
-                        <!--
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{x:Bind Likes}"
+                        
+                        <StackPanel Orientation="Horizontal" DataContext="{Binding}" >
+                            <TextBlock Text="{x:Bind Author}"
                                        Style="{ThemeResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/> 
-                            <TextBlock Text=" Likes"
-                                       Style="{ThemeResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/> 
+                                       Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"
+                                       Margin="3,0,0,2"/> 
                         </StackPanel>
-                        -->
+                        
                     </StackPanel>
                 </Grid>
             </ItemContainer>
@@ -60,7 +62,8 @@
                    IsItemInvokedEnabled="True"
                    Width="Auto"
                    Height="574"
-                   ItemInvoked="AllBooksView_ItemClick">
+                   ItemInvoked="AllBooksView_ItemClick"
+                   RightTapped="AllBooksView_OnRightTapped" >
 
             <ItemsView.Layout>
                 <UniformGridLayout x:Name="AllLayout"
