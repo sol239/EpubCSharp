@@ -205,6 +205,7 @@ public class AllBooks
     // Returns a list of books ebub folder sorted by DateAdded
     public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder, bool print)
     {
+        ascendingOrder = !ascendingOrder;
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
@@ -249,6 +250,8 @@ public class AllBooks
     // Returns a list of books ebub folder sorted by DateLastOpened
     public List<string> GetBooksEpubFoldersByDateLastOpened(bool ascendingOrder, bool print)
     {
+        ascendingOrder = !ascendingOrder;
+
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 

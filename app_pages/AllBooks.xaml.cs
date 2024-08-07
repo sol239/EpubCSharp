@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using EpubReader.app_pages;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Diagnostics;
+using System.Text.Json;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -60,6 +61,7 @@ namespace EpubReader
         double actualWidth;
         double actualHeight;
 
+        private string method;
 
 
         public AllBooks()
@@ -180,6 +182,30 @@ namespace EpubReader
             secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
             secondWindow.Activate();
             */
+
+            SelectViewer(naValueTuple);
+            
+        }
+
+        public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
+        {
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+            switch (settings.ebookViewer)
+            {
+                case "epubjs":
+                    epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
+                    secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    secondWindow.Activate();
+                    break;
+
+                case "WebView2":
+                    EbookWindow ebookWindow = new EbookWindow(navTuple);
+                    ebookWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    ebookWindow.Activate();
+                    break;
+            }
+
         }
 
         // Event handler for when the EbookWindow is closed
@@ -187,6 +213,7 @@ namespace EpubReader
         {
             // clear the Photos collection
             Photos.Clear();
+            PopulatePhotos(method, true, false);
 
         }
 
@@ -203,7 +230,7 @@ namespace EpubReader
 
         private void SortComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string method = (string)SortComboBox.SelectedValue;
+            method = (string)SortComboBox.SelectedValue;
             PopulatePhotos(method, true, false);
         }
     }

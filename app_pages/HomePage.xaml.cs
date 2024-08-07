@@ -129,7 +129,7 @@ namespace EpubReader.app_pages
             // Clear existing images
             ImageStackPanel.Children.Clear();
 
-            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened");
+            List<string> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened", true, false);
 
             foreach (var ebookPath in ebookPaths)
             {
@@ -208,7 +208,7 @@ namespace EpubReader.app_pages
             }
         }
 
-        private void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
+        public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
         {
             globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
 
