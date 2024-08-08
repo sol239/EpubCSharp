@@ -37,6 +37,7 @@
     <None Remove="app_pages\HomePage.xaml" />
     <None Remove="MainWindow.xaml" />
     <None Remove="scripts\epubjs-reader\ebookLocator.js" />
+    <None Remove="scripts\script.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +49,10 @@
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="scripts\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="scripts\script.js" />
   </ItemGroup>
 
   <ItemGroup>

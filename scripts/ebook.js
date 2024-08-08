@@ -22,13 +22,15 @@ function handleKeyDown(event) {
         window.chrome.webview.postMessage('scrolledUp');
     }
 
-    console.log(`Hello World`);
+    console.log(event.key);
 }
 
 function handleDocumentClick(event) {
     const clickedElement = event.target;
+    console.log(`You clicked on text: ${clickedElement.textContent}`);
 
     if (clickedElement.nodeType === Node.ELEMENT_NODE) {
+        console.log(`You clicked on text: ${clickedElement.textContent}`);
         const textContent = clickedElement.textContent;
         const range = document.createRange();
 
@@ -75,12 +77,8 @@ function handleDocumentClick(event) {
 }
 
 function setupEventListeners() {
-    window.addEventListener('scroll', checkScroll);
-    window.addEventListener('keydown', handleKeyDown);
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.addEventListener('click', handleDocumentClick);
-    });
+    //window.addEventListener('scroll', checkScroll);
+    //window.addEventListener('keydown', handleKeyDown);
     
 
 }

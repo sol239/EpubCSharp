@@ -147,6 +147,67 @@ namespace EpubReader.code
 
         }
 
+        private static string _scriptSelect = @"
+function handleDocumentClick(event) {
+    const clickedElement = event.target; {}
+
+    if (clickedElement.nodeType === Node.ELEMENT_NODE) {
+        const textContent = clickedElement.textContent;
+        const range = document.createRange();
+
+        for (let i = 0; i < clickedElement.childNodes.length; i++) {
+            const node = clickedElement.childNodes[i];
+            if (node.nodeType === Node.TEXT_NODE) {
+                range.selectNodeContents(node);
+                const rect = range.getBoundingClientRect();
+
+                if (rect.left <= event.clientX && rect.right >= event.clientX &&
+                    rect.top <= event.clientY && rect.bottom >= event.clientY) {
+                    const words = node.textContent.split(' ');
+                    let clickedWord = '';
+
+                    for (let j = 0; j < words.length; j++) {
+                        range.setStart(node, node.textContent.indexOf(words[j]));
+                        range.setEnd(node, node.textContent.indexOf(words[j]) + words[j].length);
+                        const wordRect = range.getBoundingClientRect();
+
+                        if (wordRect.left <= event.clientX && wordRect.right >= event.clientX &&
+                            wordRect.top <= event.clientY && wordRect.bottom >= event.clientY) {
+                            clickedWord = words[j];
+                            break;
+                        }
+                    }
+
+                    if (clickedWord) {
+                        window.chrome.webview.postMessage(`${clickedWord}`);
+                        console.log(clickedWord);
+                    }
+                    else {
+                        window.chrome.webview.postMessage(`*783kd4HJsn`);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    // Display the selected text
+    const selectedText = window.getSelection().toString();
+    if (selectedText) {
+        window.chrome.webview.postMessage(`${selectedText}`);
+        console.log(selectedText);
+
+    } else {
+        window.chrome.webview.postMessage('*783kd4HJsn');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', handleDocumentClick);
+});
+";
+
         /// <summary>
         /// Updates the CSS path in the xhtml file.git 
         /// </summary>
@@ -169,6 +230,23 @@ namespace EpubReader.code
                     if (linkElement != null)
                     {
                         linkElement.SetAttributeValue("href", newCssPath);
+
+                        
+                        // Path to the external script
+                        string scriptPath = "C:/Users/david_pmv0zjd/source/repos/EpubReader/code/script.js";
+
+                        // Create a script element with the src attribute
+                        XElement scriptElement = new XElement(XName.Get("script", "http://www.w3.org/1999/xhtml"),
+                            new XAttribute("src", scriptPath),
+                            new XText(""));  // Ensure it is not self-closing
+
+                        // Find the body element
+                        XElement body = xhtmlDocument.Root.Element(XName.Get("body", "http://www.w3.org/1999/xhtml"));
+
+                        // Append the script element to the body
+                        body.Add(scriptElement);
+                        
+
                         xhtmlDocument.Save(xhtmlPath);
                     }
                     else
