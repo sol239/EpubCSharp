@@ -21,6 +21,11 @@ using System.Reflection;
 using Windows.System;
 using Microsoft.Web.WebView2.Core;
 using System.Text.Json;
+using Microsoft.UI.Text;
+using Microsoft.UI.Xaml.Documents;
+using System.Net.Http;
+using System.Text;
+using Windows.Media.Protection.PlayReady;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,6 +39,8 @@ namespace EpubReader.app_pages
     {
         //  the current ebook being read.
         private Ebook _ebook;
+        private static readonly HttpClient client = new HttpClient();
+
 
         // path to the XHTML file of the ebook
         private string _xhtmlPath = "";
@@ -506,8 +513,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
             Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
 
+            string messageType = message.Split(" = ")[0];
+            string messageContent = message.Split(" = ")[1];
+
+            if (messageContent != _emptyMessage)
+            {
+                // open flyout
+                // Update the Flyout content
+                ShowFlyoutAsync(messageType, messageContent);
+
+            }
+
+            
+
 
         }
+
+
+
+        public static string RemoveSymbols(string text)
+        {
+            // remove any . , ! ? : ; symbols from the text
+            text = text.Replace(".", "");
+            text = text.Replace(",", "");
+            text = text.Replace("!", "");
+            text = text.Replace("?", "");
+            text = text.Replace(":", "");
+            text = text.Replace(";", "");
+
+            return text;
+        }
+
+        public async Task ShowFlyoutAsync(string messageType, string messageContent)
+        {
+            Debug.WriteLine($"ShowFlyoutAsync - {messageType} - {messageContent}");
+            if (messageType == "CLICKED WORD")
+            {
+                // remove any . , ! ? : ; symbols from the text
+                messageContent = RemoveSymbols(messageContent);
+            }
+
+            // Create a new Flyout
+            Flyout flyout = new Flyout();
+            flyout.Placement = FlyoutPlacementMode.Bottom;
+
+            // Create content for the Flyout
+            StackPanel stackPanel = new StackPanel
+            {
+                Width = 200,
+                Height = 300
+            };
+
+            TextBlock textBlock1 = new TextBlock { Text = $"{messageContent}" };
+            textBlock1.FontWeight = FontWeights.Bold;
+
+            // Create and configure the second TextBlock
+            TextBlock textBlock2 = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = stackPanel.Width
+            };
+
+            // Await the result of the Python script before proceeding
+            string result = await GetTranslation(messageContent, "en", "cs");
+            Debug.WriteLine($"Result: {result}");
+            textBlock2.Text = result;
+
+            Button closeButton = new Button { Content = "Save Translation" };
+
+            // Add close functionality
+            closeButton.Click += (s, e) => flyout.Hide();
+
+            // Add elements to the StackPanel
+            stackPanel.Children.Add(textBlock1);
+            stackPanel.Children.Add(textBlock2);
+            stackPanel.Children.Add(closeButton);
+
+            // Set the content of the Flyout
+            flyout.Content = stackPanel;
+
+            // Show the Flyout at a specific position after the Python script has finished
+            flyout.ShowAt(MyWebView); // 'MyWebView' refers to the control or page where the Flyout is shown
+        }
+
+        static async Task<string> RunPythonScript(string text, string sourceLanguage, string targetLanguage)
+        {
+            // Path to the Python interpreter and the script
+            string pythonPath = "C:\\Users\\david_pmv0zjd\\Documents\\translation-ebook\\venv\\Scripts\\python.exe";
+            string scriptPath = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\code\\translation_script.py";
+
+            ProcessStartInfo start = new ProcessStartInfo
+            {
+                FileName = pythonPath,
+                Arguments = $"\"{scriptPath}\" \"{text}\" \"{sourceLanguage}\" \"{targetLanguage}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = Process.Start(start))
+            {
+                // Ensure the process is started correctly
+                if (process == null)
+                {
+                    throw new InvalidOperationException("Failed to start the Python process.");
+                }
+
+                // Read the output and error asynchronously
+                Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask = process.StandardError.ReadToEndAsync();
+
+                // Wait for the process to exit
+                await process.WaitForExitAsync(); // Use WaitForExitAsync for better async handling
+
+                // Retrieve the results
+                string output = await outputTask;
+                string errors = await errorTask;
+
+                if (!string.IsNullOrEmpty(errors))
+                {
+                    // Handle errors as needed
+                    Debug.WriteLine($"Python errors: {errors}");
+                }
+
+                return output.Trim();
+            }
+        }
+
+
 
         /// <summary>
         /// Updates the CSS path in the XHTML file.
@@ -648,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _chapterNavigated = false;
 
             await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollBy(0, -window.innerHeight);");
-            await SavePosition();
+            await SavePosition(); 
             CheckBackward();
         }
 
@@ -953,6 +1087,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 MoveForward();
             }
+
+            else if (e.Key == Windows.System.VirtualKey.Space)
+            {
+                //await GetTranslation();
+            }
         }
 
         /// <summary>
@@ -1020,6 +1159,61 @@ document.addEventListener('DOMContentLoaded', () => {
             Debug.WriteLine("******************************");
             Debug.WriteLine("");
         }
+
+        public async Task<string> GetTranslation(string _text, string sourceLanguage, string targetLanguage)
+        {
+            var url = "http://127.0.0.1:5000/translate"; // URL of your Flask server
+
+            // Create the request data
+            var requestData = new
+            {
+                text = _text,
+                source_language = sourceLanguage,
+                target_language = targetLanguage
+            };
+
+            // Convert request data to JSON
+            var json = JsonSerializer.Serialize(requestData);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                // Send the POST request
+                HttpResponseMessage response = await client.PostAsync(url, content);
+
+                // Ensure the request was successful
+                response.EnsureSuccessStatusCode();
+
+                // Read the response content
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                // Parse the JSON response
+                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                {
+                    if (doc.RootElement.TryGetProperty("translated_text", out JsonElement translatedTextElement))
+                    {
+                        var translatedText = translatedTextElement.GetString();
+                        // Print the translated text
+                        Debug.WriteLine($"Translated text: {translatedText}");
+                        return translatedText;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Response does not contain 'translated_text' field.");
+                        return "ERROR";
+                    }
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Debug.WriteLine($"Request error: {e.Message}");
+                return "ERROR";
+            }
+        }
     }
+
 }
+
+
+
 

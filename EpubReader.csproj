@@ -52,6 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="code\venv\**" />
+    <EmbeddedResource Remove="code\venv\**" />
+    <None Remove="code\venv\**" />
+    <Page Remove="code\venv\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="scripts\script.js" />
   </ItemGroup>
 
@@ -59,6 +66,7 @@
     <PackageReference Include="CSharpMarkup.WinUI.LiveChartsCore.SkiaSharpView" Version="2.4.18" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -111,5 +119,8 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Remove="app_pages\epubjsWindow1.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="code\venv\**" />
   </ItemGroup>
 </Project>

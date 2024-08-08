@@ -65,9 +65,16 @@
                    VerticalAlignment="Stretch"
                    Margin="40,40,40,40"
                    Height="400"
-                   Width="400"
-                   />
+                   Width="400">
+
+        </WebView2>
+
+                   
+
         
+
         <Frame x:Name="EbookFrame" />
     </Grid>
+
+
 </Window>
