@@ -395,7 +395,7 @@ setupEventListeners();
             {
                 if (args.IsSuccess)
                 {
-                    await ExecuteJavaScriptAsync(); // Execute JavaScript after the WebView has loaded
+                    //await ExecuteJavaScriptAsync(); // Execute JavaScript after the WebView has loaded
                     await RestorePositionAsync(); // Restore scroll position
                 }
                 else
