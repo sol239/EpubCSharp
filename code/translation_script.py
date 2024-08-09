@@ -22,6 +22,8 @@ def initialize(source_language, target_language):
     )
     argostranslate.package.install_from_path(package_to_install.download())
 
+    print("Flask server initialized!")
+
 @app.route('/translate', methods=['POST'])
 def translate():
     
@@ -58,4 +60,4 @@ def translate():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True)

@@ -27,6 +27,7 @@ using System.Net.Http;
 using System.Text;
 using Windows.Media.Protection.PlayReady;
 using static EpubReader.code.FileManagment;
+using System.Threading;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -75,6 +76,9 @@ namespace EpubReader.app_pages
         /// </summary>
         public EbookWindow( (string ebookPlayOrder, string ebookFolderPath) data )
         {
+            Thread flaskThread = new Thread(StartFlaskServer);
+            flaskThread.Start();
+
             this.InitializeComponent();
             ChangeCommandBarColors();
             navValueTuple = data;
@@ -516,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             string message = e.TryGetWebMessageAsString();
 
-            Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
+            //Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
 
             string messageType = message.Split(" = ")[0];
             string messageContent = message.Split(" = ")[1];
@@ -562,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         public async Task ShowFlyoutAsync(string messageType, string messageContent)
         {
-            Debug.WriteLine($"ShowFlyoutAsync - {messageType} - {messageContent}");
+            //Debug.WriteLine($"ShowFlyoutAsync - {messageType} - {messageContent}");
             if (messageType == "CLICKED WORD")
             {
                 // remove any . , ! ? : ; symbols from the text
@@ -616,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Await the result of the Python script before proceeding
             string result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
-            Debug.WriteLine($"Result: {result}");
+            //Debug.WriteLine($"Result: {result}");
 
             if (messageType == "CLICKED WORD")
             {
@@ -808,6 +812,8 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
+                await StopFlaskServer();
+
                 await SavePosition();
                 await CalculateTimeDifference();
                 WindowClosed?.Invoke(this, EventArgs.Empty);
@@ -1241,6 +1247,46 @@ document.addEventListener('DOMContentLoaded', () => {
             Debug.WriteLine($"Scroll: {_ebook.ScrollValue}");
             Debug.WriteLine("******************************");
             Debug.WriteLine("");
+        }
+
+        static Process flaskProcess;
+
+        private static void StartFlaskServer()
+        {
+            try
+            {
+                flaskProcess = new Process();
+                flaskProcess.StartInfo.FileName = "C:\\Users\\david_pmv0zjd\\Documents\\translation-ebook\\venv\\Scripts\\python.exe";  // Command to run Python
+                flaskProcess.StartInfo.Arguments = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\code\\translation_script.py"; // Your Python script
+                flaskProcess.StartInfo.UseShellExecute = false;
+                flaskProcess.StartInfo.RedirectStandardOutput = true;
+                flaskProcess.StartInfo.RedirectStandardError = true;
+                flaskProcess.StartInfo.CreateNoWindow = true; // Run without creating a new window
+                flaskProcess.Start();
+
+                Debug.WriteLine($"StartFlaskServer() - Success");
+
+                // Optionally, you can read the output or error streams to log or display:
+                string output = flaskProcess.StandardOutput.ReadToEnd();
+                string error = flaskProcess.StandardError.ReadToEnd();
+
+                Debug.WriteLine(output);
+                Debug.WriteLine(error);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"StartFlaskServer() - Fail - {ex.Message}");
+            }
+        }
+
+        private static async Task StopFlaskServer()
+        {
+            if (flaskProcess != null && !flaskProcess.HasExited)
+            {
+                flaskProcess.Kill(); // Forcefully terminate the process
+                flaskProcess.Dispose();
+                Debug.WriteLine("Stop Flask server!");
+            }
         }
 
         public async Task<string> GetTranslation(string _text, string sourceLanguage, string targetLanguage)
