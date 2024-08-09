@@ -7,14 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="White">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <Style x:Key="CustomButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="LightBlue"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="10"/>
-        </Style>
+
+
+<Page.Resources>
     </Page.Resources>
 
     <Grid>
@@ -34,7 +31,6 @@
                 HorizontalAlignment="Right"
                 Content="Add Book"
                 Margin="10,10,10,0"
-                Style="{StaticResource CustomButtonStyle}"
                 Click="AddBookButtonAction">
                 
                         
@@ -49,7 +45,6 @@
 
             <!-- ScrollViewer with StackPanel for Images -->
             <ScrollViewer x:Name="ImageScrollViewer"
-                          Background="White"
                           Margin="0"
                           HorizontalScrollBarVisibility="Hidden" 
                           VerticalScrollBarVisibility="Disabled" 

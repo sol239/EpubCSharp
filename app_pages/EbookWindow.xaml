@@ -64,8 +64,8 @@
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
                    Margin="40,40,40,40"
-                   Height="400"
-                   Width="400">
+                   Height="Auto"
+                   Width="Auto">
 
         </WebView2>
 

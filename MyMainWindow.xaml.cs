@@ -39,14 +39,6 @@ namespace EpubReader
 
 
 {
-    public class Navigations
-    {
-        public static void NavigateToEbookViewer()
-        {
-
-        }
-    }
-
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -123,6 +115,11 @@ namespace EpubReader
                 pageType = typeof(HomePage);
             }
 
+            else if (selectedItem.Name == NavView_Dictionary.Name)
+            {
+                pageType = typeof(Dictionary);
+            }
+
             ContentFrame.Navigate(pageType);
         }
 
@@ -150,11 +147,7 @@ namespace EpubReader
         {
             double actualWidth = e.NewSize.Width;
             double actualHeight = e.NewSize.Height;
-
             WindowResized?.Invoke(this, (actualWidth, actualHeight));
-
-            //Debug.WriteLine($"Width = {actualWidth}");
-            //Debug.WriteLine($"Height = {actualHeight}");
         }
     }
 }

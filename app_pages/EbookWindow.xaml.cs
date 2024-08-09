@@ -26,6 +26,7 @@ using Microsoft.UI.Xaml.Documents;
 using System.Net.Http;
 using System.Text;
 using Windows.Media.Protection.PlayReady;
+using static EpubReader.code.FileManagment;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -157,11 +158,11 @@ namespace EpubReader.app_pages
                     //Debug.WriteLine($"SavePosition() 3 - Fail - {ex.Message}");
                 }
 
-                /*
+                
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
                 Debug.WriteLine($"InBookPosition = {_ebook.InBookPosition} | Scroll = {_ebook.ScrollValue}");
-                Debug.WriteLine($"Save To: {FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");*/
+                Debug.WriteLine($"Save To: {FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");
             }
             catch (Exception ex)
             {
@@ -182,8 +183,8 @@ namespace EpubReader.app_pages
                     // Store the JSON ebook file
                     await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
 
-                    /*Debug.WriteLine("SavePosition() - Success");
-                    Debug.WriteLine("********************************\n");*/
+                    Debug.WriteLine("SavePosition() - Success");
+                    Debug.WriteLine("********************************\n");
 
                 }
                 catch (Exception ex)
@@ -440,6 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 await InitializeWebViewAsync();
                 await UpdateCssPath(_xhtmlPath, _cssPath);
 
+                // print actuall scroll
+                Debug.Write("Scroll = ");
+                Debug.WriteLine(await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"));
+
                 //await MyWebView.CoreWebView2.ExecuteScriptAsync(script3);
                 //MyWebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
                 /*
@@ -457,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
                 */
-
+                await RestorePositionAsync();
                 MyWebView.Focus(FocusState.Programmatic);
             }
             catch
@@ -531,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        public static string RemoveSymbols(string text)
+        public static async Task<string> RemoveSymbols(string text)
         {
             // remove any . , ! ? : ; symbols from the text
             text = text.Replace(".", "");
@@ -540,7 +545,18 @@ document.addEventListener('DOMContentLoaded', () => {
             text = text.Replace("?", "");
             text = text.Replace(":", "");
             text = text.Replace(";", "");
+            text = text.Replace(" ", "");
+            text = text.Replace("\n", "");
+            text = text.Replace("\r", "");
+            text = text.Replace("\t", "");
+            text = text.Replace("\u2581", "");
 
+            return text;
+        }
+
+        public static async Task<string> RepairTranlationTask(string text)
+        {
+            text = text.Replace("\u2581", " ");   // argos translate misbehavior in en->cs translations
             return text;
         }
 
@@ -550,22 +566,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (messageType == "CLICKED WORD")
             {
                 // remove any . , ! ? : ; symbols from the text
-                messageContent = RemoveSymbols(messageContent);
+                messageContent = await RemoveSymbols(messageContent);
             }
 
             // Create a new Flyout
             Flyout flyout = new Flyout();
+            
+            // set target
+
+
             flyout.Placement = FlyoutPlacementMode.Bottom;
+            flyout.ShowMode = FlyoutShowMode.Transient;
+
 
             // Create content for the Flyout
             StackPanel stackPanel = new StackPanel
             {
                 Width = 200,
-                Height = 300
+                
             };
 
             TextBlock textBlock1 = new TextBlock { Text = $"{messageContent}" };
             textBlock1.FontWeight = FontWeights.Bold;
+            textBlock1.TextTrimming = TextTrimming.CharacterEllipsis; // Trims at the character level and adds ...
+
+            
 
             // Create and configure the second TextBlock
             TextBlock textBlock2 = new TextBlock
@@ -574,15 +599,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 MaxWidth = stackPanel.Width
             };
 
+            // Create the ScrollViewer and set its properties
+            ScrollViewer scrollViewer = new ScrollViewer
+            {
+                Content = textBlock2,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto, // Shows scrollbar if needed
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto // Shows scrollbar if needed
+
+            };
+
+            scrollViewer.Width = stackPanel.Width;
+            scrollViewer.Height = stackPanel.Height;
+
+            string sourceLanguage = "en";
+            string targetLanguage = "cs";
+
             // Await the result of the Python script before proceeding
-            string result = await GetTranslation(messageContent, "en", "cs");
+            string result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
             Debug.WriteLine($"Result: {result}");
+
+            if (messageType == "CLICKED WORD")
+            {
+                result = await RemoveSymbols(result);
+            }
+            else
+            {
+                result = await RepairTranlationTask(result);
+            }
+
             textBlock2.Text = result;
 
-            Button closeButton = new Button { Content = "Save Translation" };
+            Button closeButton = new Button { Content = "Save" };
+            closeButton.Margin = new Thickness(0, 5, 0, 0);
+
 
             // Add close functionality
-            closeButton.Click += (s, e) => flyout.Hide();
+            closeButton.Click += async (s, e) =>
+            {
+                flyout.Hide();
+                await StoreTranslation(sourceLanguage, targetLanguage,messageContent, result);
+                ViewerGrid.Focus(FocusState.Programmatic);
+
+
+            };
 
             // Add elements to the StackPanel
             stackPanel.Children.Add(textBlock1);
@@ -594,6 +653,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Show the Flyout at a specific position after the Python script has finished
             flyout.ShowAt(MyWebView); // 'MyWebView' refers to the control or page where the Flyout is shown
+            ViewerGrid.Focus(FocusState.Programmatic);
+
+            // set focus back to viewergrid
+
+        }
+        
+
+        public async Task StoreTranslation(string sourceLanguage, string targerLanguage,string originalText, string translatedText)
+        {
+
+            string dictPath = FileManagment.GetGlobalDictPath();
+            Debug.WriteLine($"Translation saved to {dictPath}");
+            Debug.WriteLine($"Ebook Path = {navValueTuple.ebookFolderPath}\nOriginal = {originalText}\nTransalted = {translatedText}");
+
+
+            globalDictJson globalDict  = JsonSerializer.Deserialize<globalDictJson>(File.ReadAllText(dictPath));
+
+           if (!globalDict.dict.ContainsKey(originalText))
+           {
+               globalDict.dict.Add(originalText, new List<string>() { sourceLanguage, targerLanguage, translatedText });
+           }
+
+            File.WriteAllText(FileManagment.GetGlobalDictPath(), JsonSerializer.Serialize(globalDict));
+            ViewerGrid.Focus(FocusState.Programmatic);
+
         }
 
         static async Task<string> RunPythonScript(string text, string sourceLanguage, string targetLanguage)
@@ -790,7 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             Debug.WriteLine("MoveForward");
             _chapterNavigated = false;
-
             await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollBy(0, window.innerHeight);");
             await SavePosition();
             CheckForward();

@@ -189,7 +189,8 @@ namespace EpubReader.app_pages
                     Text = ebook.Title, // Use the file name as the title
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, 5, 0, 0),
-                    MaxWidth = 200
+                    MaxWidth = 200,
+                    TextTrimming = TextTrimming.WordEllipsis
                 };
 
 

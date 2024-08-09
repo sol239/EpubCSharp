@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Reflection.Metadata.BlobBuilder;
+using static EpubReader.code.FileManagment;
 
 namespace EpubReader.code;
 public class FileManagment
@@ -20,6 +21,8 @@ public class FileManagment
     public static string recentEbooksFileName = "recentEbooks.json";
     public static string ebookViewerStyleFileName = "ebook_viewer-style.css";
     public static string globalSettingsFileName = "globalSettings.json";
+    public static string dictFileName = "globalDict.json";
+
 
     // /DATA
     public static string ebookDataFolderName = "DATA";
@@ -261,6 +264,16 @@ public class FileManagment
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 
+    public static async Task CreateGlobalDictFile()
+    {
+        string filePath = GetGlobalDictPath();
+        globalDictJson globalDict = new globalDictJson();
+        globalDict.dict = new Dictionary<string, List<string>>();
+        File.WriteAllText(filePath, JsonSerializer.Serialize(globalDict));
+
+
+    }
+
     public static string GetGlobalSettingsFilePath()
     {
         return GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
@@ -289,6 +302,10 @@ public class FileManagment
         }
     }
 
+    public static string GetGlobalDictPath()
+    {
+        return GetAppAddress() + "\\" + _settingsFolderName + "\\" + dictFileName;
+    }
     // StartUp operations run when the app starts
     public static async Task StartUp()
     {
@@ -305,6 +322,7 @@ public class FileManagment
             {
                 await CreateFolderAsync(_settingsFolderName);
                 await CreateGlobalSettingsFile();
+                await CreateGlobalDictFile();
             }
 
             await CreateCssSettingsFile();
@@ -320,6 +338,11 @@ public class FileManagment
 
     }
 
+    public class globalDictJson
+    {
+
+        public Dictionary<string, List<string>> dict { get; set; } 
+    }
 
 
 }
