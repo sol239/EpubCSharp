@@ -58,7 +58,7 @@
         <!-- Place the ItemsView in the first cell -->
         <ItemsView Name="AllBooksView"
                    Grid.RowSpan="2" Grid.ColumnSpan="2"
-                   ItemsSource="{x:Bind Photos}"
+                   ItemsSource="{x:Bind Ebooks}"
                    ItemTemplate="{StaticResource PhotoItemTemplate}"
                    SelectionMode="None"
                    IsItemInvokedEnabled="True"

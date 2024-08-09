@@ -14,10 +14,21 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Text;
+using ABI.Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Text;
+using BitmapImage = Microsoft.UI.Xaml.Media.Imaging.BitmapImage;
+using Button = Microsoft.UI.Xaml.Controls.Button;
+using ContentDialog = Microsoft.UI.Xaml.Controls.ContentDialog;
+using Grid = Microsoft.UI.Xaml.Controls.Grid;
+using Image = Microsoft.UI.Xaml.Controls.Image;
+using Page = Microsoft.UI.Xaml.Controls.Page;
+using StackPanel = Microsoft.UI.Xaml.Controls.StackPanel;
+using TextBlock = Microsoft.UI.Xaml.Controls.TextBlock;
+using System.Collections.ObjectModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -44,11 +55,15 @@ namespace EpubReader.app_pages
         private double actualWidth;
         private double actualHeight;
 
+        //public ObservableCollection<Ebook> Ebooks { get; set; }
         public HomePage()
         {
             this.InitializeComponent();
             epubHandler.BookAddedEvent += OnBookAdded; // Subscribe to the event
-            LoadImages();
+            // = new ObservableCollection<Ebook>();
+            //PopulateEbooks("LastOpened", true, false);
+
+            LoadImages2();
             MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
 
             this.Unloaded += OnHomePageUnloaded;
@@ -89,7 +104,7 @@ namespace EpubReader.app_pages
                 OpenBookAddedDialogue("Book Addition Failed!");
             }
 
-            LoadImages();
+            LoadImages2();
 
 
         }
@@ -120,10 +135,123 @@ namespace EpubReader.app_pages
             actualHeight = tp.height;
 
             // Causes lags  
-            //ImageScrollViewer.Width = actualWidth;
-            //LoadImages(actualWidth / 5);
+            ImageScrollViewer.Width = actualWidth;
+            LoadImages2(actualWidth / 5);
         }
 
+        /*
+        private void PopulateEbooks(string method, bool ascendingOrder, bool print)
+        {
+            // clear the Ebooks collection
+            Ebooks.Clear();
+
+            List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
+
+            foreach (var ebook in ebookPaths)
+            {
+
+                Ebooks.Add(ebook);
+            }
+        }
+        */
+
+        public async void LoadImages2(double stackPanelWidth = 200)
+        {
+            // Clear existing images
+            ImageStackPanel.Children.Clear();
+            List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened", true, false);
+            foreach (var ebook in ebookPaths)
+            {
+                (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebook.InBookPosition, ebook.EbookFolderPath);
+
+                StackPanel imagePanel = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    Margin = new Thickness(10),
+                    Width = stackPanelWidth,
+                };
+
+                Image image = new Image
+                {
+                    Source = new BitmapImage(new Uri(this.BaseUri, ebook.CoverPath)),
+                    Width = 200,
+                    MinWidth = 70,
+                    Height = 200,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                Button button = new Button
+                {
+                    Content = image,
+                    Width = 200,
+                    Height = 200,
+                };
+
+                button.Click += (sender, e) =>
+                {
+                    /*
+                    Debug.WriteLine("");
+                    Debug.WriteLine("******************************");
+                    Debug.WriteLine($"XHTML: {ebook.InBookPosition}");
+                    Debug.WriteLine("******************************");
+                    Debug.WriteLine("");
+                    */
+
+                    /*
+                    epubjsWindow1 secondWindow = new epubjsWindow1(naValueTuple);
+                    secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    secondWindow.Activate();
+                    */
+
+                    SelectViewer(naValueTuple);
+
+
+                };
+
+                StackPanel stackPanel1 = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    Height = 40,
+                    Opacity = 0.99,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Padding = new Thickness(0, 0, 0, 0),
+                    Background = (Brush)Application.Current.Resources["SystemControlBackgroundBaseMediumBrush"]
+
+                };
+
+                TextBlock title = new TextBlock
+                {
+                    Text = ebook.Title,
+                    Foreground = (Brush)Application.Current.Resources["SystemControlForegroundAltHighBrush"],
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(3, 2, 0, 0),
+                    TextTrimming = TextTrimming.WordEllipsis
+                };
+
+                StackPanel stackPanel2 = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                };
+
+                TextBlock author = new TextBlock
+                {
+                    Text = ebook.Author,
+                    Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
+                    Foreground = (Brush)Application.Current.Resources["SystemControlForegroundAltHighBrush"],
+                    Margin = new Thickness(3, 0, 0, 2)
+
+                };
+
+                stackPanel1.Children.Add(title);
+                stackPanel2.Children.Add(author);
+                stackPanel1.Children.Add(stackPanel2);
+                imagePanel.Children.Add(button);
+                imagePanel.Children.Add(stackPanel1);
+
+                ImageStackPanel.Children.Add(imagePanel);
+            }
+        }
         public async void LoadImages(double stackPanelWidth=200)
         {
             // Clear existing images
@@ -228,7 +356,7 @@ namespace EpubReader.app_pages
         private void SecondWindow_WindowClosed(object sender, EventArgs e)
         {
             // Call the method you want to run after the window is closed
-            LoadImages();
+            LoadImages2();
         }
 
         private void ScrollLeft_Click(object sender, RoutedEventArgs e)

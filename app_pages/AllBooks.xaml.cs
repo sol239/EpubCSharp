@@ -25,19 +25,6 @@ using System.Text.Json;
 
 namespace EpubReader
 {
-    public class Photo
-    {
-        public BitmapImage PhotoBitmapImage { get; set; }
-        public string Title { get; set; } //public int Likes { get; set; }
-
-        public string EbookPath{ get; set; }
-
-        public string Author { get; set; }
-        public string Language { get; set; }
-        public string Publisher { get; set; }
-        public string DateAdded { get; set; }
-        public string DateLastOpened { get; set; }
-    }
 
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -79,10 +66,8 @@ namespace EpubReader
             MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
             this.Unloaded += OnAllBooksUnloaded;
 
-            Photos = new ObservableCollection<Ebook>();
-            PopulatePhotos("Name", true, false);
-            SetDimensions();
-            ObtainDimensions();
+            Ebooks = new ObservableCollection<Ebook>();
+            PopulateEbooks("Name", true, false);
             comboBoxesSetup();
 
 
@@ -93,49 +78,12 @@ namespace EpubReader
             MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
         }
 
-        public ObservableCollection<Ebook> Photos
+        public ObservableCollection<Ebook> Ebooks
         {
             get; private set;
         }
 
-        private void ObtainDimensions()
-        {
-            /*
-            BookCoverWidth = BookCover.Width;
-            BookCoverHeight = BookCover.Height;
-            BookCoverMinWidth = BookCover.MinWidth; */
-
-            /*
-            BookStackPanelOpacity = BookStackPanel.Opacity;
-            BookStackPanelHeight = BookStackPanel.Height;*/
-
-            AllBooksViewWidth = AllBooksView.Width;
-            AllBooksViewHeight = AllBooksView.Height;
-
-            /*
-            AllLayout_MaximumRowsOrColumns = AllLayout.MaximumRowsOrColumns;
-            AllLayout_MinColumnSpacing = AllLayout.MinColumnSpacing;
-            AllLayout_MinRowSpacing = AllLayout.MinRowSpacing;
-            */
-
-            AllLayout_MaximumRowsOrColumns = AllLayout.MaximumRowsOrColumns;
-            AllLayout_MinColumnSpacing = AllLayout.MinColumnSpacing;
-            AllLayout_MinRowSpacing = AllLayout.MinRowSpacing;
-
-        }
-
-        private void ChangeDimensions()
-        {
-            /*
-            double width = actualWidth;
-            int grid_size = 210;
-            double x = 0;
-            x = width - (grid_size * ((int)width / grid_size));
-            double newPadding = x / ((int)width / grid_size);
-            AllLayout.MinColumnSpacing = newPadding;*/
-        }
-
-
+        
         private void OnSizeChanged( object sender, (double width, double height) tp )
         {
             actualWidth = tp.width;
@@ -143,30 +91,18 @@ namespace EpubReader
             AllBooksView.Height = actualHeight - 55;
         }
 
-        private void PopulatePhotos(string method, bool ascendingOrder, bool print)
+        private void PopulateEbooks(string method, bool ascendingOrder, bool print)
         {
-            // clear the Photos collection
-            Photos.Clear();
+            // clear the Ebooks collection
+            Ebooks.Clear();
 
             List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
 
             foreach (var ebook in ebookPaths)
             {
 
-                Photos.Add(ebook);
+                Ebooks.Add(ebook);
             }
-        }
-
-        public void SetDimensions()
-        {
-            float bookCount = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened").Count;
-            int multiply = 210;
-            // Assuming 'this' is your Window
-            double width = this.ActualWidth;
-            double height = this.ActualHeight;
-            //AllBooksView_GridLayout.MaximumRowsOrColumns = 
-            //AllBooksView.Width = 5 * (multiply);
-            //AllBooksView.Height = Math.Ceiling(bookCount / 5) * (multiply);
         }
 
         private void AllBooksView_ItemClick(ItemsView sender, ItemsViewItemInvokedEventArgs args)
@@ -204,9 +140,9 @@ namespace EpubReader
         // Event handler for when the EbookWindow is closed
         private void SecondWindow_WindowClosed(object sender, EventArgs e)
         {
-            // clear the Photos collection
-            Photos.Clear();
-            PopulatePhotos(method, true, false);
+            // clear the Ebooks collection
+            Ebooks.Clear();
+            PopulateEbooks(method, true, false);
 
         }
 
@@ -224,7 +160,7 @@ namespace EpubReader
         private void SortComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             method = (string)SortComboBox.SelectedValue;
-            PopulatePhotos(method, true, false);
+            PopulateEbooks(method, true, false);
         }
 
         private List<FrameworkElement> GetParents(FrameworkElement element)
