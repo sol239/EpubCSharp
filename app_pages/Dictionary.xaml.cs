@@ -121,7 +121,7 @@ namespace EpubReader
         }
 
         // Helper method to find a child element by name
-        private T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+        public static T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
         {
             if (parent == null) return null;
 

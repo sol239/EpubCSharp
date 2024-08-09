@@ -28,6 +28,7 @@ using System.Text;
 using Windows.Media.Protection.PlayReady;
 using static EpubReader.code.FileManagment;
 using System.Threading;
+using System.Web;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -76,8 +77,15 @@ namespace EpubReader.app_pages
         /// </summary>
         public EbookWindow( (string ebookPlayOrder, string ebookFolderPath) data )
         {
-            Thread flaskThread = new Thread(StartFlaskServer);
-            flaskThread.Start();
+
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+
+            if (settings.translationService == "argos")
+            {
+                Thread flaskThread = new Thread(StartFlaskServer);
+                flaskThread.Start();
+            }
 
             this.InitializeComponent();
             ChangeCommandBarColors();
@@ -618,9 +626,20 @@ document.addEventListener('DOMContentLoaded', () => {
             string sourceLanguage = "en";
             string targetLanguage = "cs";
 
-            // Await the result of the Python script before proceeding
-            string result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
-            //Debug.WriteLine($"Result: {result}");
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+            string result = "";
+
+            if (settings.translationService == "argos")
+            {
+                result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
+            }
+
+            else if (settings.translationService == "My Memory")
+            {
+                result = await GetTranslationMymemory(messageContent, sourceLanguage, targetLanguage);
+            }
+
 
             if (messageType == "CLICKED WORD")
             {
@@ -812,7 +831,12 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
-                await StopFlaskServer();
+
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                if (settings.translationService == "argos")
+                {
+                    await StopFlaskServer();
+                }
 
                 await SavePosition();
                 await CalculateTimeDifference();
@@ -1255,9 +1279,20 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
+
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+                string workingDirectory = Directory.GetCurrentDirectory();
+
+                // Define the Python script file name
+                string scriptFileName = "translation_script.py";
+
+                // Combine the working directory with the script file name
+                string scriptPath = Path.Combine(workingDirectory, scriptFileName);
+
                 flaskProcess = new Process();
-                flaskProcess.StartInfo.FileName = "C:\\Users\\david_pmv0zjd\\Documents\\translation-ebook\\venv\\Scripts\\python.exe";  // Command to run Python
-                flaskProcess.StartInfo.Arguments = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\code\\translation_script.py"; // Your Python script
+                flaskProcess.StartInfo.FileName = settings.pythonPath;  // Command to run Python
+                flaskProcess.StartInfo.Arguments = scriptPath; // Your Python script
                 flaskProcess.StartInfo.UseShellExecute = false;
                 flaskProcess.StartInfo.RedirectStandardOutput = true;
                 flaskProcess.StartInfo.RedirectStandardError = true;
@@ -1338,6 +1373,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 Debug.WriteLine($"Request error: {e.Message}");
                 return "ERROR";
             }
+        }
+
+        private static async Task<string> GetTranslationMymemory(string textToTranslate, string sourceLanguage, string targetLanguage, string developerEmail = "david.valek17@gmail.com")
+        {
+
+            var translatedText = await TranslateText(textToTranslate, sourceLanguage, targetLanguage, developerEmail);
+            return translatedText;
+        }
+
+        private static async Task<string> TranslateText(string text, string sourceLanguage, string targetLanguage, string developerEmail)
+        {
+            var url = $"https://api.mymemory.translated.net/get?q={HttpUtility.UrlEncode(text)}&langpair={sourceLanguage}|{targetLanguage}&de={HttpUtility.UrlEncode(developerEmail)}";
+
+            var response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            byte[] responseBytes = await response.Content.ReadAsByteArrayAsync();
+            string responseBody = Encoding.UTF8.GetString(responseBytes);
+
+            // Parse the JSON response
+            var jsonDocument = JsonDocument.Parse(responseBody);
+            var translatedText = jsonDocument.RootElement.GetProperty("responseData").GetProperty("translatedText").GetString();
+            return translatedText;
         }
     }
 

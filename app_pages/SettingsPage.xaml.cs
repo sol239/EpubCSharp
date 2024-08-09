@@ -36,6 +36,9 @@ namespace EpubReader
         public string font { get; set; }
         public string backgroundColor { get; set; }
         public string ebookViewer { get; set; }
+        public string translationService { get; set; }
+
+        public string pythonPath { get; set; }
     }
 
     /// <summary>
@@ -90,6 +93,13 @@ namespace EpubReader
             "epubjs"
         };
 
+        private List<string> tsServices = new List<string>
+        {
+            "argos",
+            "My Memory",
+            "dictionary"
+        };
+
         Windows.UI.Color colorSelected;
 
         private int _startUp = 0;
@@ -115,6 +125,8 @@ namespace EpubReader
             fontsComboBox.SelectedIndex = _bookReadingFonts.IndexOf(_globalSettings.font);
             backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
             ebookViewerComboBox.SelectedIndex = _bookViewer.IndexOf(_globalSettings.ebookViewer);
+            translationComboBox.SelectedIndex = tsServices.IndexOf(_globalSettings.translationService);
+            PythonPathBox.Text = _globalSettings.pythonPath;
             
         }
 
@@ -139,6 +151,11 @@ namespace EpubReader
             foreach (var viewer in _bookViewer)
             {
                 ebookViewerComboBox.Items.Add(viewer);
+            }
+
+            foreach (var service in tsServices)
+            {
+                translationComboBox.Items.Add(service);
             }
         }
 
@@ -316,6 +333,33 @@ namespace EpubReader
             globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
             settings.ebookViewer = selectedViewer;
             File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+        }
+
+        private void translationComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            string selectedTranslService = tsServices[translationComboBox.SelectedIndex];
+
+            Debug.WriteLine(selectedTranslService);
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            settings.translationService = selectedTranslService;
+            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+        }
+
+        private void PythonPath_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string pythonPath = PythonPathBox.Text;
+
+            // Perform your action with the message here
+            // For example, display it in a message box
+            if (!string.IsNullOrWhiteSpace(pythonPath))
+            {
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.pythonPath = pythonPath;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+            }
         }
     }
 }

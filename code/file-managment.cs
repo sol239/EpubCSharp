@@ -261,6 +261,7 @@ public class FileManagment
         globalSettings.ebookViewer = "WebView2";
         globalSettings.font = "Merriweather";
         globalSettings.backgroundColor = "#efe0cd";
+        globalSettings.translationService = "argos";
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 
@@ -333,6 +334,7 @@ public class FileManagment
 
         catch
         {
+            
             Debug.WriteLine($"StartUp() - Fail\n");
         }
 

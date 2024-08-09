@@ -19,6 +19,8 @@
                 Header="Ebook Font"
                 x:Name="fontsComboBox" 
                 Width="200" 
+                Height="58"
+
                 Margin="10"
                 SelectionChanged="fontsComboBoxSelectionChanged">
                 <ComboBox.ItemTemplate>
@@ -32,6 +34,8 @@
                 Header="Background color"
                 x:Name="backgroundcolorComboBox" 
                 Width="200" 
+                Height="58"
+
                 Margin="10"
                 SelectionChanged="backgroundcolorComboBoxSelectionChanged">
                 <ComboBox.ItemTemplate>
@@ -45,6 +49,8 @@
                 Header="Ebook Viewer"
                 x:Name="ebookViewerComboBox" 
                 Width="200" 
+                Height="58"
+
                 Margin="10"
                 SelectionChanged="ebookViewerComboBoxComboBoxSelectionChanged">
                 <ComboBox.ItemTemplate>
@@ -53,6 +59,26 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
+
+            <ComboBox 
+                Header="Translation Viewer"
+                x:Name="translationComboBox" 
+                Width="200" 
+                Height="58"
+                Margin="10"
+                SelectionChanged="translationComboBoxSelectionChanged">
+                
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontFamily="{Binding}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <StackPanel Name="PythonPathStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="40">
+                <TextBox x:Name="m" Width="300" Height="40" PlaceholderText="Enter python.exe path..." />
+                <Button Content=">" Click="PythonPath_Click" Width="40" Height="40"/>
+            </StackPanel>
 
             <!-- Example settings -->
             <TextBlock Text="General Settings" FontSize="24" Margin="10"/>
