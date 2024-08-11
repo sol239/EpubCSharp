@@ -17,13 +17,14 @@ using Windows.Foundation.Collections;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using CSharpMarkup.WinUI;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 
 using EpubReader.code;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Microsoft.UI.Xaml.Shapes;
+using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -39,6 +40,10 @@ namespace EpubReader
         public string translationService { get; set; }
 
         public string pythonPath { get; set; }
+
+        public string language { get; set; }
+
+        public string Theme { get; set; }
     }
 
     /// <summary>
@@ -46,7 +51,9 @@ namespace EpubReader
     /// </summary>
     public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     {
-        private List<string> _bookReadingFonts = new List<string>
+        private int confirmStartup = 3;
+        
+        public static List<string> _bookReadingFonts = new List<string>
         {
             "Georgia",
             "Times New Roman",
@@ -74,7 +81,7 @@ namespace EpubReader
             "Custom +"
         };
 
-        private List<string> _bookBackgroundColor = new List<string>
+        public static List<string> _bookBackgroundColor = new List<string>
         {
             "#efe0cd",
             "#EFE0CD",
@@ -87,18 +94,67 @@ namespace EpubReader
 
         };
 
-        private List<string> _bookViewer = new List<string>
+        public static List<string> _bookViewer = new List<string>
         {
             "WebView2",
             "epubjs"
         };
 
-        private List<string> tsServices = new List<string>
+        public static List<string> tsServices = new List<string>
         {
             "argos",
             "My Memory",
             "dictionary"
         };
+
+        public static Dictionary<string, Dictionary<string, string>> _themes = new Dictionary<string, Dictionary<string, string>>()
+        {
+
+            // Themes
+            {
+                "Pure White", new Dictionary<string, string>()
+                {
+                    { "background-color", "#FFFFFF" },
+                    { "button-color", "#000000" },
+                    { "header-color", "#f5f5f5" },
+                    { "text-color", "#000000" }
+                }
+            },
+
+
+            {
+                "Dark Blue", new Dictionary<string, string>()
+                {
+                    { "background-color", "#232c40" },
+                    { "button-color", "#e6ddc9" },
+                    { "header-color", "#192236" },
+                    { "text-color", "#e6ddc9" }
+                }
+            },
+
+            {
+                "Woodlawn", new Dictionary<string, string>()
+                {
+                    { "background-color", "#e6ddc9" },
+                    { "button-color", "#000000" },
+                    { "header-color", "#bcb4a4" },
+                    { "text-color", "#000000" }
+                }
+            },
+
+
+
+
+
+        };
+
+        private Dictionary<string, string> languageDict = new Dictionary<string, string>()
+        {
+
+        };
+
+        private double actualWidth;
+        private double actualHeight;
 
         Windows.UI.Color colorSelected;
 
@@ -107,12 +163,47 @@ namespace EpubReader
         public SettingsPage()
         {
             this.InitializeComponent();
+            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
+            this.Unloaded += OnHomePageUnloaded;
+
+            LoadLangDict();
             comboBoxesSetup();
             string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
             PageStartup();
 
 
 
+        }
+        private void OnHomePageUnloaded(object sender, RoutedEventArgs e)
+        {
+            MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
+        }
+
+        private void OnSizeChanged(object sender, (double width, double height) tp)
+        {
+            actualWidth = tp.width;
+            actualHeight = tp.height;
+
+        }
+        private void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            // Save theme choice to LocalSettings. 
+            // ApplicationTheme enum values: 0 = Light, 1 = Dark
+            ApplicationData.Current.LocalSettings.Values["themeSetting"] =
+                ((ToggleSwitch)sender).IsOn ? 0 : 1;
+        }
+
+        private void ToggleSwitch_Loaded(object sender, RoutedEventArgs e)
+        {
+            ((ToggleSwitch)sender).IsOn = App.Current.RequestedTheme == ApplicationTheme.Light;
+        }
+
+
+        private void LoadLangDict()
+        {
+            string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
+            string json = File.ReadAllText(path);
+            languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
         }
 
         public async void PageStartup()
@@ -126,6 +217,9 @@ namespace EpubReader
             backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
             ebookViewerComboBox.SelectedIndex = _bookViewer.IndexOf(_globalSettings.ebookViewer);
             translationComboBox.SelectedIndex = tsServices.IndexOf(_globalSettings.translationService);
+            languageComboBox.SelectedIndex = languageDict.Keys.ToList().IndexOf(_globalSettings.language);
+            ThemesComboBox.SelectedIndex = _themes.Keys.ToList().IndexOf(_globalSettings.Theme);
+
             PythonPathBox.Text = _globalSettings.pythonPath;
             
         }
@@ -157,12 +251,26 @@ namespace EpubReader
             {
                 translationComboBox.Items.Add(service);
             }
+
+            foreach (var language in languageDict.Keys.ToList())
+            {
+                languageComboBox.Items.Add(language);
+            }
+
+            foreach (var theme in _themes.Keys.ToList())
+            {
+                ThemesComboBox.Items.Add(theme);
+            }
+
         }
 
        
 
-        static async Task UpdateBodyFontFamily(string cssFilePath, string newFontFamily)
+        public static async Task UpdateBodyFontFamily(string newFontFamily)
         {
+
+            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
             // Read the existing CSS file
             string cssContent = File.ReadAllText(cssFilePath);
 
@@ -188,12 +296,14 @@ namespace EpubReader
             Debug.WriteLine($"\n{newFontFamily} updated successfully!\n");
         }
 
-        static async Task UpdateBodyBackgroundColor(string cssFilePath, string color)
+        public static async Task UpdateBodyBackgroundColor(string color)
         {
             Debug.WriteLine($"\nTryying to change backgournd color to {color}!\n");
 
             try
             {
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
                 // Read the existing CSS file
                 string cssContent = File.ReadAllText(cssFilePath);
 
@@ -224,13 +334,50 @@ namespace EpubReader
             }
         }
 
+        public static async Task UpdateBodyTextColor(string color)
+        {
+            Debug.WriteLine($"\nTryying to change backgournd color to {color}!\n");
+
+            try
+            {
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
+                // Read the existing CSS file
+                string cssContent = File.ReadAllText(cssFilePath);
+
+                // Regular expression to find the body background-color declaration
+                string backgroundColorPattern = @"(?<=body\s*{[^}]*?color:\s*)([^;]*)(?=;)";
+
+                // Replace the existing background color for body with the new one
+                string modifiedCssContent = Regex.Replace(cssContent, backgroundColorPattern, color, RegexOptions.Singleline);
+
+                // If no background-color was found, add it
+                if (!Regex.IsMatch(cssContent, @"body\s*{[^}]*?color:"))
+                {
+                    modifiedCssContent = Regex.Replace(modifiedCssContent, @"body\s*{", $"body {{\n    color: {color};\n", RegexOptions.Singleline);
+                    Debug.WriteLine($"\nModified content:\n{modifiedCssContent}\n");
+                }
+
+                // Write the modified content back to the CSS file
+                File.WriteAllText(cssFilePath, modifiedCssContent);
+
+                // Call the global CSS injector
+                await app_controls.GlobalCssInjector();
+
+                Debug.WriteLine($"\nBackground color updated to {color} successfully!\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating background color: {ex.Message}");
+            }
+        }
+
 
         private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
-            if (_startUp >= 2)
+            if (_startUp >= confirmStartup)
             {
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
                 string newFontFamily = _bookReadingFonts[fontsComboBox.SelectedIndex];
 
                 // store to json
@@ -239,7 +386,7 @@ namespace EpubReader
                 File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
 
-                await UpdateBodyFontFamily(cssFilePath, newFontFamily);
+                await UpdateBodyFontFamily(newFontFamily);
             }
             else
             {
@@ -269,9 +416,8 @@ namespace EpubReader
         }
         private async void backgroundcolorComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_startUp >= 2)
+            if (_startUp >= confirmStartup)
             {
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
                 string color = _bookBackgroundColor[backgroundcolorComboBox.SelectedIndex];
 
                 if (color == "Custom +")
@@ -285,7 +431,7 @@ namespace EpubReader
                 settings.backgroundColor = color;
                 File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
-                await UpdateBodyBackgroundColor(cssFilePath, color);
+                await UpdateBodyBackgroundColor(color);
             }
 
             else
@@ -347,6 +493,17 @@ namespace EpubReader
 
         }
 
+        private void languageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            string selectedLang = languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
+
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            settings.language = selectedLang;
+            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+        }
+
         private void PythonPath_Click(object sender, RoutedEventArgs e)
         {
             // Get the text from the TextBox
@@ -360,6 +517,24 @@ namespace EpubReader
                 settings.pythonPath = pythonPath;
                 File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
             }
+        }
+
+        private async void ThemesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_startUp >= confirmStartup)
+            {
+                string theme = _themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.Theme = theme;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                await UpdateBodyTextColor(_themes[theme]["text-color"]);
+                await UpdateBodyBackgroundColor(_themes[theme]["background-color"]);
+            }
+
+            else
+            {
+                _startUp++; }
+
         }
     }
 }

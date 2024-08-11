@@ -17,6 +17,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using EpubReader.app_pages;
 using EpubReader.code;
+using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -33,6 +34,13 @@ namespace EpubReader
         public App()
         {
             this.InitializeComponent();
+            object value = ApplicationData.Current.LocalSettings.Values["themeSetting"];
+
+            if (value != null)
+            {
+                // Apply theme choice.
+                App.Current.RequestedTheme = (ApplicationTheme)(int)value;
+            }
         }
 
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)

@@ -215,7 +215,7 @@ public class FileManagment
                                 /*
                                 background colors I like:display: EFE0CD, E4D8CD, E2D3C4, D4C2AF
                                 */
-                                background-color: #efe0cd;
+                                background-color: #e6ddc9;
                                 
                                 text-align: justify;
                                 overflow: hidden; /*  Hide scrollbars for the body element */
@@ -262,6 +262,10 @@ public class FileManagment
         globalSettings.font = "Merriweather";
         globalSettings.backgroundColor = "#efe0cd";
         globalSettings.translationService = "argos";
+        globalSettings.language = "English";
+        globalSettings.Theme = "Woodlawn";
+
+
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 

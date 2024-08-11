@@ -11,49 +11,60 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Width="Auto" Height="900">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <!-- Column for CalendarView -->
-            <ColumnDefinition Width="*"/>
+            <!-- <ColumnDefinition Width="*"/> -->
             <!-- Column for CartesianChart -->
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Row for TextBlock -->
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <!-- Row for CalendarView and CartesianChart -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row for TextBlock -->
             <RowDefinition Height="Auto"/>
             <!-- Row for additional content (if needed) -->
         </Grid.RowDefinitions>
 
         <TextBlock Name="TimeSpentTextBlock"
-            Text="{x:Bind timeSpan, Mode=OneWay}"
-                   Grid.Column="0"    
-                   Grid.Row="0"
-                   Margin="20"
-                   HorizontalAlignment="Center" />
+        Text="{x:Bind timeSpan, Mode=OneWay}"
+               Grid.Column="0"    
+               Grid.Row="0"
+               Margin="20"
+               HorizontalAlignment="Center" />
         <TextBlock Name="TimeSpentPerBookTextBlock"
-                   Text="Ahoj"
-                   Grid.Column="1"    
-                   Grid.Row="0"
-                   Margin="20"
-                   HorizontalAlignment="Center" />
+               Text="Ahoj"
+               Grid.Column="0"    
+               Grid.Row="1"
+               Margin="20"
+               HorizontalAlignment="Center" />
         <CalendarView x:Name="calendarView" 
-                      Grid.Column="0" 
-                      Margin="20"
-                      Grid.Row="1" 
-                      HorizontalAlignment="Stretch" 
-                      VerticalAlignment="Stretch" 
-                      CalendarViewDayItemChanging="CalendarView_CalendarViewDayItemChanging"
-                      SelectedDatesChanged="CalendarView_SelectedDatesChanged"/>
-
+                  Grid.Column="0" 
+                  Margin="20"
+                  Grid.Row="2" 
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch" 
+                  CalendarViewDayItemChanging="CalendarView_CalendarViewDayItemChanging"
+                  CalendarItemForeground="Black"
+                  TodayForeground="Black"
+                  SelectedDatesChanged="CalendarView_SelectedDatesChanged"
+                  
+                  
+                  />
+        <!--
         <winUi:CartesianChart x:Name="lineChart"
-                              Grid.Column="1"
-                              Grid.Row="1"
-                              Padding="20" 
-                              HorizontalAlignment="Stretch" 
-                              VerticalAlignment="Stretch"/>
+                          Grid.Column="1"
+                          Grid.Row="2"
+                          Padding="20" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"/>
+        
+        -->
+
     </Grid>
+
 </Page>

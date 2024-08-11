@@ -25,7 +25,7 @@
                    Text="Recent Ebooks" 
                    FontSize="20" 
                    HorizontalAlignment="Left" 
-                   Padding="10,20,5,0"/>
+                   Padding="10,20,5,10"/>
 
         <Button Grid.Row="0"
                 HorizontalAlignment="Right"
@@ -50,7 +50,7 @@
                           VerticalScrollBarVisibility="Disabled" 
                           Grid.Column="1"
                           >
-                <StackPanel Orientation="Horizontal" x:Name="ImageStackPanel">
+                <StackPanel Orientation="Horizontal" x:Name="ImageStackPanel" Spacing="20">
                     <!-- Images will be added here -->
                 </StackPanel>
             </ScrollViewer>

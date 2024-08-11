@@ -86,6 +86,7 @@ namespace EpubReader.app_pages
                 CloseButtonText = "Ok"
             };
 
+
             await dialog.ShowAsync();
         }
 
@@ -112,16 +113,24 @@ namespace EpubReader.app_pages
         private async void OpenBookAddedDialogue(string message)
         {
 
-            ContentDialog dialog = new ContentDialog
+            try
             {
-                Title = "Book Addition Status",
-                Content = message,
-                CloseButtonText = "Ok",
-                XamlRoot = this.Content.XamlRoot // Set the XamlRoot property
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "Book Addition Status",
+                    Content = message,
+                    CloseButtonText = "Ok",
+                    XamlRoot = this.Content.XamlRoot // Set the XamlRoot property
 
-            };
+                };
 
-            await dialog.ShowAsync();
+                await dialog.ShowAsync();
+                Debug.WriteLine($"OpenBookAddedDialogue() - Success");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"OpenBookAddedDialogue() - Fail - {e.Message}");
+            }
         }
 
         /// <summary>
@@ -164,6 +173,27 @@ namespace EpubReader.app_pages
             {
                 (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebook.InBookPosition, ebook.EbookFolderPath);
 
+
+                Grid grid = new Grid
+                {
+                    Width = stackPanelWidth,
+                    Height = 200,
+                    Background = new SolidColorBrush(Colors.Transparent),
+                    BorderBrush = new SolidColorBrush(Colors.Transparent),
+                    
+                };
+
+                grid.PointerEntered += (s, e) => ((Grid)s).Background = new SolidColorBrush(Colors.LightGray);
+                grid.PointerExited += (s, e) => ((Grid)s).Background = new SolidColorBrush(Colors.Transparent);
+
+                grid.PointerReleased += (sender, e) =>
+                {
+                    SelectViewer(naValueTuple);
+
+
+                };
+
+
                 StackPanel imagePanel = new StackPanel
                 {
                     Orientation = Orientation.Vertical,
@@ -183,9 +213,12 @@ namespace EpubReader.app_pages
 
                 Button button = new Button
                 {
-                    Content = image,
-                    Width = 200,
+                    //Content = image,
+                    Width = stackPanelWidth,
                     Height = 200,
+                    //Background = new SolidColorBrush(Colors.Transparent),
+                    //BorderBrush = new SolidColorBrush(Colors.Transparent)
+
                 };
 
                 button.Click += (sender, e) =>
@@ -246,12 +279,14 @@ namespace EpubReader.app_pages
                 stackPanel1.Children.Add(title);
                 stackPanel2.Children.Add(author);
                 stackPanel1.Children.Add(stackPanel2);
-                imagePanel.Children.Add(button);
-                imagePanel.Children.Add(stackPanel1);
+                grid.Children.Add(image);
+                grid.Children.Add(stackPanel1);
 
-                ImageStackPanel.Children.Add(imagePanel);
+                ImageStackPanel.Children.Add(grid);
             }
         }
+
+
         public async void LoadImages(double stackPanelWidth=200)
         {
             // Clear existing images

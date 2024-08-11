@@ -6,7 +6,9 @@
     xmlns:local="using:EpubReader.app_pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    >
+    
 
     <Grid Name="ViewerGrid" Background="#ffffff" KeyDown="Page_KeyDown"> <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
@@ -23,7 +25,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid>
-            <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact">
+            <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Minimal" IsTabStop="False">
                 <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72B;" />
@@ -36,28 +38,35 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
 
-                <AppBarButton x:Name="Settings" Label="Settings">
+                <AppBarButton x:Name="Settings" Label="Settings" Click="Settings_OnClick">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+
+
 
                 <AppBarButton x:Name="Home" Label="Home" Click="GoHomeAction">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-
+                <!--
                 <AppBarButton x:Name="UpdateCSS" Label="Update CSS" Click="UpdateCSSAction">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72C;" />
                     </AppBarButton.Icon>
-                </AppBarButton>
+                </AppBarButton> -->
             </CommandBar>
+
+            <TextBox x:Name="DummyTextBox" Visibility="Collapsed" IsTabStop="False" KeyDown="Page_KeyDown"/>
+
+
+
         </Grid>
 
         <!-- WebView -->
-        <WebView2 x:Name="MyWebView"  KeyDown="Page_KeyDown"
+        <WebView2 x:Name="MyWebView"  
                    Grid.Row="1"
                    Grid.ColumnSpan="2"
                    Source=""
@@ -69,9 +78,24 @@
 
         </WebView2>
 
-                   
+        <Popup x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
+        <Border Background="White" BorderBrush="Black" BorderThickness="1" Padding="10">
+            <StackPanel>
+                <ComboBox x:Name="ThemesComboBox" Width="200" Height="58" PlaceholderText="Select theme" Header="Theme" Margin="5" SelectionChanged="ThemesComboBox_OnSelectionChanged">
+                    <!-- ComboBox items -->
+                </ComboBox>
 
-        
+                <ComboBox x:Name="fontsComboBox" Width="200" Height="58" PlaceholderText="Select font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
+                    <!-- ComboBox items -->
+                </ComboBox>
+
+            </StackPanel>
+        </Border>
+        </Popup>
+
+
+
+
 
         <Frame x:Name="EbookFrame" />
     </Grid>

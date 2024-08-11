@@ -65,7 +65,7 @@
                    Width="Auto"
                    Height="574"
                    ItemInvoked="AllBooksView_ItemClick"
-                   RightTapped="AllBooksView_OnRightTapped" >
+                   HorizontalAlignment="Left">
 
             <ItemsView.Layout>
                 <UniformGridLayout x:Name="AllLayout"
@@ -79,9 +79,9 @@
         </ItemsView>
 
         <!-- Place the ComboBox in the top right corner -->
-        <ComboBox Grid.Row="0" Grid.Column="1"
+        <ComboBox Grid.Row="0" Grid.Column="0"
                   VerticalAlignment="Top"
-                  HorizontalAlignment="Right"
+                  HorizontalAlignment="Left"
                   Margin="10"
                   Opacity="0.99"
                   Name="SortComboBox"
@@ -89,6 +89,46 @@
                   >
             
         </ComboBox>
+
+        <ScrollViewer Name="InfoScrollViewer"
+            Grid.Row="0"
+                      Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Width="400"
+
+                      Height="574">
+
+                <StackPanel                  Visibility="Collapsed" 
+                            Grid.Column="1"
+                            Grid.Row="1"
+                            Width="400"
+                          Background="{ThemeResource SystemControlBackgroundAltHighBrush}"
+                          x:Name="detailsPanel"
+                          >
+                    <TextBlock x:Name="bookTitle" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" Margin="5, 10, 5, 10"/>
+                    <TextBlock x:Name="bookAuthor" FontStyle="Italic" TextWrapping="Wrap" Margin="5"/>
+                    <TextBlock x:Name="bookReadTime" Margin="5"/>
+                    <Button Name="DeleteButton" Content="Delete" Click="DeleteButton_OnClick" Margin="5"></Button>
+                    <Button Name="ReadButton" Content="Read"  Click="ReadButton_OnClick" Margin="5"></Button>
+
+                    <ComboBox 
+                        Header="Ebook Language"
+                        x:Name="languageComboBox" 
+                        Width="200" 
+                        Height="58"
+                        Margin="5"
+                        SelectionChanged="languageComboBoxSelectionChanged">
+
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontFamily="{Binding}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+        </ScrollViewer>
+
     </Grid>
 
 </Page>

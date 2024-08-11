@@ -50,7 +50,7 @@ namespace EpubReader
 
             // Initialize habits
             LoadBooks();
-            SetupChart();
+            //SetupChart(DateTime.Now.ToString("yyyy-MM-dd"));
 
         }
 
@@ -136,9 +136,13 @@ namespace EpubReader
                 try
                 {
                     Books.Add(new Book { Name = "Combined", TimeDict = _combinedDict });
-                    timeSpan = $"{_timeSpan.Days}d {_timeSpan.Hours}h {_timeSpan.Minutes}m {_timeSpan.Seconds}s";
+                    timeSpan = $"Total time: {_timeSpan.Days}d {_timeSpan.Hours}h {_timeSpan.Minutes}m {_timeSpan.Seconds}s";
                     // use today's date as the default selected date
-                    TimeSpentPerBookTextBlock.Text = _combinedDict[DateTime.Now.ToString("yyyy-MM-dd")];
+                    //TimeSpentPerBookTextBlock.Text = _combinedDict[DateTime.Now.ToString("yyyy-MM-dd")];
+                    TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[DateTime.Now.ToString("yyyy-MM-dd")]);
+
+                    TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: {_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
+
 
                     Debug.WriteLine($"LoadBooks() 3 - Success\n");
                 }
@@ -146,6 +150,9 @@ namespace EpubReader
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"LoadBooks() 3 - Fail - {ex.Message}\n");
+
+                    TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: 0s";
+
                 }
 
                 Debug.WriteLine($"LoadBooks() - Success\n");
@@ -173,7 +180,7 @@ namespace EpubReader
                 TimeSpan interval5 = new TimeSpan(0, 0, 90, 0);
 
                 var color0 = EbookWindow.ParseHexColor("#ffffff");
-                var color1 = EbookWindow.ParseHexColor("#adf295");
+                var color1 = EbookWindow.ParseHexColor("#EEFCE9");
                 var color2 = EbookWindow.ParseHexColor("#7ceb55");
                 var color3 = EbookWindow.ParseHexColor("#4ce019");
                 var color4 = EbookWindow.ParseHexColor("#36a012");
@@ -237,6 +244,9 @@ namespace EpubReader
 
         }
 
+        private int _currentMonth;
+        private bool cange = true;
+
         private void CalendarView_CalendarViewDayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
         {
             try
@@ -257,6 +267,13 @@ namespace EpubReader
                     day.Background = new SolidColorBrush(Colors.White);
                 }
 
+                if (day.Date.Month != _currentMonth)
+                {
+                    //SetupChart(dateKey);
+                    _currentMonth = day.Date.Month;
+                }
+
+
                 //Debug.WriteLine($"CalendarView_CalendarViewDayItemChanging() - Success\n");
             }
 
@@ -266,6 +283,7 @@ namespace EpubReader
             }
 
         }
+
 
         private void CalendarView_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
         {
@@ -282,12 +300,14 @@ namespace EpubReader
                     {
 
                         TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[formattedDate]);
-                        TimeSpentPerBookTextBlock.Text = $"{_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
+                        TimeSpentPerBookTextBlock.Text = $"{selectedDate.ToString("yy-MMM-dd ddd")}: {_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
                     }
                     else
                     {
-                        TimeSpentPerBookTextBlock.Text = "No data";
+                        TimeSpentPerBookTextBlock.Text = $"{selectedDate.ToString("yy-MMM-dd ddd")}: 0s";
                     }
+
+                    //SetupChart(formattedDate);
 
 
                     Debug.WriteLine(formattedDate);
@@ -310,20 +330,50 @@ namespace EpubReader
            
         }
 
-        private void SetupChart()
+        public static List<string> GetAllValidDates(int year, int month)
         {
-            // Create a line series
+            List<string> dates = new List<string>();
+
+            // Validate the input year and month
+            if (year < 1 || month < 1 || month > 12)
+            {
+                throw new ArgumentException("Invalid year or month");
+            }
+
+            // Determine the number of days in the month
+            int daysInMonth = DateTime.DaysInMonth(year, month);
+
+            // Generate all dates for the month
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                DateTime date = new DateTime(year, month, day);
+                dates.Add(date.ToString("yyyy-MM-dd"));
+            }
+
+            return dates;
+        }
+
+        private void SetupChart(string selectedDate)
+        {
+            /*
+            DateTime date = DateTime.Parse(selectedDate);
+            List<string> dates = GetAllValidDates(date.Year, date.Month);
+            Debug.WriteLine(String.Join(", ", dates));
+
             var lineSeries = new LineSeries<double>
             {
                 Values = new double[] { 3, 5, 7, 4, 2, 6, 8, 5, 9, 3 }
-            };
 
-            // Assign the series to the chart
+                // line plot containg reading times per month
+                //Value = new
+            };
+                        // Assign the series to the chart
             lineChart.Series = new ISeries[] { lineSeries };
 
             // Optionally configure axes
             lineChart.XAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
             lineChart.YAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
+            */
         }
     }
 

@@ -29,6 +29,9 @@ using Windows.Media.Protection.PlayReady;
 using static EpubReader.code.FileManagment;
 using System.Threading;
 using System.Web;
+using ABI.Windows.ApplicationModel;
+using ContentDialog = Microsoft.UI.Xaml.Controls.ContentDialog;
+using LiveChartsCore.Themes;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -50,10 +53,7 @@ namespace EpubReader.app_pages
 
         // path to the CSS file for styling the ebook.
         private string _cssPath = FileManagment.GetEbookViewerStyleFilePath();
-        private Windows.UI.Color _backgroundColor = ParseHexColor("#eed2ae");
-        private Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
-        private Windows.UI.Color _buttonColor = ParseHexColor("#000000");
-
+        
         // tuple passed from the main window holding the ebook's play order and folder path.
         private (string ebookPlayOrder, string ebookFolderPath) navValueTuple;
 
@@ -67,7 +67,7 @@ namespace EpubReader.app_pages
 
         // JavaScript code to manage scrolling and key events
         private string _script = "0";
-        private string script1Path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\scripts\\ebook.js";
+        private string script1Path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\code\\ebook.js";
         private string script2Path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\scripts\\script.js";
 
         private string _emptyMessage = "*783kd4HJsn";
@@ -75,7 +75,7 @@ namespace EpubReader.app_pages
         /// <summary>
         /// Constructor initializes the component and subscribes to Loaded and Unloaded events.
         /// </summary>
-        public EbookWindow( (string ebookPlayOrder, string ebookFolderPath) data )
+        public EbookWindow((string ebookPlayOrder, string ebookFolderPath) data)
         {
 
             globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
@@ -88,18 +88,45 @@ namespace EpubReader.app_pages
             }
 
             this.InitializeComponent();
+            PageStartup();
             ChangeCommandBarColors();
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
             EbookViewer_Loaded();
-            ViewerGrid.Focus(FocusState.Programmatic);
+            DummyTextBox.Focus(FocusState.Programmatic);
             //epubjsWindowLoad();
             ChangeBooksStatus();
 
 
 
         }
+        public async void PageStartup()
+        {
+            //string _font = await LoadFontComboBox();
+            //string _color = await LoadBackgroundColorComboBox();
 
+            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+            fontsComboBox.SelectedIndex = SettingsPage._bookReadingFonts.IndexOf(_globalSettings.font);
+            ThemesComboBox.SelectedIndex = SettingsPage._themes.Keys.ToList().IndexOf(_globalSettings.Theme);
+            comboBoxesSetup();
+
+
+        }
+
+        private void comboBoxesSetup()
+        {
+            foreach (var font in SettingsPage._bookReadingFonts)
+            {
+                fontsComboBox.Items.Add(font);
+            }
+
+            foreach (var theme in SettingsPage._themes.Keys.ToList())
+            {
+                ThemesComboBox.Items.Add(theme);
+            }
+
+        }
         private void ChangeBooksStatus()
         {
             _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
@@ -126,7 +153,7 @@ namespace EpubReader.app_pages
         }
 
         private async Task SaveBookOpenTime()
-        {   
+        {
             // Save the time the book was opened
             _ebook.BookOpenTime = DateTime.Now.ToString();
         }
@@ -170,7 +197,7 @@ namespace EpubReader.app_pages
                     //Debug.WriteLine($"SavePosition() 3 - Fail - {ex.Message}");
                 }
 
-                
+
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
                 Debug.WriteLine($"InBookPosition = {_ebook.InBookPosition} | Scroll = {_ebook.ScrollValue}");
@@ -318,7 +345,15 @@ namespace EpubReader.app_pages
             }
         }
 
-
+        private void webView_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.P)
+            {
+                // Custom operation for Ctrl + P
+                e.Handled = true; // Mark as handled to prevent default behavior
+                Page_KeyDown(sender, e);
+            }
+        }
         /// <summary>
         /// Loads the playorder and scroll position of the WebView from the ebookData.json file.
         /// </summary>
@@ -328,7 +363,7 @@ namespace EpubReader.app_pages
             try
             {
                 _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
-                
+
                 /*
                 Debug.WriteLine("\n********************************");
                 Debug.WriteLine($"Restore Position: {_xhtmlPath} - Scroll = {_ebook.ScrollValue}");
@@ -339,9 +374,11 @@ namespace EpubReader.app_pages
                 await MyWebView.EnsureCoreWebView2Async(null);
 
                 await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
+
+
                 _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 
-                
+
             }
 
             catch (Exception ex)
@@ -424,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 if (MyWebView.CoreWebView2 != null)
                 {
-                    var result = await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
+                    //var result = await MyWebView.CoreWebView2.ExecuteScriptAsync(_script);
                     //Debug.WriteLine($"JavaScript executed with result: {result}");
                 }
                 else
@@ -446,16 +483,28 @@ document.addEventListener('DOMContentLoaded', () => {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void EbookViewer_Loaded()
+        private async Task EbookViewer_Loaded()
         {
             try
             {
                 await InitializeWebViewAsync();
                 await UpdateCssPath(_xhtmlPath, _cssPath);
+                await RestorePositionAsync();
 
                 // print actuall scroll
                 Debug.Write("Scroll = ");
+                Debug.WriteLine(_ebook.ScrollValue);
                 Debug.WriteLine(await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"));
+
+                while (_ebook.ScrollValue != await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"))
+                {
+                    Debug.Write("Scroll = ");
+                    Debug.WriteLine(_ebook.ScrollValue);
+                    Debug.WriteLine(await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"));
+                    RestorePositionAsync();
+                }
+
+
 
                 //await MyWebView.CoreWebView2.ExecuteScriptAsync(script3);
                 //MyWebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
@@ -474,8 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
                 */
-                await RestorePositionAsync();
-                MyWebView.Focus(FocusState.Programmatic);
+                DummyTextBox.Focus(FocusState.Programmatic);
             }
             catch
             {
@@ -496,6 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
                 await MyWebView.EnsureCoreWebView2Async(null);
+                //await ExecuteJavaScriptAsync(script1Path); // Execute JavaScript after the WebView has loaded
+
                 MyWebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
 
                 MyWebView.CoreWebView2.Settings.IsScriptEnabled = true;
@@ -528,48 +578,99 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             string message = e.TryGetWebMessageAsString();
 
-            //Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
-
-            string messageType = message.Split(" = ")[0];
-            string messageContent = message.Split(" = ")[1];
-
-            if (messageContent != _emptyMessage)
+            if (message.Contains("="))
             {
-                // open flyout
-                // Update the Flyout content
-                ShowFlyoutAsync(messageType, messageContent);
+                //Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
 
+                string messageType = message.Split(" = ")[0];
+                string messageContent = message.Split(" = ")[1];
+
+                if (messageContent != _emptyMessage)
+                {
+                    // open flyout
+                    // Update the Flyout content
+                    ShowFlyoutAsync(messageType, messageContent);
+
+                }
+            }
+            else if (message.Trim() == "scrolledDown")
+            {
+                MoveForward();
             }
 
-            
+            else if (message.Trim() == "scrolledUp")
+            {
+                MoveBackward();
+            }
+
+            Debug.WriteLine(message);
+
+
 
 
         }
 
 
+        static string RemoveLeadingTrailingSymbols(string text, char[] charsToRemove, bool removeLeading)
+        {
+            int index = removeLeading ? 0 : text.Length - 1;
+            int step = removeLeading ? 1 : -1;
 
+            while (index >= 0 && index < text.Length && Array.Exists(charsToRemove, c => c == text[index]))
+            {
+                text = text.Remove(index, 1);
+                index += step;
+            }
+
+            return text;
+        }
         public static async Task<string> RemoveSymbols(string text)
         {
-            // remove any . , ! ? : ; symbols from the text
-            text = text.Replace(".", "");
-            text = text.Replace(",", "");
-            text = text.Replace("!", "");
-            text = text.Replace("?", "");
-            text = text.Replace(":", "");
-            text = text.Replace(";", "");
-            text = text.Replace(" ", "");
-            text = text.Replace("\n", "");
-            text = text.Replace("\r", "");
-            text = text.Replace("\t", "");
-            text = text.Replace("\u2581", "");
+            // Original text
+            // Define an array of characters to remove if they are at the start or end
+            char[] charsToRemove = { '.', ',', '!', '?', ':', ';', ' ', '\n', '\r', '\t', '\u2581', '"', '“', '”', '‘', '’', '(', ')', '[', ']', '{', '}', '<', '>', '„', '«', '»' };
 
+            // Remove symbols from the start if they are in the charsToRemove array
+            text = RemoveLeadingTrailingSymbols(text, charsToRemove, true);
+
+            // Remove symbols from the end if they are in the charsToRemove array
+            text = RemoveLeadingTrailingSymbols(text, charsToRemove, false);
+
+            // Output the final result
             return text;
         }
 
         public static async Task<string> RepairTranlationTask(string text)
         {
             text = text.Replace("\u2581", " ");   // argos translate misbehavior in en->cs translations
+            
+            // remove trailing whitespaces
+            text = text.Trim();
+            
             return text;
+        }
+
+        private async Task<string> GetLanguageCode(string endoLanguageName)
+        {
+            try
+            {
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+
+                string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
+                string json = File.ReadAllText(path);
+                Dictionary<string, string> languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+
+                string code = languageDict[endoLanguageName];
+                Debug.WriteLine($"GetLanguageCode() - Success - {code}");
+                return code;
+            }
+
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"GetLanguageCode() - Fail - {ex.Message}");
+                return "en";
+            }
         }
 
         public async Task ShowFlyoutAsync(string messageType, string messageContent)
@@ -583,26 +684,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create a new Flyout
             Flyout flyout = new Flyout();
-            
+
             // set target
 
 
             flyout.Placement = FlyoutPlacementMode.Bottom;
             flyout.ShowMode = FlyoutShowMode.Transient;
+            flyout.Closed += (s, e) =>
+            {
+                DummyTextBox.Focus(FocusState.Programmatic);
+            };
 
 
             // Create content for the Flyout
             StackPanel stackPanel = new StackPanel
             {
                 Width = 200,
-                
+
             };
 
             TextBlock textBlock1 = new TextBlock { Text = $"{messageContent}" };
             textBlock1.FontWeight = FontWeights.Bold;
             textBlock1.TextTrimming = TextTrimming.CharacterEllipsis; // Trims at the character level and adds ...
 
-            
+
 
             // Create and configure the second TextBlock
             TextBlock textBlock2 = new TextBlock
@@ -620,13 +725,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             };
 
+
             scrollViewer.Width = stackPanel.Width;
             scrollViewer.Height = stackPanel.Height;
 
-            string sourceLanguage = "en";
-            string targetLanguage = "cs";
-
             globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            string sourceLanguage = await GetLanguageCode(_ebook.Language);
+            Debug.WriteLine($"Source Language = {_ebook.Language}");
+            Debug.WriteLine($"Target Language = {settings.language}");
+            string targetLanguage = await GetLanguageCode(settings.language);
 
             string result = "";
 
@@ -660,8 +767,8 @@ document.addEventListener('DOMContentLoaded', () => {
             closeButton.Click += async (s, e) =>
             {
                 flyout.Hide();
-                await StoreTranslation(sourceLanguage, targetLanguage,messageContent, result);
-                ViewerGrid.Focus(FocusState.Programmatic);
+                await StoreTranslation(sourceLanguage, targetLanguage, messageContent, result);
+                DummyTextBox.Focus(FocusState.Programmatic);
 
 
             };
@@ -676,14 +783,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Show the Flyout at a specific position after the Python script has finished
             flyout.ShowAt(MyWebView); // 'MyWebView' refers to the control or page where the Flyout is shown
-            ViewerGrid.Focus(FocusState.Programmatic);
+            DummyTextBox.Focus(FocusState.Programmatic);
 
             // set focus back to viewergrid
 
         }
-        
 
-        public async Task StoreTranslation(string sourceLanguage, string targerLanguage,string originalText, string translatedText)
+        private void Flyout_Closed(object sender, object e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task StoreTranslation(string sourceLanguage, string targerLanguage, string originalText, string translatedText)
         {
 
             string dictPath = FileManagment.GetGlobalDictPath();
@@ -691,15 +802,15 @@ document.addEventListener('DOMContentLoaded', () => {
             Debug.WriteLine($"Ebook Path = {navValueTuple.ebookFolderPath}\nOriginal = {originalText}\nTransalted = {translatedText}");
 
 
-            globalDictJson globalDict  = JsonSerializer.Deserialize<globalDictJson>(File.ReadAllText(dictPath));
+            globalDictJson globalDict = JsonSerializer.Deserialize<globalDictJson>(File.ReadAllText(dictPath));
 
-           if (!globalDict.dict.ContainsKey(originalText))
-           {
-               globalDict.dict.Add(originalText, new List<string>() { sourceLanguage, targerLanguage, translatedText });
-           }
+            if (!globalDict.dict.ContainsKey(originalText))
+            {
+                globalDict.dict.Add(originalText, new List<string>() { sourceLanguage, targerLanguage, translatedText });
+            }
 
             File.WriteAllText(FileManagment.GetGlobalDictPath(), JsonSerializer.Serialize(globalDict));
-            ViewerGrid.Focus(FocusState.Programmatic);
+            DummyTextBox.Focus(FocusState.Programmatic);
 
         }
 
@@ -786,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void UpdateCSSAction(object sender, RoutedEventArgs e)
+        private async Task UpdateCSSAction()
         {
             try
             {
@@ -843,14 +954,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 WindowClosed?.Invoke(this, EventArgs.Empty);
                 this.Close();
 
-                //Debug.WriteLine("GoHomeAction() - Success\n");
+                Debug.WriteLine("GoHomeAction() - Success\n");
             }
             catch (Exception ex)
             {
-                //Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n");
+                Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n");
             }
         }
-        
+
         /// <summary>
         /// Runs when the user clicks the Backward button. Scrolls up in the WebView. If the user has scrolled to the top of the page, navigates to the previous page.
         /// </summary>
@@ -867,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 //Debug.WriteLine("Backward_Click() - Fail\n");
             }
-            
+
         }
 
         /// <summary>
@@ -896,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _chapterNavigated = false;
 
             await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollBy(0, -window.innerHeight);");
-            await SavePosition(); 
+            await SavePosition();
             CheckBackward();
         }
 
@@ -1034,7 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 catch (Exception ex)
                 {
-                        Debug.WriteLine($"MoveToNext() - Fail - {ex.Message}\n");
+                    Debug.WriteLine($"MoveToNext() - Fail - {ex.Message}\n");
                 }
             }
 
@@ -1214,11 +1325,16 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             string color_string = "#efe0cd";
             string font_string;
+            Windows.UI.Color _backgroundColor = ParseHexColor("#eed2ae");
+            Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
+            Windows.UI.Color _buttonColor;
+
+        globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
 
             try
             {
-                color_string = await (SettingsPage.LoadBackgroundColorComboBox());
-                Debug.WriteLine($"Color:{color_string}");
+                color_string = SettingsPage._themes[settings.Theme]["background-color"];
                 font_string = await (SettingsPage.LoadFontComboBox());
             }
 
@@ -1228,9 +1344,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
             }
 
+            _backgroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["header-color"]);
+            _foregroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+            _buttonColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+
             MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
             MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);
-            Settings.Foreground = Home.Foreground = UpdateCSS.Foreground = new SolidColorBrush(_buttonColor);
+            Forward.Foreground = Backward.Foreground = Settings.Foreground = Home.Foreground = new SolidColorBrush(_buttonColor);
+
         }
 
 
@@ -1275,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         static Process flaskProcess;
 
-        private static void StartFlaskServer()
+        private async void StartFlaskServer()
         {
             try
             {
@@ -1285,10 +1406,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 string workingDirectory = Directory.GetCurrentDirectory();
 
                 // Define the Python script file name
-                string scriptFileName = "translation_script.py";
+                string scriptFileName = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\code\\translation_script.py";
 
                 // Combine the working directory with the script file name
                 string scriptPath = Path.Combine(workingDirectory, scriptFileName);
+
+                Debug.WriteLine($"Python script path: {scriptPath}");
 
                 flaskProcess = new Process();
                 flaskProcess.StartInfo.FileName = settings.pythonPath;  // Command to run Python
@@ -1312,65 +1435,87 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 Debug.WriteLine($"StartFlaskServer() - Fail - {ex.Message}");
             }
+
         }
+
 
         private static async Task StopFlaskServer()
         {
-            if (flaskProcess != null && !flaskProcess.HasExited)
+            try
             {
-                flaskProcess.Kill(); // Forcefully terminate the process
-                flaskProcess.Dispose();
-                Debug.WriteLine("Stop Flask server!");
+                if (flaskProcess != null && !flaskProcess.HasExited)
+                {
+                    flaskProcess.Kill(); // Forcefully terminate the process
+                    flaskProcess.Dispose();
+                    Debug.WriteLine("Stop Flask server!");
+                    Debug.WriteLine($"StopFlaskServer() - Success");
+                }
+            }
+
+            catch (Exception e)
+            {
+                Debug.WriteLine($"StopFlaskServer() - Fail - {e.Message}");
             }
         }
 
         public async Task<string> GetTranslation(string _text, string sourceLanguage, string targetLanguage)
         {
-            var url = "http://127.0.0.1:5000/translate"; // URL of your Flask server
-
-            // Create the request data
-            var requestData = new
-            {
-                text = _text,
-                source_language = sourceLanguage,
-                target_language = targetLanguage
-            };
-
-            // Convert request data to JSON
-            var json = JsonSerializer.Serialize(requestData);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
             try
             {
-                // Send the POST request
-                HttpResponseMessage response = await client.PostAsync(url, content);
+                var url = "http://127.0.0.1:5000/translate"; // URL of your Flask server
 
-                // Ensure the request was successful
-                response.EnsureSuccessStatusCode();
-
-                // Read the response content
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                // Parse the JSON response
-                using (JsonDocument doc = JsonDocument.Parse(responseString))
+                // Create the request data
+                var requestData = new
                 {
-                    if (doc.RootElement.TryGetProperty("translated_text", out JsonElement translatedTextElement))
+                    text = _text,
+                    source_language = sourceLanguage,
+                    target_language = targetLanguage
+                };
+
+                // Convert request data to JSON
+                var json = JsonSerializer.Serialize(requestData);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    // Send the POST request
+                    HttpResponseMessage response = await client.PostAsync(url, content);
+
+                    // Ensure the request was successful
+                    response.EnsureSuccessStatusCode();
+
+                    // Read the response content
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    // Parse the JSON response
+                    using (JsonDocument doc = JsonDocument.Parse(responseString))
                     {
-                        var translatedText = translatedTextElement.GetString();
-                        // Print the translated text
-                        Debug.WriteLine($"Translated text: {translatedText}");
-                        return translatedText;
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Response does not contain 'translated_text' field.");
-                        return "ERROR";
+                        if (doc.RootElement.TryGetProperty("translated_text", out JsonElement translatedTextElement))
+                        {
+                            var translatedText = translatedTextElement.GetString();
+                            // Print the translated text
+                            Debug.WriteLine($"Translated text: {translatedText}");
+                            return translatedText;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Response does not contain 'translated_text' field.");
+                            return "ERROR";
+                        }
                     }
                 }
+                catch (HttpRequestException e)
+                {
+                    Debug.WriteLine($"Request error: {e.Message}");
+                    return "ERROR";
+                }
+
+                Debug.WriteLine("GetTranslation() - Success");
             }
-            catch (HttpRequestException e)
+
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Request error: {e.Message}");
+                Debug.WriteLine($"GetTranslation() - Fail - {ex.Message}");
                 return "ERROR";
             }
         }
@@ -1396,10 +1541,75 @@ document.addEventListener('DOMContentLoaded', () => {
             var translatedText = jsonDocument.RootElement.GetProperty("responseData").GetProperty("translatedText").GetString();
             return translatedText;
         }
+
+
+
+        private int startUp = 0;
+
+        private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("fontsComboBoxSelectionChanged() - Success");
+
+            if (startUp >= 2)
+            {
+                string newFontFamily = SettingsPage._bookReadingFonts[fontsComboBox.SelectedIndex];
+
+                // store to json
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.font = newFontFamily;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+
+                await SettingsPage.UpdateBodyFontFamily(newFontFamily);
+                await UpdateCSSAction();
+
+            }
+
+            else
+            {
+                startUp++;
+            }
+            
+        }
+
+        private async void ThemesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine("ThemesComboBox_OnSelectionChanged() - Success");
+            
+            if (startUp >= 2)
+            {
+                string theme = SettingsPage._themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.Theme = theme;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                await SettingsPage.UpdateBodyTextColor(SettingsPage._themes[theme]["text-color"]);
+                await SettingsPage.UpdateBodyBackgroundColor(SettingsPage._themes[theme]["background-color"]);
+                await UpdateCSSAction();
+                ChangeCommandBarColors();
+
+            }
+
+            else
+            {
+                startUp++;
+            }
+
+        }
+        private void Settings_OnClick(object sender, RoutedEventArgs e)
+        {
+            PopupControl.IsOpen = !PopupControl.IsOpen;
+        }
+
+        private void OnCloseFlyoutClick(object sender, RoutedEventArgs e)
+        {
+            // This method can be used to close the flyout manually if needed.
+            var button = sender as Button;
+            var flyout = FlyoutBase.GetAttachedFlyout(button) as Flyout;
+            flyout?.Hide();
+        }
     }
 
 }
-
 
 
 

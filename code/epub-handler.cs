@@ -714,6 +714,12 @@ public class EpubHandler
         }
     }
 
+
+    private void CheckEbookLanguage()
+    {
+        
+    }
+
     // Adds book to the library
     public async Task<bool> AddEpub(string epubFilePath, string destination, string fileName)
     {

@@ -224,14 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 try
                 {
                     XDocument xhtmlDocument = XDocument.Load(xhtmlPath);
-                    var linkElement = xhtmlDocument.Descendants()
-                        .FirstOrDefault(e => e.Name.LocalName == "link" && e.Attribute("rel")?.Value == "stylesheet");
 
-                    if (linkElement != null)
+                    try
                     {
-                        linkElement.SetAttributeValue("href", newCssPath);
-
-                        
                         // Path to the external script
                         string scriptPath = "C:/Users/david_pmv0zjd/source/repos/EpubReader/code/script.js";
 
@@ -245,6 +240,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Append the script element to the body
                         body.Add(scriptElement);
+                        xhtmlDocument.Save(xhtmlPath);
+
+                        Debug.WriteLine("Script injected successfully");
+                    }
+
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Script injection failed - {ex.Message}");
+                    }
+
+                    var linkElement = xhtmlDocument.Descendants()
+                        .FirstOrDefault(e => e.Name.LocalName == "link" && e.Attribute("rel")?.Value == "stylesheet");
+
+                    if (linkElement != null)
+                    {
+                        linkElement.SetAttributeValue("href", newCssPath);
+
+
+                        
                         
 
                         xhtmlDocument.Save(xhtmlPath);
