@@ -2,37 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Reflection.Metadata.BlobBuilder;
-using static EpubReader.code.FileManagment;
+
 
 namespace EpubReader.code;
-public class FileManagment
+public class FileManagement
 {
 
-    app_logging logger = new app_logging();
+    private readonly app_logging _logger = new app_logging();
 
-    private static string _ebookFolderName = "ebooks"; 
-    private static string _settingsFolderName = "settings";
-    public static List<String> SupportedEbooksFormats = new List<string>() {".epub"};
-    public static string recentEbooksFileName = "recentEbooks.json";
-    public static string ebookViewerStyleFileName = "ebook_viewer-style.css";
-    public static string globalSettingsFileName = "globalSettings.json";
-    public static string dictFileName = "globalDict.json";
-
-
-    // /DATA
-    public static string ebookDataFolderName = "DATA";
-    public static string eboookDataFileName = "ebookData.json";
-    public static string ebookAllBooksFileName = "allBooks.json";
+    // file names used in the app
+    private static readonly string EbookFolderName = "ebooks"; 
+    private static readonly string SettingsFolderName = "settings";
+    public static readonly List<String> SupportedEbooksFormats = new List<string>() {".epub"};
+    private static readonly string EbookViewerStyleFileName = "ebook_viewer-style.css";
+    private static readonly string GlobalSettingsFileName = "globalSettings.json";
+    private static readonly string DictFileName = "globalDict.json";
+    private static readonly string EbookDataFolderName = "DATA";
+    public static readonly string EbookDataFileName = "ebookData.json";
+    private static readonly string EbookAllBooksFileName = "allBooks.json";
 
 
-    
-
-    // Write text to a file
+    /// <summary>
+    ///  Writes string content to file in the application storage
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
     public static async Task WriteTextToFileAsync(string fileName, string content)
     {
         // Get the local folder
@@ -45,29 +42,24 @@ public class FileManagment
         await Windows.Storage.FileIO.WriteTextAsync(file, content);
     }
 
-    // Read text from a file
-    public static async Task<string> ReadTextFromFileAsync(string fileName)
-    {
-        // Get the local folder
-        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-
-        // Get the file
-        var file = await localFolder.GetFileAsync(fileName);
-
-        // Read the text from the file
-        return await Windows.Storage.FileIO.ReadTextAsync(file);
-    }
-
-    // Create folder
+    /// <summary>
+    /// Creates a folder in the application storage
+    /// </summary>
+    /// <param name="folderName"></param>
+    /// <returns></returns>
     public static async Task CreateFolderAsync(string folderName)
     {
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
 
         // Create or get the subfolder
-        var folder = await localFolder.CreateFolderAsync(folderName, Windows.Storage.CreationCollisionOption.OpenIfExists);
+        await localFolder.CreateFolderAsync(folderName, Windows.Storage.CreationCollisionOption.OpenIfExists);
     }
 
-    // Does folder exist
+    /// <summary>
+    /// Returns true if the folder exists in the application storage
+    /// </summary>
+    /// <param name="folderName"></param>
+    /// <returns></returns>
     public static async Task<bool> DoesFolderExistAsync(string folderName)
     {
         var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
@@ -75,28 +67,7 @@ public class FileManagment
         try
         {
             // Try to get the folder
-            var folder = await localFolder.GetFolderAsync(folderName);
-            Debug.WriteLine("Folder exists");
-            // print the folder path
-            Debug.WriteLine(folder.Path);
-            return true;
-        }
-        catch
-        {
-            Debug.WriteLine("Folder does not exist");
-            return false;
-        }
-    }
-
-    // Does file exist
-    public static async Task<bool> DoesFileExistAsync(string fileName)
-    {
-        var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-
-        try
-        {
-            // Try to get the file
-            var file = await localFolder.GetFileAsync(fileName);
+             await localFolder.GetFolderAsync(folderName);
             return true;
         }
         catch
@@ -104,15 +75,16 @@ public class FileManagment
             return false;
         }
     }
-
+    
+    /*
     public static string GetEbookFolderName()
     {
-        return _ebookFolderName;
+        return EbookFolderName;
     }
 
     public static string GetSettingsFolderName()
     {
-        return _settingsFolderName;
+        return SettingsFolderName;
     }
     
     public static List<string> GetSupportedEbooksFormats()
@@ -122,89 +94,105 @@ public class FileManagment
 
     public static string GetRecentEbooksFileName()
     {
-        return recentEbooksFileName;
+        return RecentEbooksFileName;
     }
 
     public static string GetEbookViewerStyleFileName()
     {
-        return ebookViewerStyleFileName;
+        return EbookViewerStyleFileName;
     }
 
     public static string GetEbookDataFolderName()
     {
-        return ebookDataFolderName;
+        return EbookDataFolderName;
     }
 
     public static string GetEbookDataFileName()
     {
-        return eboookDataFileName;
-    }
+        return EbookDataFileName;
+    }*/
 
 
 
-    // Get the app address = ..LocalState
+    /// <summary>
+    /// Returns the application storage address
+    /// </summary>
+    /// <returns></returns>
     public static string GetAppAddress()
     {
         return Windows.Storage.ApplicationData.Current.LocalFolder.Path;
     }
 
-    // Get the ebook folder path = LocalState/ebooks
+    /// <summary>
+    /// Returns the ebooks folder path ( = LocalState/ebooks )
+    /// </summary>
+    /// <returns></returns>
     public static string GetEbooksFolderPath()
     {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _ebookFolderName;
-
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + EbookFolderName;
     }
 
-    // Get the settings folder path = LocalState/settings
+    /// <summary>
+    /// Returns the settings folder path ( = LocalState/settings )
+    /// </summary>
+    /// <returns></returns>
     public static string GetSettingsFolderPath()
     {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _settingsFolderName;
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + SettingsFolderName;
     }
-
-    // Get the recent ebooks file path = LocalState/settings/recentEbooks.json
-    public static string GetRecentEbooksFilePath()
-    {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _settingsFolderName + "\\" + recentEbooksFileName;
-    }
-
-    // Get the ebook viewer style file path = LocalState/settings/ebook_viewer-style.css
+    
+    /// <summary>
+    /// Returns the path of ebooks css file used for the ebook viewer
+    /// </summary>
+    /// <returns></returns>
     public static string GetEbookViewerStyleFilePath()
     {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + ebookViewerStyleFileName;
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + EbookViewerStyleFileName;
     }
 
-    // Get the ebook data json file path = LocalState/ebooks/ebookName/DATA/ebookData.json
+    /// <summary>
+    /// Returns the path of the ebook data json file
+    /// </summary>
+    /// <param name="ebookFolderPath"></param>
+    /// <returns></returns>
     public static string GetEbookDataJsonFile(string ebookFolderPath)
     {
-        return ebookFolderPath + "\\" + ebookDataFolderName + "\\" + eboookDataFileName;
+        return ebookFolderPath + "\\" + EbookDataFolderName + "\\" + EbookDataFileName;
     }
 
+    /// <summary>
+    /// Returns the path of the all books json file used for displaying all books in the library
+    /// </summary>
+    /// <returns></returns>
     public static string GetEbookAllBooksJsonFile()
     {
-        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + _settingsFolderName + "\\" + ebookAllBooksFileName;
+        return Windows.Storage.ApplicationData.Current.LocalFolder.Path + "\\" + SettingsFolderName + "\\" + EbookAllBooksFileName;
     }
 
+    /// <summary>
+    /// Returns the path of the xhtml file from ebook data json file
+    /// </summary>
+    /// <param name="ebookFolderPath"></param>
+    /// <param name="playOrder"></param>
+    /// <returns></returns>
     public static string GetBookContentFilePath(string ebookFolderPath, string playOrder)
     {
         var ebook = JsonHandler.ReadEbookJsonFile(GetEbookDataJsonFile(ebookFolderPath));
         string xhtmlPath;
-
         try
         {
-            xhtmlPath = ebook.NavData[playOrder][0].ToString();
+            xhtmlPath = ebook.NavData[playOrder][0];
         }
-
         catch (KeyNotFoundException)
         {
-            xhtmlPath = ebook.NavData["1"][0].ToString();
-
+            xhtmlPath = ebook.NavData["1"][0];
         }
-
-        //return $"{ebookFolderPath}\\{xhtmlPath}";
         return xhtmlPath;
     }
     
-    // Create CSS settings file
+    /// <summary>
+    /// Created the css file used for the ebook viewer
+    /// </summary>
     public static async Task CreateCssSettingsFile()
     {
         string cssContent = @"/* Hide scrollbars for WebKit-based browsers */
@@ -239,24 +227,22 @@ public class FileManagment
                                 max-width: 100%;
                                 height: auto;
                             }";
+        
+        string cssFilePath = GetAppAddress() + "\\" + EbookViewerStyleFileName;
 
-        string settingsFolderPath = GetSettingsFolderPath();
-
-        // Check if the file already exists
-
-        string css_file_path = GetAppAddress() + "\\" + ebookViewerStyleFileName;
-
-        if (!File.Exists(css_file_path))
+        if (!File.Exists(cssFilePath))
         {
-            await WriteTextToFileAsync(ebookViewerStyleFileName, cssContent);
-            Debug.WriteLine($"CreateCssSettingsFile() - Success - css file created\n");
+            await WriteTextToFileAsync(EbookViewerStyleFileName, cssContent);
         }
 
     }
 
-    public static async Task CreateGlobalSettingsFile()
+    /// <summary>
+    /// Creates the global settings file with default values
+    /// </summary>
+    public static void CreateGlobalSettingsFile()
     {
-        string filePath = GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
+        string filePath = GetAppAddress() + "\\" + SettingsFolderName + "\\" + GlobalSettingsFileName;
         globalSettingsJson globalSettings = new globalSettingsJson();
         globalSettings.ebookViewer = "WebView2";
         globalSettings.font = "Merriweather";
@@ -267,32 +253,38 @@ public class FileManagment
         globalSettings.FontSize = "1.5rem";
         globalSettings.Padding = "60";
 
-
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));
     }
 
-    public static async Task CreateGlobalDictFile()
+    /// <summary>
+    /// Created the global dictionary file used for storing the words and their translations
+    /// </summary>
+    public static void CreateGlobalDictFile()
     {
         string filePath = GetGlobalDictPath();
-        globalDictJson globalDict = new globalDictJson();
-        globalDict.dict = new Dictionary<string, List<string>>();
+        GlobalDictJson globalDict = new GlobalDictJson();
+        globalDict.TranslationsDict = new Dictionary<string, List<string>>();
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalDict));
-
-
     }
-
+    
+    /// <summary>
+    /// Returns the path of the global settings file
+    /// </summary>
+    /// <returns></returns>
     public static string GetGlobalSettingsFilePath()
     {
-        return GetAppAddress() + "\\" + _settingsFolderName + "\\" + globalSettingsFileName;
+        return GetAppAddress() + "\\" + SettingsFolderName + "\\" + GlobalSettingsFileName;
     }
 
-    // Delete all ebooks folders
+    /// <summary>
+    /// Deletes all the ebooks in the ebooks folder
+    /// </summary>
     public void DeleteEbooks()
     {
         try
         {
             var localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            var folder = localFolder.GetFolderAsync(_ebookFolderName).GetAwaiter().GetResult();
+            var folder = localFolder.GetFolderAsync(EbookFolderName).GetAwaiter().GetResult();
 
             // for each folder in the ebooks folder
 
@@ -301,56 +293,59 @@ public class FileManagment
                 item.DeleteAsync().GetAwaiter().GetResult();
             }
 
-            Debug.WriteLine($"{logger.DeleteEbooksMessageSuccess}");
+            Debug.WriteLine($"{_logger.DeleteEbooksMessageSuccess}");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{logger.DeleteEbooksMessageFail} : {ex.Message}");
+            Debug.WriteLine($"{_logger.DeleteEbooksMessageFail} : {ex.Message}");
         }
     }
 
+    /// <summary>
+    /// Returns the path of the global dictionary file
+    /// </summary>
+    /// <returns></returns>
     public static string GetGlobalDictPath()
     {
-        return GetAppAddress() + "\\" + _settingsFolderName + "\\" + dictFileName;
+        return GetAppAddress() + "\\" + SettingsFolderName + "\\" + DictFileName;
     }
-    // StartUp operations run when the app starts
-    public static async Task StartUp()
+    
+    /// <summary>
+    /// Method which runs at the start of the application
+    /// </summary>
+    public static async Task StartUp(bool debug = false)
     {
         try
         {
             // Create the ebooks storage folder if it doesn't exist
-            if (!await DoesFolderExistAsync(_ebookFolderName))
+            if (!await DoesFolderExistAsync(EbookFolderName))
             {
-                await CreateFolderAsync(_ebookFolderName);
+                await CreateFolderAsync(EbookFolderName);
             }
 
-            // Create settings file if it doesn't exist
-            if (!await DoesFolderExistAsync(_settingsFolderName))
+            // Creates settings folder, css file, global settings file and global dictionary file if they don't exist
+            if (!await DoesFolderExistAsync(SettingsFolderName))
             {
-                await CreateFolderAsync(_settingsFolderName);
-                await CreateGlobalSettingsFile();
-                await CreateGlobalDictFile();
+                await CreateFolderAsync(SettingsFolderName);
+                 CreateGlobalSettingsFile();
+                CreateGlobalDictFile();
+                await CreateCssSettingsFile();
             }
-
-            await CreateCssSettingsFile();
-
-            Debug.WriteLine($"StartUp() - Settings\n");
-
+            if (debug) { Debug.WriteLine($"StartUp() - Success\n"); }
         }
 
         catch
         {
-            
-            Debug.WriteLine($"StartUp() - Fail\n");
+            if (debug) { Debug.WriteLine($"StartUp() - Fail\n"); }
         }
 
     }
-
-    public class globalDictJson
+    
+    /// <summary>
+    /// Dictionary data class used for storing the words and their translations
+    /// </summary>
+    public class GlobalDictJson
     {
-
-        public Dictionary<string, List<string>> dict { get; set; } 
+        public Dictionary<string, List<string>> TranslationsDict { get; set; } 
     }
-
-
 }

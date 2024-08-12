@@ -233,7 +233,7 @@ namespace EpubReader
 
         public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
         {
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
             switch (settings.ebookViewer)
             {
@@ -265,12 +265,12 @@ namespace EpubReader
         {
             try
             {
-                foreach (var method in code.AllBooks.sortingMethods)
+                foreach (var method in code.AllBooks.SortingMethods)
                 {
                     SortComboBox.Items.Add(method);
                 }
 
-                SortComboBox.SelectedIndex = code.AllBooks.sortingMethods.IndexOf("Name");
+                SortComboBox.SelectedIndex = code.AllBooks.SortingMethods.IndexOf("Name");
 
                 foreach (var language in languageDict.Keys.ToList())
                 {
@@ -310,7 +310,7 @@ namespace EpubReader
                 {
                     string selectedLang = languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
                     _selectedEbook.Language = selectedLang;
-                    File.WriteAllText(FileManagment.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath), JsonSerializer.Serialize(_selectedEbook));
+                    File.WriteAllText(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath), JsonSerializer.Serialize(_selectedEbook));
                     Debug.WriteLine("languageComboBoxSelectionChanged() - Success");
                 }
                 catch (Exception ex)
@@ -351,9 +351,9 @@ namespace EpubReader
 
                 try
                 {
-                    string allBooksJsonPath = FileManagment.GetEbookAllBooksJsonFile();
+                    string allBooksJsonPath = FileManagement.GetEbookAllBooksJsonFile();
                     List<string> Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(allBooksJsonPath));
-                    Books.Remove(FileManagment.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
+                    Books.Remove(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
                     File.WriteAllText(allBooksJsonPath, JsonSerializer.Serialize(Books));
                     Debug.WriteLine("DeleteButton_OnClick() 1.2 - Success - Book removed from allBooks.json");
                 }
@@ -386,9 +386,9 @@ namespace EpubReader
 
                 try
                 {
-                    string allBooksJsonPath = FileManagment.GetEbookAllBooksJsonFile();
+                    string allBooksJsonPath = FileManagement.GetEbookAllBooksJsonFile();
                     List<string> Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(allBooksJsonPath));
-                    Books.Remove(FileManagment.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
+                    Books.Remove(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
                     File.WriteAllText(allBooksJsonPath, JsonSerializer.Serialize(Books));
                     Debug.WriteLine("DeleteButton_OnClick() 1.2 - Success - Book removed from allBooks.json");
                 }

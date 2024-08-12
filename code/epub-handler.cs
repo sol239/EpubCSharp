@@ -3,32 +3,18 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Xml;
 using System.Xml.Linq;
-using System;
 using System.IO;
-using System.Xml.Linq;
 using System.Linq;
 using System.Text.Json;
-
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Shapes;
-using Path = Microsoft.UI.Xaml.Shapes.Path;
-using Windows.ApplicationModel;
-using Microsoft.UI.Xaml.Controls;
-
 
 namespace EpubReader.code;
 
-public class NavDataItem
-{
-    public string Id { get; set; }
-    public string Source { get; set; }
-    public string PlayOrder { get; set; }
-    public string Text { get; set; }
-}
-
+/// <summary>
+/// Class containg ebook's data
+/// </summary>
 public class Ebook
 {
     // Ebook attributes
@@ -52,10 +38,6 @@ public class Ebook
     public string StatsRecord2 { get; set; }
     public Dictionary<string, List<string>> NavData { get; set; }
 
-
-
-
-
     // Paths
     public string EbookFolderPath { get; set; }
     public string EbookDataFolderPath { get; set; }
@@ -68,37 +50,38 @@ public class Ebook
 }
 
 /// <summary>
-/// Class for handling all books list
+/// Class for handling all books view
 /// </summary>
 public class AllBooks
 {
-    // List containing path to ebook's jsonDataFiles
+    // List containing paths to ebooks jsonDataFiles
     public List<string> Books { get; set; }
+    public static List<string> SortingMethods = new List<string> { "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language" };
 
     /// <summary>
-    /// Loads allBooks JSON file into Books List
+    /// Loads allBooks.json into Books List
     /// </summary>
-    public void LoadAllBooksFromJson()
+    public void LoadAllBooksFromJson(bool debug = false)
     {
+        string path = FileManagement.GetEbookAllBooksJsonFile();
+
         try
         {
-            string path = FileManagment.GetEbookAllBooksJsonFile();
             Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
+            if (debug) {Debug.WriteLine($"LoadAllBooksFromJson() - Success"); }
         }
         catch (Exception ex)
         {
             // if file does not exist, create a new one
             List<string> emptyList = new List<string>();
-
-            // create empty file
-            string path = FileManagment.GetEbookAllBooksJsonFile();
             File.WriteAllText(path, JsonSerializer.Serialize(emptyList));
             Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(path));
+            if (debug) { Debug.WriteLine($"LoadAllBooksFromJson() - Fail - {ex.Message}"); }
         }
     }
     
     /// <summary>
-    /// Add a ebook's jsonDataPath to Books List
+    /// Add an ebook's jsonDataPath to Books List
     /// </summary>
     /// <param name="ebookDataJsonPath"></param>
     public void AddBook(string ebookDataJsonPath)
@@ -118,16 +101,16 @@ public class AllBooks
     }
 
     /// <summary>
-    /// Stores allBooks List to a allBooks JSON file
+    /// Stores allBooks List to a allBooks.json file
     /// </summary>
     public void StoreBooksToJson()
     {
-        string path = FileManagment.GetEbookAllBooksJsonFile();
+        string path = FileManagement.GetEbookAllBooksJsonFile();
         File.WriteAllText(path, JsonSerializer.Serialize(Books));
     }
 
     /// <summary>
-    /// Removes a ebook's jsonDataPath from Books List
+    /// Removes an ebook's jsonDataPath from Books List
     /// </summary>
     /// <param name="ebookDataJsonPath"></param>
     public void RemoveBook(string ebookDataJsonPath)
@@ -136,7 +119,7 @@ public class AllBooks
     }
 
     /// <summary>
-    /// Removes a ebook's jsonDataPath from allBooks JSON file
+    /// Removes an ebook's jsonDataPath from allBooks JSON file
     /// </summary>
     /// <param name="ebookDataJsonPath"></param>
     public void RemoveBookStore(string ebookDataJsonPath)
@@ -147,23 +130,22 @@ public class AllBooks
     }
 
     /// <summary>
-    /// Prints Titles of all books on next line
+    /// Prints titles of all books on next line
     /// </summary>
     public void PrintAllBooks()
     {
         LoadAllBooksFromJson();
-        //Debug.WriteLine("");
 
         foreach (string ebookDataJsonPath in Books)
         {
             var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            //Debug.WriteLine($"Title: {book.Title}");
+            Debug.WriteLine($"Title: {book.Title}");
         }
-        //Debug.WriteLine("");
+        Debug.WriteLine("");
     }
 
     /// <summary>
-    /// Returns a list of books ebub folder sorted by Name alphabetically
+    /// Returns a list of ebooks ebub folder sorted by Name alphabetically
     /// </summary>
     /// <param name="ascendingOrder"></param>
     /// <param name="print"></param>
@@ -175,8 +157,8 @@ public class AllBooks
 
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.Title);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(book.JsonDataPath, book.Title);
         }
 
         if (ascendingOrder)
@@ -190,38 +172,38 @@ public class AllBooks
 
         Books = books.Keys.ToList();
 
-        // print he books
+        // print the ebooks
         if (print)
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateAdded
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by DateAdded
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
     public List<string> GetBooksEpubFoldersByDateAdded(bool ascendingOrder, bool print)
     {
         ascendingOrder = !ascendingOrder;
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
-        //Debug.WriteLine("*****************************");
-
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
 
 
-            DateTime dateLastOpened = DateTime.ParseExact(_book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            books.Add(_book.JsonDataPath, dateLastOpened);
-            //Debug.WriteLine($"*   {_book.Title}   {_book.DateAdded}");
+            DateTime dateLastOpened = DateTime.ParseExact(book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            books.Add(book.JsonDataPath, dateLastOpened);
         }
-
-        //Debug.WriteLine("*****************************");
 
         if (ascendingOrder)
         {
@@ -239,15 +221,20 @@ public class AllBooks
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
 
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by DateLastOpened
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by DateLastOpened
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
     public List<string> GetBooksEpubFoldersByDateLastOpened(bool ascendingOrder, bool print)
     {
         ascendingOrder = !ascendingOrder;
@@ -258,11 +245,11 @@ public class AllBooks
 
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
 
 
-            DateTime dateLastOpened = DateTime.ParseExact(_book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            books.Add(_book.JsonDataPath, dateLastOpened);
+            DateTime dateLastOpened = DateTime.ParseExact(book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            books.Add(book.JsonDataPath, dateLastOpened);
         }
 
 
@@ -282,20 +269,32 @@ public class AllBooks
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
 
         return Books;
     }
-    // Returns a list of books ebub folder sorted by lenght TO-DO
-    public List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder, bool print)
-    {
+    
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by Lenght
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
+    public static List<string> GetBooksEpubFoldersByLenght(bool ascendingOrder, bool print)
+    { 
+        // TO-DO
         return null;
     }
 
-    // Returns a list of books ebub folder sorted by Author alphabetically
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by Author
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
     public List<string> GetBooksEpubFoldersByAuthor(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
@@ -303,8 +302,8 @@ public class AllBooks
 
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.Author);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(book.JsonDataPath, book.Author);
         }
 
         if (ascendingOrder)
@@ -323,15 +322,20 @@ public class AllBooks
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
 
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by Publisher alphabetically
+    /// <summary>
+    /// Returns a list of books ebub folder sorted by Publisher
+    /// </summary>
+    /// <param name="ascendingOrder"></param>
+    /// <param name="print"></param>
+    /// <returns></returns>
     public List<string> GetBooksEpubFoldersByPublisher(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
@@ -339,8 +343,8 @@ public class AllBooks
 
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.Publisher);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(book.JsonDataPath, book.Publisher);
         }
 
         if (ascendingOrder)
@@ -359,15 +363,26 @@ public class AllBooks
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
 
         return Books;
     }
 
-    // Returns a list of books ebub folder sorted by Language
+    /// <summary>
+    /// Retrieves a list of EPUB book folders sorted by language.
+    /// </summary>
+    /// <param name="ascendingOrder">Determines the sort order of the books by language. 
+    /// Set to <c>true</c> for ascending order or <c>false</c> for descending order.</param>
+    /// <param name="print">If set to <c>true</c>, prints the details of each book to the debug output.</param>
+    /// <returns>A list of strings representing the paths to the EPUB book folders, sorted by language.</returns>
+    /// <remarks>
+    /// This method first loads all the book data from a JSON file, then sorts the books 
+    /// based on their language, and optionally prints their details. The sort order 
+    /// can be either ascending or descending depending on the <paramref name="ascendingOrder"/> parameter.
+    /// </remarks>
     public List<string> GetBooksEpubFoldersByLanguage(bool ascendingOrder, bool print)
     {
         LoadAllBooksFromJson();
@@ -375,8 +390,8 @@ public class AllBooks
 
         foreach (string ebookDataJsonPath in Books)
         {
-            var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(_book.JsonDataPath, _book.Language);
+            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+            books.Add(book.JsonDataPath, book.Language);
         }
 
         if (ascendingOrder)
@@ -395,87 +410,132 @@ public class AllBooks
         {
             foreach (string ebookDataJsonPath in Books)
             {
-                var _book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                //Debug.WriteLine($"Title: {_book.Title}");
+                var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                Debug.WriteLine($"Title: {book.Title}");
             }
         }
 
         return Books;
     }
 
+    /// <summary>
+    /// Selects and applies a sorting method to the list of EPUB book folders.
+    /// </summary>
+    /// <param name="method">The sorting method to apply. Valid options are: "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language".</param>
+    /// <param name="ascendingOrder">Determines the sort order. Set to <c>true</c> for ascending order, or <c>false</c> for descending order.</param>
+    /// <param name="print">If set to <c>true</c>, prints the details of each book to the debug output.</param>
+    /// <returns>A list of strings representing the paths to the EPUB book folders, sorted according to the specified method.</returns>
+    /// <exception cref="ArgumentException">Thrown when an invalid sorting method is provided.</exception>
     public List<string> SelectSortMethod(string method, bool ascendingOrder, bool print)
     {
         switch (method)
         {
             case "Name":
                 return GetBooksEpubFoldersByName(ascendingOrder, print);
-                break;
+
             case "DateAdded":
                 return GetBooksEpubFoldersByDateAdded(ascendingOrder, print);
-                break;
+
             case "DateLastOpened":
                 return GetBooksEpubFoldersByDateLastOpened(ascendingOrder, print);
-                break;
+
             case "Author":
                 return GetBooksEpubFoldersByAuthor(ascendingOrder, print);
-                break;
+
             case "Publisher":
                 return GetBooksEpubFoldersByPublisher(ascendingOrder, print);
-                break;
+
             case "Language":
                 return GetBooksEpubFoldersByLanguage(ascendingOrder, print);
-                break;
-        }
 
-        return GetBooksEpubFoldersByName(ascendingOrder, print);
+            default:
+                throw new ArgumentException($"Invalid sort method: {method}. Valid options are: Name, DateAdded, DateLastOpened, Author, Publisher, Language.");
+        }
     }
 
-    public static List<string> sortingMethods = new List<string> { "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language" };
 }
 
+
+/// <summary>
+/// Class for handling json files
+/// </summary>
 public class JsonHandler
 {
     /// <summary>
-    /// Opens a JSON file and returns the Ebook object
+    /// Reads and deserializes an eBook JSON file into an <see cref="Ebook"/> object.
     /// </summary>
-    /// <param name="jsonPath">a path of the ebook's json data file</param>
-    /// <returns>Ebook object (.Title, .Author, ...)</returns>
-    public static Ebook ReadEbookJsonFile(string jsonPath)
+    /// <param name="jsonPath">The file path of the JSON file to read.</param>
+    /// <param name="debug">If <c>true</c>, writes debug information to the output.</param>
+    /// <returns>The deserialized <see cref="Ebook"/> object, or a new <see cref="Ebook"/> if the operation fails.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the specified JSON file is not found.</exception>
+    /// <exception cref="JsonException">Thrown when deserialization of the JSON content fails.</exception>
+    public static Ebook ReadEbookJsonFile(string jsonPath, bool debug = false)
     {
         try
         {
             string jsonString = File.ReadAllText(jsonPath);
-            return System.Text.Json.JsonSerializer.Deserialize<Ebook>(jsonString);
-            //Debug.WriteLine( logger.ReadJsonFileSuccess );
+            if (debug) { Debug.WriteLine("ReadEbookJsonFile() - Success"); }
+            return JsonSerializer.Deserialize<Ebook>(jsonString);
         }
         catch (Exception ex)
         {
-            //Debug.WriteLine( $"{logger.ReadJsonFileFail}: {ex.Message}" );
+            if (debug) { Debug.WriteLine($"ReadEbookJsonFile() - Fail - {ex.Message}");}
         }
 
-        // does this work?
         return new Ebook();
     }
 
-    public static async Task StoreJsonEbookFile(Ebook ebook,string jsonPath)
+    /// <summary>
+    /// Serializes an <see cref="Ebook"/> object and stores it as a JSON file.
+    /// </summary>
+    /// <param name="ebook">The <see cref="Ebook"/> object to serialize and store.</param>
+    /// <param name="jsonPath">The directory path where the JSON file will be saved.</param>
+    /// <param name="debug">If <c>true</c>, writes debug information to the output.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks necessary permissions to write to the specified directory.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs during file writing.</exception>
+    public static void StoreJsonEbookFile(Ebook ebook,string jsonPath, bool debug = false)
     {
         try
         {
-            ebook.JsonDataPath = jsonPath + "\\" + FileManagment.eboookDataFileName;
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(ebook);
-            File.WriteAllText(jsonPath + "\\" + FileManagment.eboookDataFileName, jsonString);
+            ebook.JsonDataPath = jsonPath + "\\" + FileManagement.EbookDataFileName;
+            string jsonString = JsonSerializer.Serialize(ebook);
+            File.WriteAllText(jsonPath + "\\" + FileManagement.EbookDataFileName, jsonString);
+            if (debug) { Debug.WriteLine("StoreJsonEbookFile() - Success"); }
         }
 
         catch (Exception ex)
         {
-            Debug.WriteLine( $"StoreJsonEbookFile() - Fail - {ex.Message}" );
+            if (debug) { Debug.WriteLine($"StoreJsonEbookFile() - Fail - {ex.Message}"); }
         }
     }
 }
+
+/// <summary>
+/// Class for handling content of an epub file
+/// </summary>
 public class ContentHandler
 {
-    app_logging logger = new app_logging();
-    public string AddMetaData(string contentPath, string xmlTag)
+
+    /// <summary>
+    /// Extracts the inner XML content of all elements with the specified tag from an XML file.
+    /// </summary>
+    /// <param name="contentPath">The file path to the XML content file to be parsed.</param>
+    /// <param name="xmlTag">The XML tag whose inner content is to be extracted and concatenated.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console.</param>
+    /// <returns>
+    /// A concatenated string of the inner XML content of all elements with the specified tag.
+    /// Returns <c>null</c> if an error occurs during the operation.
+    /// </returns>
+    /// <exception cref="XmlException">Thrown if the XML content is not well-formed.</exception>
+    /// <exception cref="FileNotFoundException">Thrown if the specified XML file does not exist.</exception>
+    /// <remarks>
+    /// This method attempts to load an XML document from the provided file path, searches for all elements 
+    /// matching the specified tag, and concatenates their inner XML content into a single string. 
+    /// If the process succeeds, the concatenated string is returned. If any errors occur, the method 
+    /// returns <c>null</c> and logs the error if debugging is enabled.
+    /// </remarks>
+    public string AddMetaData(string contentPath, string xmlTag, bool debug = false )
     {
         try
         {
@@ -489,30 +549,54 @@ public class ContentHandler
 
             for (int i = 0; i < elemList.Count; i++)
             {
-                xmlSegment += elemList[i].InnerXml;
+                try
+                {
+                    xmlSegment += elemList[i].InnerXml;
+                }
+
+                catch 
+                {
+                    continue;
+                }
             }
 
-            Debug.WriteLine($"{logger.AddMetaDataSuccess} - {xmlTag} = {xmlSegment}");
+if (debug) { Debug.WriteLine($"AddMetaData() - Success - {xmlTag} = {xmlSegment}"); }
             return xmlSegment;
         }
 
         catch (Exception ex)
         {
-            Debug.WriteLine( $"{logger.AddMetaDataFail} - {xmlTag}: {ex.Message}" );
+            if (debug) { Debug.WriteLine($"AddMetaData() - Fail - {ex.Message}"); }
             return null;
         }
     }
 
-    public string GetCoverImagePath(string contentOpfPath, string extractedEpubDir)
+    /// <summary>
+    /// Retrieves the full file path of the cover image from an EPUB's content file (OPF).
+    /// </summary>
+    /// <param name="contentOpfPath">The file path to the OPF (Open Packaging Format) file.</param>
+    /// <param name="extractedEpubDir">The directory where the EPUB contents are extracted.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console.</param>
+    /// <returns>
+    /// The full file path to the cover image. If the cover image is not found, returns a path combining 
+    /// the <paramref name="extractedEpubDir"/> and the cover ID.
+    /// </returns>
+    /// <exception cref="XmlException">Thrown if the OPF file content is not well-formed.</exception>
+    /// <exception cref="FileNotFoundException">Thrown if the specified OPF file does not exist.</exception>
+    /// <remarks>
+    /// This method loads the OPF file, searches for the meta tag with the name attribute set to "cover," 
+    /// and retrieves the corresponding cover image's file path. If the cover image is found, 
+    /// its full path is returned. If any errors occur, the method returns a default path 
+    /// using the cover ID and logs the error if debugging is enabled.
+    /// </remarks>
+    public string GetCoverImagePath(string contentOpfPath, string extractedEpubDir, bool debug = false)
     {
 
         string coverId = "";
 
         try
         {
-            // Load the content.opf file
             XDocument contentOpf = XDocument.Load(contentOpfPath);
-
             XNamespace ns = "http://www.idpf.org/2007/opf";
 
             // Find the meta tag with name="cover"
@@ -521,16 +605,12 @@ public class ContentHandler
 
             if (coverMeta != null)
             {
-
-                Debug.WriteLine($"CoverMeta = {coverMeta}");
                 coverId = (string)coverMeta.Attribute("content");
 
                 // Find the item tag with the corresponding id
                 var coverItem = contentOpf.Descendants(ns + "item")
                     .FirstOrDefault(item => (string)item.Attribute("id") == coverId);
 
-                Debug.WriteLine($"CoverID = {coverId}");
-                Debug.WriteLine($"CoverItem = {coverItem}");
                 if (coverItem != null)
                 {
                     string coverImagePath = (string)coverItem.Attribute("href");
@@ -538,13 +618,10 @@ public class ContentHandler
                     // convert / to \\
                     coverImagePath = coverImagePath.Replace("/", "\\");
 
-                    Debug.WriteLine( $"extractedEpubDir = {extractedEpubDir}");
-                    Debug.WriteLine( $"coverImagePath = {coverImagePath}");
-
-                    string fullCoverImagePath = System.IO.Path.Combine(extractedEpubDir, coverImagePath);
+                    string fullCoverImagePath = Path.Combine(extractedEpubDir, coverImagePath);
 
 
-                    Debug.WriteLine( $"{logger.GetCoverImagePathSuccess}: {fullCoverImagePath}" );
+                    if (debug) { Debug.WriteLine($"GetCoverImagePath() - Success - {fullCoverImagePath}"); }
                     return fullCoverImagePath;
                 }
             }
@@ -553,52 +630,81 @@ public class ContentHandler
 
         catch (Exception ex)
         {
-            Debug.WriteLine( $"{logger.GetCoverImagePathFail}: {ex.Message}" );
+            if (debug) { Debug.WriteLine($"GetCoverImagePath() - Fail - {ex.Message}"); }
         }
 
-        return System.IO.Path.Combine(extractedEpubDir, coverId);
+        return Path.Combine(extractedEpubDir, coverId);
     }
 
 }
+
+/// <summary>
+/// Class for handling file management
+/// </summary>
 public class RecentEbooksHandler
 {
-    public static Dictionary<string, string> recentEbooks = new Dictionary<string, string>();
-    public static string MetaSplitter = "*cxlpfdsl?82349---";
-    public static List<Ebook> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder = true, bool print = false)
+
+    /// <summary>
+    /// Retrieves a list of recent eBooks that have a cover path, sorted according to the specified method.
+    /// </summary>
+    /// <param name="method">The sorting method to use. This could be "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language", etc.</param>
+    /// <param name="ascendingOrder">If <c>true</c>, sorts the eBooks in ascending order; otherwise, sorts them in descending order. Defaults to <c>true</c>.</param>
+    /// <param name="print">If <c>true</c>, prints the details of each eBook to the debug output. Defaults to <c>false</c>.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <returns>
+    /// A list of <see cref="Ebook"/> objects that have a cover path. If an error occurs during the process, returns <c>null</c>.
+    /// </returns>
+    /// <remarks>
+    /// This method initializes an instance of the <see cref="AllBooks"/> class to get the list of JSON file paths for eBooks, 
+    /// then reads each eBook file and filters out those that have a non-empty cover path. The filtered eBooks are returned in 
+    /// a list sorted according to the specified method and order. If any errors occur, the method logs the exception message 
+    /// if debugging is enabled and returns <c>null</c>.
+    /// </remarks>
+    public static List<Ebook> GetRecentEbooksPathsUpdated(string method, bool ascendingOrder = true, bool print = false, bool debug = false)
     {
 
-        AllBooks allBooks = new AllBooks();
-
-
-        List<Ebook> coverPaths = new List<Ebook>();
-
-
-        foreach (var jsonFile in allBooks.SelectSortMethod(method, ascendingOrder, print))
+        try
         {
-            if (File.Exists(jsonFile))
+            AllBooks allBooks = new AllBooks();
+
+
+            List<Ebook> coverPaths = new List<Ebook>();
+
+
+            foreach (var jsonFile in allBooks.SelectSortMethod(method, ascendingOrder, print))
             {
-                Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
-                if (!string.IsNullOrEmpty(ebook.CoverPath))
+                if (File.Exists(jsonFile))
                 {
-                    coverPaths.Add(ebook);
+                    Ebook ebook = JsonHandler.ReadEbookJsonFile(jsonFile);
+                    if (!string.IsNullOrEmpty(ebook.CoverPath))
+                    {
+                        coverPaths.Add(ebook);
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"File not found: {jsonFile}");
                 }
             }
-            else
-            {
-                Debug.WriteLine($"File not found: {jsonFile}");
-            }
+
+            if (debug) { Debug.WriteLine("GetRecentEbooksPathsUpdated() - Success"); }
+            return coverPaths;
         }
-        return coverPaths;
+        catch (Exception ex)
+        {
+            if (debug) { Debug.WriteLine($"GetRecentEbooksPathsUpdated() - Fail - {ex.Message}"); }
+            return null;
+        }
     }
 }
 
+/// <summary>
+/// Class for handling file management
+/// </summary>
 public class EpubHandler
 {
-    app_logging logger = new app_logging();
-    ContentHandler contentHandler = new ContentHandler();
-    Navigation nvg = new Navigation();
-
-    public event Action BookAdded;
+    private ContentHandler _contentHandler = new ContentHandler();
+    private Navigation _nvg = new Navigation();
 
     private string _ebookFolderPath = "";
     private string _containerFileName = "container.xml";
@@ -606,20 +712,80 @@ public class EpubHandler
 
     private Ebook _ebook;
 
-    private List<string> _metadataTags = new List<string> { "dc:title", "dc:creator", "dc:language", "dc:publisher", "dc:description" };
+    private List<string> _metadataTags = new List<string> { 
+        "dc:title", 
+        "dc:creator", 
+        "dc:language", 
+        "dc:publisher", 
+        "dc:description"
+    };
 
-    // Extracts epub file
+    /// <summary>
+    /// Event that is triggered when a book is added to the system.
+    /// </summary>
+    public event EventHandler<string> BookAddedEvent;
 
-    private string GenerateRandomTag(int length)
+    /// <summary>
+    /// Extracts an EPUB file to a specified destination directory and initializes an <see cref="Ebook"/> object with relevant paths and metadata.
+    /// </summary>
+    /// <param name="epubFilePath">The file path to the EPUB file to be extracted.</param>
+    /// <param name="destination">The destination directory where the EPUB content will be extracted.</param>
+    /// <param name="fileName">The name of the EPUB file being processed. This will be used to set the <see cref="Ebook.FileName"/> property.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <remarks>
+    /// This method opens the specified EPUB file as a ZIP archive, extracts its contents to a unique subdirectory within the 
+    /// specified destination, and initializes an <see cref="Ebook"/> object with paths and metadata derived from the extracted content.
+    /// A random tag is appended to the destination folder to avoid issues with file path length limitations.
+    /// The method sets properties on the <see cref="Ebook"/> object such as folder paths, navigation file paths, format, file name, and timestamps for 
+    /// when the book was added and last opened.
+    /// </remarks>
+    /// <exception cref="ArgumentException">Thrown if the <paramref name="epubFilePath"/> or <paramref name="destination"/> is invalid.</exception>
+    /// <exception cref="IOException">Thrown if an I/O error occurs during file extraction or directory creation.</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown if the application does not have permission to access the file or directory.</exception>
+    public void ExtractEpub(string epubFilePath, string destination, string fileName, bool debug = false)
     {
-        Random random = new Random();
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        return new string(Enumerable.Repeat(chars, length)
-          .Select(s => s[random.Next(s.Length)]).ToArray());
+        try
+        {
+            using (ZipArchive archive = ZipFile.OpenRead(epubFilePath))
+            {
+                _ebook = new Ebook();
 
+                // Old: paths in windows are limited to 260 characters
+                // Some cover paths couldnt be accessed because of this
+                //destination = destination + "\\" + fileName;
+
+                // New: generate random tag for the folder name
+                // Generate a random tag for the folder name to handle path length limitations
+                destination = Path.Combine(destination, GenerateRandomTag(5));
+
+                // Extract the EPUB archive to the destination directory
+                archive.ExtractToDirectory(destination);
+
+                // Create a subdirectory for additional data
+                Directory.CreateDirectory(Path.Combine(destination, "DATA"));
+
+                // Initialize the Ebook object with paths and metadata
+                _ebookFolderPath = destination;
+                _ebook.EbookFolderPath = destination;
+                _ebook.EbookDataFolderPath = Path.Combine(destination, "DATA");
+                _ebook.NavigationFilePath = _nvg.FindFilesWithExtensions(_ebookFolderPath, new List<string> { ".ncx", ".nav" });
+                _ebook.Format = "epub";
+                _ebook.FileName = Path.GetFileNameWithoutExtension(fileName);
+                _ebook.DateAdded = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");  // Format: 27/07/2024 08:21:56
+                _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");  // Format: 27/07/2024 08:21:56
+
+                if (debug) { Debug.WriteLine($"ExtractEpub() - Success - Extracted to {destination}"); }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (debug) { Debug.WriteLine($"ExtractEpub() - Fail - {ex.Message}"); }
+            throw;
+        }
     }
 
-    public void ExtractEpub(string epubFilePath, string destination, string fileName)
+    /*
+    public void ExtractEpub(string epubFilePath, string destination, string fileName, bool debug = false)
     {
         try
         {
@@ -629,11 +795,7 @@ public class EpubHandler
                 _ebook = new Ebook();
 
 
-                // Old: paths in windows are limited to 260 characters
-                // Some cover paths couldnt be accessed because of this
-                //destination = destination + "\\" + fileName;
-
-                // New: generate random tag for the folder name
+                
                 destination = destination + "\\" + GenerateRandomTag(5);
 
 
@@ -643,49 +805,51 @@ public class EpubHandler
                 _ebookFolderPath = destination;
                 _ebook.EbookFolderPath = destination;
                 _ebook.EbookDataFolderPath = destination + "\\" + "DATA";
-                _ebook.NavigationFilePath = nvg.FindFilesWithExtensions(_ebookFolderPath, new List<string> { ".ncx", ".nav" });
+                _ebook.NavigationFilePath = _nvg.FindFilesWithExtensions(_ebookFolderPath, new List<string> { ".ncx", ".nav" });
                 _ebook.Format = "epub";
                 _ebook.FileName = fileName.Split(".epub")[0];
                 _ebook.DateAdded = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
                 _ebook.DateLastOpened = DateTime.Now.ToString();   // format: 27/07/2024 08:21:56
 
-                //_ebook.DateLastOpened = _ebook.DateAdded;
-
-                Debug.WriteLine( logger.ExtractEpubSuccess);
+                if (debug) { Debug.WriteLine($"ExtractEpub() - Success");}
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine( $"{logger.ExtractEpubFail}: {ex.Message}" );
 
-            if (ex.Message.Contains("already exists"))
-            {
-                Debug.WriteLine("");
-                Debug.WriteLine("**************************************************\n*");
-                Debug.WriteLine($"* Book Has Already Been Added!");
-                Debug.WriteLine("*\n**************************************************");
-                Debug.WriteLine("");
-            }
+            if (debug) { Debug.WriteLine($"ExtractEpub() - Fail - {ex.Message}"); }
+
             throw;
         }
 
     }
+    */
 
-    // Returns .opf file path
-    public void GetEpubContentFilePath()
+    /// <summary>
+    /// Retrieves the file path to the main content file of an EPUB by parsing the container XML file.
+    /// </summary>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <remarks>
+    /// This method loads the container XML file from the EPUB, which is located in the META-INF directory. 
+    /// It then parses the XML to find and extract the path of the primary content file specified within the container XML. 
+    /// The extracted content file path is used to update the <see cref="_contentFilePath"/> and <see cref="Ebook.ContentPath"/> properties.
+    /// The method assumes that the container XML and content paths follow a specific format and that the necessary XML nodes and attributes are present.
+    /// </remarks>
+    /// <exception cref="IOException">Thrown if there is an I/O error accessing the container XML file. The exception is only caught if the message contains "already exists".</exception>
+    /// <exception cref="XmlException">Thrown if there is an issue parsing the XML document.</exception>
+    /// <exception cref="ArgumentException">Thrown if the XML content does not contain the expected format or required elements.</exception>
+    public void GetEpubContentFilePath(bool debug = false)
     {
         try
         {
-            string contentFilePath = "";
+            string contentFilePath;
             string xmlFilePath = _ebookFolderPath + "\\" + "META-INF" + "\\" + _containerFileName;
             _ebook.ContainerPath = xmlFilePath;
             string xmlSegment = "";
 
             XmlDocument doc = new XmlDocument();
             doc.Load(xmlFilePath);
-
             XmlNodeList elemList = doc.GetElementsByTagName("rootfiles");
-
 
             for (int i = 0; i < elemList.Count; i++)
             {
@@ -696,41 +860,61 @@ public class EpubHandler
             _contentFilePath = _ebookFolderPath + "\\" + contentFilePath;
             _ebook.ContentPath = _contentFilePath;
 
-            Debug.WriteLine( logger.GetEpubContentFilePathSuccess );
-
+            if (debug) { Debug.WriteLine($"GetEpubContentFilePath() - Success - {_contentFilePath}"); }
 
         }
-
         catch (IOException ex) when (ex.Message.Contains("already exists"))
         {
-            Debug.WriteLine($"{logger.ExtractEpubFail}: The file already exists.");
+            if (debug) { Debug.WriteLine($"GetEpubContentFilePath() - Fail - {ex.Message}"); }
             throw; // Rethrow the exception if you want it to propagate further
         }
-
         catch (Exception ex)
         {
-            Debug.WriteLine( $"{logger.GetEpubContentFilePathFail}: {ex.Message}" );
+            if (debug) { Debug.WriteLine($"GetEpubContentFilePath() - Fail - {ex.Message}"); }
             throw;
         }
     }
 
-
-    private void CheckEbookLanguage()
-    {
-        
-    }
-
-    // Adds book to the library
-    public async Task<bool> AddEpub(string epubFilePath, string destination, string fileName)
+    /// <summary>
+    /// Adds an EPUB file to the system by extracting its contents, processing metadata, and updating relevant records.
+    /// </summary>
+    /// <param name="epubFilePath">The file path of the EPUB file to be added.</param>
+    /// <param name="destination">The directory where the EPUB file will be extracted.</param>
+    /// <param name="fileName">The name of the EPUB file being processed. This name will be used to determine the file's entry in the system.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <returns>
+    /// <c>true</c> if the EPUB file was successfully added and processed; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>
+    /// This method performs the following steps:
+    /// <list type="number">
+    /// <item>Extracts the EPUB file to the specified destination directory using the <see cref="ExtractEpub"/> method.</item>
+    /// <item>Retrieves the path to the main content file of the EPUB using the <see cref="GetEpubContentFilePath"/> method.</item>
+    /// <item>Processes metadata tags from the EPUB content and updates corresponding properties of the <see cref="_ebook"/> object, including title, author, language, publisher, and description.</item>
+    /// <item>Determines and sets the cover image path for the EPUB using the <see cref="ContentHandler.GetCoverImagePath"/> method.</item>
+    /// <item>Clears any existing navigation data and extracts new navigation data from the EPUB's OPF file using the <see cref="Navigation.ExtractNavDataFromOPF"/> method.</item>
+    /// <item>Updates additional properties of the <see cref="_ebook"/> object, including navigation data, statistics, book position, scroll value, and status.</item>
+    /// <item>Saves the updated <see cref="_ebook"/> object to a JSON file using the <see cref="JsonHandler.StoreJsonEbookFile"/> method.</item>
+    /// <item>Updates XHTML files related to the EPUB using the <see cref="app_controls.UpdateXhtmls"/> method.</item>
+    /// <item>Adds the EPUB book's information to the collection of books using the <see cref="AllBooks.AddBookStore"/> method.</item>
+    /// </list>
+    /// </remarks>
+    /// <exception cref="Exception">Thrown if any errors occur during the process of adding and processing the EPUB file.</exception>
+    /// <event cref="BookAddedEvent">Triggered when the EPUB file is successfully added or if an error occurs during the process.</event>
+    public async Task<bool> AddEpub(string epubFilePath, string destination, string fileName, bool debug = false)
     {
         try
         {
+            // Extract the EPUB file to the specified destination
             ExtractEpub(epubFilePath, destination, fileName);
+
+            // Retrieve the path to the content file within the EPUB
             GetEpubContentFilePath();
 
+            // Iterate over metadata tags and extract corresponding values
             foreach (string tag in _metadataTags)
             {
-                string metadata = contentHandler.AddMetaData(_contentFilePath, tag);
+                string metadata = _contentHandler.AddMetaData(_contentFilePath, tag);
 
                 switch (tag)
                 {
@@ -752,53 +936,83 @@ public class EpubHandler
                 }
             }
 
-            _ebook.CoverPath = contentHandler.GetCoverImagePath(_contentFilePath, System.IO.Path.GetDirectoryName(_ebook.ContentPath));
-            //Debug.WriteLine($"NavFilePath = {_ebook.NavigationFilePath}");
-            nvg.navData.Clear();
-            await nvg.ExtractNavDataFromOPF(_ebook.ContentPath);
-            _ebook.NavData = nvg.navData;
-            _ebook.StatsRecord1 = new Dictionary<string, string>();
+            // Set the path to the cover image
+            _ebook.CoverPath = _contentHandler.GetCoverImagePath(_contentFilePath, Path.GetDirectoryName(_ebook.ContentPath));
 
-            // select value with key 1
+            // Clear existing navigation data and extract new data from the EPUB
+            _nvg.NavData.Clear();
+            _nvg.ExtractNavDataFromOPF(_ebook.ContentPath);
+            _ebook.NavData = _nvg.NavData;
+
+            // Initialize other properties of the _ebook object
+            _ebook.StatsRecord1 = new Dictionary<string, string>();
             _ebook.InBookPosition = "1";
             _ebook.ScrollValue = "0";
             _ebook.Status = "Not Started";
 
-            
+            // Store the updated eBook information
+            JsonHandler.StoreJsonEbookFile(_ebook, _ebook.EbookDataFolderPath);
 
-            JsonHandler.StoreJsonEbookFile(_ebook,_ebook.EbookDataFolderPath);
+            // Update XHTML files
+            await app_controls.UpdateXhtmls(_ebook.EbookFolderPath);
 
-            //RecentEbooksHandler.LoadJsonToList();
-            //REHandler.AddEbookToList(_ebook.JsonDataPath, REHandler.GetNewerDate(_ebook.DateAdded, _ebook.DateLastOpened));
-            //REHandler.SortRecentsEbooks();
-            //REHandler.WriteListToJson();
-
-            app_controls.UpdateXhtmls(_ebook.EbookFolderPath);
-
-            // store ebook to all books
+            // Add the book to the collection
             AllBooks allBooks = new AllBooks();
             allBooks.AddBookStore(_ebook.JsonDataPath);
 
-            Debug.WriteLine( logger.AddBookMessageSuccess );
+            if (debug) { Debug.WriteLine("AddEpub() - Success"); }
 
-            BookAddedEvent?.Invoke(this ,"The book was added successfully.");
+            // Trigger event indicating success
+            BookAddedEvent?.Invoke(this, "The book was added successfully.");
             return true;
-
-
-
         }
         catch (Exception ex)
         {
-            Debug.WriteLine( $"{logger.AddBookMessageFail}: {ex.Message}" );
+            if (debug) { Debug.WriteLine($"AddEpub() - Fail - {ex.Message}"); }
+
+            // Trigger event indicating failure
             BookAddedEvent?.Invoke(this, $"Failed to add the book: {ex.Message}");
             return false;
-
         }
     }
 
-    public event EventHandler<string> BookAddedEvent;
+    /// <summary>
+    /// Generates a random alphanumeric tag of the specified length.
+    /// </summary>
+    /// <param name="length">The length of the tag to generate. Must be greater than 0.</param>
+    /// <returns>A random alphanumeric string of the specified length.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified length is less than or equal to 0.</exception>
+    /// <remarks>
+    /// This method uses a combination of uppercase letters, lowercase letters, and digits to create a random tag.
+    /// It ensures that the length parameter is valid before generating the tag. If the length is not valid, an
+    /// <see cref="ArgumentOutOfRangeException"/> is thrown.
+    /// </remarks>
+    private string GenerateRandomTag(int length)
+    {
+        if (length <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(length), "Length must be greater than 0.");
+        }
 
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var random = new Random();
+        var tag = new char[length];
 
+        for (int i = 0; i < length; i++)
+        {
+            tag[i] = chars[random.Next(chars.Length)];
+        }
+
+        return new string(tag);
+    }
+
+    /* TO-DO in future
+    /// <summary>
+    /// Shows a dialog with the specified title and content.
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
     private async Task ShowDialog(string title, string content)
     {
         ContentDialog dialog = new ContentDialog
@@ -810,6 +1024,16 @@ public class EpubHandler
 
         await dialog.ShowAsync();
     }
+
+    /// <summary>
+    /// Returns the language of the ebook
+    /// </summary>
+    private void CheckEbookLanguage()
+    {
+        // TO-DO
+    }
+    */
+
 }
 
 /// <summary>
@@ -817,22 +1041,29 @@ public class EpubHandler
 /// </summary>
 public class Navigation
 {
+
     // PlayOrder : { Source, Text }
-    public Dictionary<string, List<string>> navData;
-    private app_logging logger = new app_logging();
+    public Dictionary<string, List<string>> NavData;
 
     public Navigation()
     {
-        navData = new Dictionary<string, List<string>>();
+        NavData = new Dictionary<string, List<string>>();
     }
 
     /// <summary>
-    /// Returns List of files with the specified extensions, here used to find the .ncx file
+    /// Finds a file with one of the specified extensions in a given directory and its subdirectories.
     /// </summary>
-    /// <param name="directory"></param>
-    /// <param name="extensions"></param>
-    /// <returns></returns>
-    public string FindFilesWithExtensions(string directory, List<string> extensions)
+    /// <param name="directory">The directory to search within.</param>
+    /// <param name="extensions">A list of file extensions to search for, including the dot (e.g., ".txt").</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <returns>
+    /// The full path of the first file found with one of the specified extensions, or <c>null</c> if no matching files are found.
+    /// </returns>
+    /// <remarks>
+    /// This method searches through all files in the specified directory and its subdirectories. It returns the path of the first file that matches one of the provided extensions.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="directory"/> or <paramref name="extensions"/> is <c>null</c>.</exception>
+    public string FindFilesWithExtensions(string directory, List<string> extensions, bool debug = false)
     {
         List<string> matches = new List<string>();   // List of files that match the extensions - not used
 
@@ -840,98 +1071,103 @@ public class Navigation
         {
             foreach (string file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
             {
-                if (extensions.Contains(System.IO.Path.GetExtension(file)))
+                if (extensions.Contains(Path.GetExtension(file)))
                 {
                     matches.Add(file);
-                    Debug.WriteLine($"{logger.FindFilesWithExtensionsSuccess} - {file}");
                     return file;
                 }
             }
+
+            if (debug) { Debug.WriteLine($"FindFilesWithExtensions() - Success - {string.Join(", ", matches)}" ); }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"{logger.FindFilesWithExtensionsFail}{e.Message}");
+            if (debug) { Debug.WriteLine($"FindFilesWithExtensions() - Fail - {ex.Message}"); }
         }
         return null;
     }
-    
+
     /// <summary>
-    /// Method to extract the navigation data from the .opf file
+    /// Extracts navigation data from an OPF (Open Packaging Format) file.
     /// </summary>
-    /// <param name="opfFilePath"></param>
-    /// <returns></returns>
-    public async Task ExtractNavDataFromOPF(string opfFilePath)
+    /// <param name="opfFilePath">The file path of the OPF file to extract navigation data from.</param>
+    /// <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+    /// <remarks>
+    /// This method reads the OPF file to extract information about the manifest and spine elements. It populates the <see cref="NavData"/> dictionary with the play order and source details of each item specified in the spine.
+    /// </remarks>
+    /// <exception cref="FileNotFoundException">Thrown when the specified OPF file does not exist.</exception>
+    /// <exception cref="XmlException">Thrown when there is an error parsing the OPF file.</exception>
+    public void ExtractNavDataFromOPF(string opfFilePath, bool debug = false)
     {
 
-        Dictionary<string, List<string>> manifestData = new Dictionary<string, List<string>>();
-        List<string> spineData = new List<string>();
-
-
- 
-        XDocument opfDoc = XDocument.Load(opfFilePath);
-        XNamespace ns = "http://www.idpf.org/2007/opf";
-        var manifest = opfDoc.Root.Element(ns + "manifest");
-
-        foreach (var item in manifest.Elements(ns + "item"))
+        try
         {
-            string id = item.Attribute("id")?.Value;
-            string href = item.Attribute("href")?.Value;
-            string mediaType = item.Attribute("media-type")?.Value;
+            Dictionary<string, List<string>> manifestData = new Dictionary<string, List<string>>();
+            List<string> spineData = new List<string>();
 
-            manifestData.Add(id, new List<string> { href, mediaType });
+            XDocument opfDoc = XDocument.Load(opfFilePath);
+            XNamespace ns = "http://www.idpf.org/2007/opf";
+            var manifest = opfDoc.Root.Element(ns + "manifest");
 
-            /*
-            Debug.WriteLine("");
-            Debug.WriteLine($"ID: {id}");
-            Debug.WriteLine($"HREF: {href}");   
-            Debug.WriteLine($"Media Type: {mediaType}");
-            Debug.WriteLine("");
-            */
+            foreach (var item in manifest.Elements(ns + "item"))
+            {
+                string id = item.Attribute("id")?.Value;
+                string href = item.Attribute("href")?.Value;
+                string mediaType = item.Attribute("media-type")?.Value;
+
+                manifestData.Add(id, new List<string> { href, mediaType });
+
+                if (debug) {
+                    Debug.WriteLine("");
+                    Debug.WriteLine($"ID: {id}");
+                    Debug.WriteLine($"HREF: {href}");
+                    Debug.WriteLine($"Media Type: {mediaType}");
+                    Debug.WriteLine("");
+                }
+            }
+
+            var spine = opfDoc.Root.Element(ns + "spine");
+
+            foreach (var element in spine.Elements())
+            {
+                string idref = (element.Attribute("idref")?.Value);
+                spineData.Add(idref);
+            }
+
+
+            int playOrder = 0;
+            foreach (var idref in spineData)
+            {
+                playOrder++;
+                string source = manifestData[idref][0];
+                string text = manifestData[idref][1];
+
+                NavData.Add(playOrder.ToString(),
+                    new List<string> { $"{System.IO.Path.GetDirectoryName(opfFilePath)}\\{source}", text });
+
+                if (debug) {
+                    Debug.WriteLine("");
+                    Debug.WriteLine($"Play Order: {playOrder}");
+                    Debug.WriteLine($"Source: {source}");
+                    Debug.WriteLine($"Text: {text}");
+                    Debug.WriteLine("");
+                }
+            }
+
+            if (debug) { Debug.WriteLine("ExtractNavDataFromOPF() - Success"); } 
+            
         }
 
-        Debug.WriteLine("\nManifest Finished\n");
-        
-        var spine = opfDoc.Root.Element(ns + "spine");
-
-        foreach (var element in spine.Elements())
+        catch (Exception ex)
         {
-            string idref = (element.Attribute("idref")?.Value);
-            spineData.Add(idref);
-
-            /*
-            Debug.WriteLine("");
-            Debug.WriteLine($"IDREF: {idref}");
-            Debug.WriteLine("");
-            */
-
+            if (debug) { Debug.WriteLine($"ExtractNavDataFromOPF() - Fail - {ex.Message}"); }
         }
-
-        Debug.WriteLine("\nSpine Finished\n");
-
-        int playOrder = 0;
-        foreach (var idref in spineData)
-        {
-            playOrder++;
-            string source = manifestData[idref][0];
-            string text = manifestData[idref][1];
-
-            navData.Add(playOrder.ToString(),
-                new List<string> { $"{System.IO.Path.GetDirectoryName(opfFilePath)}\\{source}", text });
-            /*
-            Debug.WriteLine("");
-            Debug.WriteLine($"Play Order: {playOrder}");
-            Debug.WriteLine($"Source: {source}");
-            Debug.WriteLine($"Text: {text}");
-            Debug.WriteLine("");
-            */
-        }
-
-        Debug.WriteLine("\nSync Finished\n");
 
     }
 
+    /* Deprecated
     /// <summary>
-    /// Sets the navData dictionary with the extracted data from the .ncx file, does not work correctly with every .epub file
+    /// Sets the NavData dictionary with the extracted data from the .ncx file, does not work correctly with every .epub file
     /// </summary>
     /// <param name="navFilePath"></param>
     public void ExtractNavDataFromNcx(string navFilePath)
@@ -965,7 +1201,7 @@ public class Navigation
                     Debug.WriteLine($"Text: {text}");
                     Debug.WriteLine("");
 
-                    navData.Add(playOrder,
+                    NavData.Add(playOrder,
                         new List<string> { $"{System.IO.Path.GetDirectoryName(navFilePath)}\\{source}", text });
                 }
             }
@@ -977,6 +1213,7 @@ public class Navigation
             Debug.WriteLine( $"{logger.ExtractNavDataFail}{e.Message}" );
         }
     }
+    */
 
 
 }

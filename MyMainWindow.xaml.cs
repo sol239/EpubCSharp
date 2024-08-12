@@ -47,7 +47,7 @@ namespace EpubReader
     {
         // my objects
         EpubHandler epubHandler = new EpubHandler();
-        FileManagment fileManagment = new FileManagment();
+        FileManagement _fileManagement = new FileManagement();
         app_logging logger = new app_logging();
         app_controls appControls = new app_controls();
         RecentEbooksHandler REHandler = new RecentEbooksHandler();

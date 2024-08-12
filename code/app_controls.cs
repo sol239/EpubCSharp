@@ -39,7 +39,7 @@ namespace EpubReader.code
                 ViewMode = PickerViewMode.Thumbnail,
             };
 
-            foreach (string ebookFormat in FileManagment.SupportedEbooksFormats)
+            foreach (string ebookFormat in FileManagement.SupportedEbooksFormats)
             {
                 fileOpenPicker.FileTypeFilter.Add(ebookFormat);
             }
@@ -58,7 +58,7 @@ namespace EpubReader.code
             if (file != null)
             {
                 logger.addBookMessage(file.Name, file.FileType, file.Path);
-                result = await Task.Run(() => epubHandler.AddEpub(file.Path, FileManagment.GetEbooksFolderPath(), file.Name)); 
+                result = await Task.Run(() => epubHandler.AddEpub(file.Path, FileManagement.GetEbooksFolderPath(), file.Name)); 
 
                 
             }
@@ -77,7 +77,7 @@ namespace EpubReader.code
         /// <returns></returns>
         public static List<string> GetListOfAllEbooks()
         {
-            return GetImmediateSubdirectories(FileManagment.GetEbooksFolderPath());
+            return GetImmediateSubdirectories(FileManagement.GetEbooksFolderPath());
         }
 
         static List<string> GetImmediateSubdirectories(string rootPath)
@@ -109,7 +109,7 @@ namespace EpubReader.code
         public static async Task UpdateXhtmls(string ebookFolderPath)
         {
 
-            string jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
+            string jsonDataFilePath = FileManagement.GetEbookDataJsonFile(ebookFolderPath);
             var ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
 
 
@@ -117,7 +117,7 @@ namespace EpubReader.code
             {
                 try
                 {
-                    await UpdateCssPath(kvp.Value[0], FileManagment.GetEbookViewerStyleFilePath());
+                    await UpdateCssPath(kvp.Value[0], FileManagement.GetEbookViewerStyleFilePath());
                 }
                 catch (Exception e)
                 {
@@ -138,7 +138,7 @@ namespace EpubReader.code
                 string[] xhtmlFiles = Directory.GetFiles(ebookFolderPath, "*.xhtml", SearchOption.AllDirectories);
 
                 // Path to the CSS file
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
                 // Update CSS path for each .xhtml file
                 foreach (string xhtmlFile in xhtmlFiles)

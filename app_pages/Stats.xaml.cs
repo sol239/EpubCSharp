@@ -1,31 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI;
 using EpubReader.app_pages;
 using EpubReader.code;
 
 using System.Diagnostics;
 
-
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.WinUI;
-using Microsoft.UI.Xaml.Controls;
-using CSharpMarkup.WinUI.LiveChartsCore.SkiaSharpView;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -69,7 +54,7 @@ namespace EpubReader
 
                     try
                     {
-                        jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
+                        jsonDataFilePath = FileManagement.GetEbookDataJsonFile(ebookFolderPath);
                         Debug.WriteLine($"LoadBooks() 1 - Success\n");
                     }
 

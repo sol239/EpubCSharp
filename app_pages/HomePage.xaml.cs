@@ -47,7 +47,7 @@ namespace EpubReader.app_pages
 
         // my objects
         EpubHandler epubHandler = new EpubHandler();
-        FileManagment fileManagment = new FileManagment();
+        FileManagement _fileManagement = new FileManagement();
         app_logging logger = new app_logging();
         app_controls appControls = new app_controls();
         RecentEbooksHandler REHandler = new RecentEbooksHandler();
@@ -368,7 +368,7 @@ namespace EpubReader.app_pages
 
         public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
         {
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
             switch (settings.ebookViewer)
             {

@@ -26,7 +26,7 @@ using Microsoft.UI.Xaml.Documents;
 using System.Net.Http;
 using System.Text;
 using Windows.Media.Protection.PlayReady;
-using static EpubReader.code.FileManagment;
+using static EpubReader.code.FileManagement;
 using System.Threading;
 using System.Web;
 using ABI.Windows.ApplicationModel;
@@ -54,7 +54,7 @@ namespace EpubReader.app_pages
         private string _xhtmlPath = "";
 
         // path to the CSS file for styling the ebook.
-        private string _cssPath = FileManagment.GetEbookViewerStyleFilePath();
+        private string _cssPath = FileManagement.GetEbookViewerStyleFilePath();
         
         // tuple passed from the main window holding the ebook's play order and folder path.
         private (string ebookPlayOrder, string ebookFolderPath) navValueTuple;
@@ -82,7 +82,7 @@ namespace EpubReader.app_pages
         public EbookWindow((string ebookPlayOrder, string ebookFolderPath) data)
         {
 
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
             if (settings.translationService == "argos")
@@ -149,7 +149,7 @@ namespace EpubReader.app_pages
         public static async Task UpdateLineWidth(string newFontFamily)
         {
 
-            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+            string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
             // Read the existing CSS file
             string cssContent = File.ReadAllText(cssFilePath);
@@ -182,7 +182,7 @@ namespace EpubReader.app_pages
             {
                 this.Closed -= MainWindow_Closed;
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 if (settings.translationService == "argos")
                 {
                     await StopFlaskServer();
@@ -206,7 +206,7 @@ namespace EpubReader.app_pages
             //string _font = await LoadFontComboBox();
             //string _color = await LoadBackgroundColorComboBox();
 
-            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
             fontsComboBox.SelectedIndex = SettingsPage._bookReadingFonts.IndexOf(_globalSettings.font);
             ThemesComboBox.SelectedIndex = SettingsPage._themes.Keys.ToList().IndexOf(_globalSettings.Theme);
@@ -248,7 +248,7 @@ namespace EpubReader.app_pages
         }
         private void ChangeBooksStatus()
         {
-            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
             if (_ebook.Status == "Finished")
             {
             }
@@ -259,7 +259,7 @@ namespace EpubReader.app_pages
             {
                 _ebook.Status = "Reading";
             }
-            File.WriteAllText(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
+            File.WriteAllText(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
 
 
         }
@@ -320,7 +320,7 @@ namespace EpubReader.app_pages
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
                 Debug.WriteLine($"InBookPosition = {_ebook.InBookPosition} | Scroll = {_ebook.ScrollValue}");
-                Debug.WriteLine($"Save To: {FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");
+                Debug.WriteLine($"Save To: {FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");
             }
             catch (Exception ex)
             {
@@ -335,7 +335,7 @@ namespace EpubReader.app_pages
                     _ebook.BookCloseTime = DateTime.Now.ToString();
 
                     // Get the file path
-                    string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
+                    string filePath = FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
                     filePath = Path.GetDirectoryName(filePath);
 
                     // Store the JSON ebook file
@@ -407,7 +407,7 @@ namespace EpubReader.app_pages
 
                     await Store1(timeDifference);
                     // Get the file path
-                    string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
+                    string filePath = FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
                     filePath = Path.GetDirectoryName(filePath);
 
                     // Store the JSON ebook file
@@ -484,7 +484,7 @@ namespace EpubReader.app_pages
         {
             try
             {
-                _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+                _ebook = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
 
                 /*
                 Debug.WriteLine("\n********************************");
@@ -498,7 +498,7 @@ namespace EpubReader.app_pages
                 await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
 
 
-                _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
+                _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 
 
             }
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 MyWebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
 
                 MyWebView.CoreWebView2.Settings.IsScriptEnabled = true;
-                _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
                 MyWebView.Source = new Uri(_xhtmlPath);
                 MyWebView.CoreWebView2.WebMessageReceived += (sender, e) =>
                 {
@@ -784,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
                 string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
@@ -862,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollViewer.Width = stackPanel.Width;
                 scrollViewer.Height = stackPanel.Height;
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 string sourceLanguage = await GetLanguageCode(_ebook.Language);
                 Debug.WriteLine($"Source Language = {_ebook.Language}");
                 Debug.WriteLine($"Target Language = {settings.language}");
@@ -937,19 +937,19 @@ document.addEventListener('DOMContentLoaded', () => {
         public async Task StoreTranslation(string sourceLanguage, string targerLanguage, string originalText, string translatedText)
         {
 
-            string dictPath = FileManagment.GetGlobalDictPath();
+            string dictPath = FileManagement.GetGlobalDictPath();
             Debug.WriteLine($"Translation saved to {dictPath}");
             Debug.WriteLine($"Ebook Path = {navValueTuple.ebookFolderPath}\nOriginal = {originalText}\nTransalted = {translatedText}");
 
 
-            globalDictJson globalDict = JsonSerializer.Deserialize<globalDictJson>(File.ReadAllText(dictPath));
+            GlobalDictJson globalDict = JsonSerializer.Deserialize<GlobalDictJson>(File.ReadAllText(dictPath));
 
-            if (!globalDict.dict.ContainsKey(originalText))
+            if (!globalDict.TranslationsDict.ContainsKey(originalText))
             {
-                globalDict.dict.Add(originalText, new List<string>() { sourceLanguage, targerLanguage, translatedText });
+                globalDict.TranslationsDict.Add(originalText, new List<string>() { sourceLanguage, targerLanguage, translatedText });
             }
 
-            File.WriteAllText(FileManagment.GetGlobalDictPath(), JsonSerializer.Serialize(globalDict));
+            File.WriteAllText(FileManagement.GetGlobalDictPath(), JsonSerializer.Serialize(globalDict));
             DummyTextBox.Focus(FocusState.Programmatic);
 
         }
@@ -1083,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 if (settings.translationService == "argos")
                 {
                     await StopFlaskServer();
@@ -1209,9 +1209,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         {
                             try
                             {
-                                _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+                                _ebook = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
                                 _ebook.Status = "Finished";
-                                File.WriteAllText(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
+                                File.WriteAllText(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath), JsonSerializer.Serialize(_ebook));
 
 
                                 navValueTuple.ebookPlayOrder = 1.ToString();
@@ -1237,7 +1237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         navValueTuple.ebookPlayOrder = (playOrder + 1).ToString();
 
                         _xhtmlPath =
-                            FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                            FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                         //Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
 
@@ -1325,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     navValueTuple.ebookPlayOrder = (playOrder).ToString();
                     _xhtmlPath =
-                        FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                        FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                     //Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
 
@@ -1469,7 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
             Windows.UI.Color _buttonColor;
 
-        globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+        globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
             try
@@ -1518,9 +1518,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.Padding = padding;
-                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
                     Debug.WriteLine("PaddingButton_OnClick() - Success");
                     ChangeCommandBarColors();
@@ -1549,9 +1549,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
-                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
                     await SettingsPage.UpdateBodyFontSize(settings.FontSize);
                     Debug.WriteLine("FontSizeButton_OnClick() - Success");
@@ -1593,8 +1593,8 @@ document.addEventListener('DOMContentLoaded', () => {
         /// <param name="data"></param>
         private void OpenEbookMessage((string ebookPlayOrder, string ebookFolderPath) data)
         {
-            _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
-            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
 
             Debug.WriteLine("");
             Debug.WriteLine("******************************");
@@ -1613,7 +1613,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
                 string workingDirectory = Directory.GetCurrentDirectory();
 
@@ -1767,9 +1767,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 string newFontFamily = SettingsPage._bookReadingFonts[fontsComboBox.SelectedIndex];
 
                 // store to json
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.font = newFontFamily;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
 
                 await SettingsPage.UpdateBodyFontFamily(newFontFamily);
@@ -1791,9 +1791,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (startUp >= 2)
             {
                 string theme = SettingsPage._themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.Theme = theme;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                 await SettingsPage.UpdateBodyTextColor(SettingsPage._themes[theme]["text-color"]);
                 await SettingsPage.UpdateBodyBackgroundColor(SettingsPage._themes[theme]["background-color"]);
                 await UpdateCSSAction();

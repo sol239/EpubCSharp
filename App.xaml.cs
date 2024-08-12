@@ -47,13 +47,13 @@ namespace EpubReader
         {
             try
             {
-                // Ensure FileManagment.StartUp() runs first
-                await FileManagment.StartUp();
+                // Ensure FileManagement.StartUp() runs first
+                await FileManagement.StartUp();
             }
             catch (Exception ex)
             {
                 // Log the exception (you can replace this with your logging mechanism)
-                System.Diagnostics.Debug.WriteLine($"Exception in FileManagment.StartUp: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Exception in FileManagement.StartUp: {ex.Message}");
                 throw; // Re-throw the exception if you want to halt the application
             }
 

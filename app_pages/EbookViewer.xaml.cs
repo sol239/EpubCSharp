@@ -32,7 +32,7 @@ namespace EpubReader
         private string _xhtmlPath = "";
 
         // path to the CSS file for styling the ebook.
-        private string _cssPath = FileManagment.GetEbookViewerStyleFilePath();  
+        private string _cssPath = FileManagement.GetEbookViewerStyleFilePath();  
         private Windows.UI.Color _backgroundColor = ParseHexColor("#eed2ae");   
         private Windows.UI.Color _foregroundColor = ParseHexColor("#000000");  
         private Windows.UI.Color _buttonColor = ParseHexColor("#000000");
@@ -116,7 +116,7 @@ setupEventListeners();
 
                 int playOrder = int.Parse(navValueTuple.ebookPlayOrder);
                 navValueTuple.ebookPlayOrder = (playOrder + 1).ToString();
-                _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                 Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
                 Debug.WriteLine("***************");
@@ -186,7 +186,7 @@ setupEventListeners();
                 }
 
                 navValueTuple.ebookPlayOrder = (playOrder).ToString();
-                _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+                _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
 
                 Debug.WriteLine($"PlayOrder = {navValueTuple.ebookPlayOrder}");
                 Debug.WriteLine("***************");
@@ -291,7 +291,7 @@ setupEventListeners();
         {
             base.OnNavigatedTo(e);
             navValueTuple = ((string, string))e.Parameter;
-            _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
+            _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, navValueTuple.ebookPlayOrder);
         }
 
         /// <summary>
@@ -320,7 +320,7 @@ setupEventListeners();
                 Debug.WriteLine("********************************");
                 Debug.WriteLine("Save Position");
                 Debug.WriteLine($"InBookPosition = {_ebook.InBookPosition} | Scroll = {_ebook.ScrollValue}");
-                Debug.WriteLine($"Save To: {FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");
+                Debug.WriteLine($"Save To: {FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath)}");
             }
             catch (Exception ex)
             {
@@ -331,7 +331,7 @@ setupEventListeners();
                 try
                 {
                     // Get the file path
-                    string filePath = FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
+                    string filePath = FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath);
                     filePath = Path.GetDirectoryName(filePath);
 
                     // Store the JSON ebook file
@@ -359,10 +359,10 @@ setupEventListeners();
             Debug.WriteLine("********************************");
             Debug.WriteLine("Restore Position");
             Debug.WriteLine("********************************¨\n");
-            _ebook = JsonHandler.ReadEbookJsonFile(FileManagment.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
+            _ebook = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navValueTuple.ebookFolderPath));
             await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scroll(100, {_ebook.InBookPosition});");
             // load playorder
-            _xhtmlPath = FileManagment.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
+            _xhtmlPath = FileManagement.GetBookContentFilePath(navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 
         }
 

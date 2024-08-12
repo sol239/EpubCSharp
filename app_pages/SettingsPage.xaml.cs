@@ -174,7 +174,7 @@ namespace EpubReader
 
             LoadLangDict();
             comboBoxesSetup();
-            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+            string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
             PageStartup();
 
 
@@ -217,7 +217,7 @@ namespace EpubReader
             //string _font = await LoadFontComboBox();
             //string _color = await LoadBackgroundColorComboBox();
 
-            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
             fontsComboBox.SelectedIndex = _bookReadingFonts.IndexOf(_globalSettings.font);
             //backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
@@ -293,7 +293,7 @@ namespace EpubReader
         public static async Task UpdateBodyFontFamily(string newFontFamily)
         {
 
-            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+            string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
             // Read the existing CSS file
             string cssContent = File.ReadAllText(cssFilePath);
@@ -326,7 +326,7 @@ namespace EpubReader
 
             try
             {
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
                 // Read the existing CSS file
                 string cssContent = File.ReadAllText(cssFilePath);
@@ -364,7 +364,7 @@ namespace EpubReader
 
             try
             {
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
                 // Read the existing CSS file
                 string cssContent = File.ReadAllText(cssFilePath);
@@ -402,7 +402,7 @@ namespace EpubReader
 
             try
             {
-                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+                string cssFilePath = FileManagement.GetEbookViewerStyleFilePath();
 
                 // Read the existing CSS file
                 string cssContent = File.ReadAllText(cssFilePath);
@@ -442,9 +442,9 @@ namespace EpubReader
                 string newFontFamily = _bookReadingFonts[fontsComboBox.SelectedIndex];
 
                 // store to json
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.font = newFontFamily;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
 
                 await UpdateBodyFontFamily(newFontFamily);
@@ -488,9 +488,9 @@ namespace EpubReader
                 }
 
                 // store to json
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.backgroundColor = color;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
                 await UpdateBodyBackgroundColor(color);
             }
@@ -503,9 +503,9 @@ namespace EpubReader
 
         public async static Task<string> LoadFontComboBox()
         {
-            if (File.Exists(FileManagment.GetEbookViewerStyleFilePath()))
+            if (File.Exists(FileManagement.GetEbookViewerStyleFilePath()))
             {
-                string cssContent = File.ReadAllText(FileManagment.GetEbookViewerStyleFilePath());
+                string cssContent = File.ReadAllText(FileManagement.GetEbookViewerStyleFilePath());
                 string pattern = @"(?<=body\s*{[^}]*?font-family:\s*).*?(?=;)";
                 Match match = Regex.Match(cssContent, pattern);
                 if (match.Success)
@@ -519,9 +519,9 @@ namespace EpubReader
 
         public async static Task<string> LoadBackgroundColorComboBox()
         {
-            if (File.Exists(FileManagment.GetEbookViewerStyleFilePath()))
+            if (File.Exists(FileManagement.GetEbookViewerStyleFilePath()))
             {
-                string cssContent = File.ReadAllText(FileManagment.GetEbookViewerStyleFilePath());
+                string cssContent = File.ReadAllText(FileManagement.GetEbookViewerStyleFilePath());
                 string pattern = @"(?<=body\s*{[^}]*?background-color:\s*).*?(?=;)";
                 Match match = Regex.Match(cssContent, pattern);
                 if (match.Success)
@@ -537,9 +537,9 @@ namespace EpubReader
         private void ebookViewerComboBoxComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string selectedViewer = _bookViewer[ebookViewerComboBox.SelectedIndex];
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
             settings.ebookViewer = selectedViewer;
-            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+            File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
         }
 
         private void translationComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -548,9 +548,9 @@ namespace EpubReader
             string selectedTranslService = tsServices[translationComboBox.SelectedIndex];
 
             Debug.WriteLine(selectedTranslService);
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
             settings.translationService = selectedTranslService;
-            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+            File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
         }
 
@@ -559,9 +559,9 @@ namespace EpubReader
 
             string selectedLang = languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
 
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
             settings.language = selectedLang;
-            File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+            File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
         }
 
@@ -578,9 +578,9 @@ namespace EpubReader
                 // if path is valid 
                 if (File.Exists(pythonPath))
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.pythonPath = pythonPath;
-                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     PythonPathBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
                 }
 
@@ -600,9 +600,9 @@ namespace EpubReader
             if (_startUp >= confirmStartup)
             {
                 string theme = _themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.Theme = theme;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                 await UpdateBodyTextColor(_themes[theme]["text-color"]);
                 await UpdateBodyBackgroundColor(_themes[theme]["background-color"]);
             }
@@ -625,9 +625,9 @@ namespace EpubReader
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.Padding = padding;
-                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
 
                 }
@@ -655,9 +655,9 @@ namespace EpubReader
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
-                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
                     await UpdateBodyFontSize(settings.FontSize);
 

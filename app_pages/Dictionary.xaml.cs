@@ -15,7 +15,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using EpubReader.code;
-using static EpubReader.code.FileManagment;
+using static EpubReader.code.FileManagement;
 using System.Text.Json;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -56,9 +56,9 @@ namespace EpubReader
 
         private void LoadItems()
         {
-            string dictPath = FileManagment.GetGlobalDictPath();
-            globalDictJson globalDict = JsonSerializer.Deserialize<globalDictJson>(File.ReadAllText(dictPath));
-            foreach (var kvp in globalDict.dict)
+            string dictPath = FileManagement.GetGlobalDictPath();
+            GlobalDictJson globalDict = JsonSerializer.Deserialize<GlobalDictJson>(File.ReadAllText(dictPath));
+            foreach (var kvp in globalDict.TranslationsDict)
             {
                 Translations.Add(new Translation
                 {
