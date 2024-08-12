@@ -15,6 +15,16 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Height="574" Padding="20">
         <StackPanel>
 
+            <StackPanel  Name="FontSizeStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer font size..." />
+                <Button Content=">" Click="FontSizeButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
+            </StackPanel>
+
+            <StackPanel Name="Padding"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                <TextBox Header ="Padding" x:Name="PaddingBox" Width="300" Height="Auto" PlaceholderText="Enter viewer padding..." />
+                <Button Content=">" Click="PaddingButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
+            </StackPanel>
+
             <ComboBox 
                 Header="Ebook Font"
                 x:Name="fontsComboBox" 
@@ -108,9 +118,9 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
-            <StackPanel Name="PythonPathStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="40">
-                <TextBox x:Name="PythonPathBox" Width="300" Height="40" PlaceholderText="Enter python.exe path..." />
-                <Button Content=">" Click="PythonPath_Click" Width="40" Height="40"/>
+            <StackPanel Name="PythonPathStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                <TextBox Header="Python Path"  x:Name="PythonPathBox" Width="300" Height="Auto" PlaceholderText="Enter python.exe path..." />
+                <Button Content=">" Click="PythonPath_Click" Width="40" Height="Auto" Margin="0,26,0,0"/>
             </StackPanel>
             
             <!--

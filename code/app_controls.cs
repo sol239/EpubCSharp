@@ -108,26 +108,53 @@ namespace EpubReader.code
         /// <returns></returns>
         public static async Task UpdateXhtmls(string ebookFolderPath)
         {
-            try
+
+            string jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
+            var ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
+
+
+            foreach (KeyValuePair<string, List<string>> kvp in ebook.NavData)
             {
-                string jsonDataFilePath = FileManagment.GetEbookDataJsonFile(ebookFolderPath);
-                var ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
-                
-                foreach (KeyValuePair<string, List<string>> kvp in ebook.NavData)
+                try
                 {
                     await UpdateCssPath(kvp.Value[0], FileManagment.GetEbookViewerStyleFilePath());
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"UpdateXhtmls() - Fail - {e.Message}");
+                }
+            }
+        }
+
+
+
+
+
+        public static async Task UpdateXhtmlsRecursive(string ebookFolderPath)
+        {
+            try
+            {
+                // Get all .xhtml files in the directory and subdirectories
+                string[] xhtmlFiles = Directory.GetFiles(ebookFolderPath, "*.xhtml", SearchOption.AllDirectories);
+
+                // Path to the CSS file
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
+                // Update CSS path for each .xhtml file
+                foreach (string xhtmlFile in xhtmlFiles)
+                {
+                    await UpdateCssPath(xhtmlFile, cssFilePath);
                 }
 
                 Debug.WriteLine($"UpdateXhtmls() - Success");
             }
-
             catch (Exception e)
             {
                 Debug.WriteLine($"UpdateXhtmls() - Fail - {e.Message}");
                 throw;
             }
-
         }
+
 
         /// <summary>
         /// Injects the global CSS file path into all xhtml files in all ebook folders.
@@ -208,6 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ";
 
+
+
         /// <summary>
         /// Updates the CSS path in the xhtml file.git 
         /// </summary>
@@ -250,23 +279,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         Debug.WriteLine($"Script injection failed - {ex.Message}");
                     }
 
-                    var linkElement = xhtmlDocument.Descendants()
-                        .FirstOrDefault(e => e.Name.LocalName == "link" && e.Attribute("rel")?.Value == "stylesheet");
+                    // Query all <link> elements in the document
+                    var linkElements = xhtmlDocument.Descendants()
+                        .Where(e => e.Name.LocalName == "link" && e.Attribute("href") != null);
 
-                    if (linkElement != null)
+                    // Update the href attribute for those <link> elements that end with .css
+                    foreach (var link in linkElements)
                     {
-                        linkElement.SetAttributeValue("href", newCssPath);
-
-
-                        
-                        
-
-                        xhtmlDocument.Save(xhtmlPath);
+                        string hrefValue = link.Attribute("href")?.Value;
+                        if (hrefValue != null && hrefValue.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
+                        {
+                            link.SetAttributeValue("href", newCssPath);
+                        }
                     }
-                    else
-                    {
-                        //Debug.WriteLine("No <link> element with rel=\"stylesheet\" found.");
-                    }
+                    xhtmlDocument.Save(xhtmlPath);
+
                     //Debug.WriteLine($"UpdateCssPath() - Success");
                     return; // Exit the method if successful
                 }

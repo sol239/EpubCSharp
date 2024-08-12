@@ -264,6 +264,8 @@ public class FileManagment
         globalSettings.translationService = "argos";
         globalSettings.language = "English";
         globalSettings.Theme = "Woodlawn";
+        globalSettings.FontSize = "1.5rem";
+        globalSettings.Padding = "60";
 
 
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));

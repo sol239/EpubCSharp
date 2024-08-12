@@ -7,10 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    >
-    
+    SizeChanged="EbookWindow_OnSizeChanged"
+    Title = "App title">
 
-    <Grid Name="ViewerGrid" Background="#ffffff" KeyDown="Page_KeyDown"> <!-- Set the background color for the Grid -->
+
+    <Grid Name="ViewerGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown"> <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Row for the top menu -->
@@ -25,7 +26,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid>
-            <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Minimal" IsTabStop="False">
+            <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact"  IsTabStop="False" OverflowButtonVisibility="Collapsed">
                 <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72B;" />
@@ -72,16 +73,27 @@
                    Source=""
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
-                   Margin="40,40,40,40"
+                   Margin="0"
                    Height="Auto"
                    Width="Auto">
 
         </WebView2>
 
         <Popup x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
-        <Border Background="White" BorderBrush="Black" BorderThickness="1" Padding="10">
+            <Border     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="Black" BorderThickness="1" Padding="10">
             <StackPanel>
-                <ComboBox x:Name="ThemesComboBox" Width="200" Height="58" PlaceholderText="Select theme" Header="Theme" Margin="5" SelectionChanged="ThemesComboBox_OnSelectionChanged">
+
+                <StackPanel  Name="FontSizeStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                    <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer font size..." />
+                    <Button Content=">" Click="FontSizeButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
+                </StackPanel>
+
+                <StackPanel Name="Padding"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                    <TextBox Header ="Padding" x:Name="PaddingBox" Width="300" Height="Auto" PlaceholderText="Enter viewer padding..." />
+                    <Button Content=">" Click="PaddingButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
+                </StackPanel>
+
+                    <ComboBox x:Name="ThemesComboBox" Width="200" Height="58" PlaceholderText="Select theme" Header="Theme" Margin="5" SelectionChanged="ThemesComboBox_OnSelectionChanged">
                     <!-- ComboBox items -->
                 </ComboBox>
 

@@ -10,8 +10,9 @@
 }
 
 body {
-  background: #4e4e4e;
+  background: #000000 ;
   overflow: hidden;
+
 }
 
 #main {
@@ -26,7 +27,7 @@ body {
 
   /* border-radius: 5px 0px 0px 5px; */
   border-radius: 5px;
-  background: #fff;
+  background: #000;
   overflow: hidden;
   -webkit-transition: -webkit-transform .4s, width .2s;
   -moz-transition: -webkit-transform .4s, width .2s;
@@ -444,7 +445,7 @@ input:-ms-placeholder {
 }
 
 #searchResults p .match {
-  background: #ccc;
+  background: #000;
   color: #000;
 }
 
@@ -576,7 +577,7 @@ input:-ms-placeholder {
 
 /* Content styles */
 .md-content {
-  color: #fff;
+  color: #000;
   background: #6b6b6b;
   position: relative;
   border-radius: 3px;

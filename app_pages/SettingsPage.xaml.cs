@@ -25,6 +25,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Microsoft.UI.Xaml.Shapes;
 using Windows.System;
+using EpubReader.app_pages;
+using LiveChartsCore.Drawing;
+using Microsoft.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -44,6 +47,9 @@ namespace EpubReader
         public string language { get; set; }
 
         public string Theme { get; set; }
+
+        public string Padding { get; set; }
+        public string FontSize { get; set; }
     }
 
     /// <summary>
@@ -51,7 +57,7 @@ namespace EpubReader
     /// </summary>
     public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     {
-        private int confirmStartup = 3;
+        private int confirmStartup = 2;
         
         public static List<string> _bookReadingFonts = new List<string>
         {
@@ -214,14 +220,32 @@ namespace EpubReader
             globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
 
             fontsComboBox.SelectedIndex = _bookReadingFonts.IndexOf(_globalSettings.font);
-            backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
+            //backgroundcolorComboBox.SelectedIndex = _bookBackgroundColor.IndexOf(_globalSettings.backgroundColor);
             ebookViewerComboBox.SelectedIndex = _bookViewer.IndexOf(_globalSettings.ebookViewer);
             translationComboBox.SelectedIndex = tsServices.IndexOf(_globalSettings.translationService);
             languageComboBox.SelectedIndex = languageDict.Keys.ToList().IndexOf(_globalSettings.language);
             ThemesComboBox.SelectedIndex = _themes.Keys.ToList().IndexOf(_globalSettings.Theme);
 
             PythonPathBox.Text = _globalSettings.pythonPath;
-            
+            //FontSizeBox.Text = _globalSettings.FontSize.Split("rem")[0];
+            PaddingBox.Text = _globalSettings.Padding;
+
+            if (double.TryParse(_globalSettings.FontSize.Split("rem")[0], out double fontSizeValue))
+            {
+                int fontSizeValueInt = (int)(fontSizeValue * 10);
+                if (fontSizeValueInt > 0)
+                {
+                    FontSizeBox.Text = fontSizeValueInt.ToString();
+                }
+            }
+
+            else
+            {
+                FontSizeBox.Text = "Provide valid fontsize = whole numbers > 0";
+            }
+
+
+
         }
 
         private void ColorPicker_ColorChanged(Microsoft.UI.Xaml.Controls.ColorPicker sender, ColorChangedEventArgs args)
@@ -237,10 +261,10 @@ namespace EpubReader
                 fontsComboBox.Items.Add(font);
             }
 
-            foreach (var color in _bookBackgroundColor)
+            /*foreach (var color in _bookBackgroundColor)
             {
                 backgroundcolorComboBox.Items.Add(color);
-            }
+            }*/
 
             foreach (var viewer in _bookViewer)
             {
@@ -291,7 +315,7 @@ namespace EpubReader
             File.WriteAllText(cssFilePath, modifiedCssContent);
 
 
-            await Task.Run(() => app_controls.GlobalCssInjector());
+            //await Task.Run(() => app_controls.GlobalCssInjector());
 
             Debug.WriteLine($"\n{newFontFamily} updated successfully!\n");
         }
@@ -324,7 +348,7 @@ namespace EpubReader
                 File.WriteAllText(cssFilePath, modifiedCssContent);
 
                 // Call the global CSS injector
-                await app_controls.GlobalCssInjector();
+                //await app_controls.GlobalCssInjector();
 
                 Debug.WriteLine($"\nBackground color updated to {color} successfully!\n");
             }
@@ -362,7 +386,7 @@ namespace EpubReader
                 File.WriteAllText(cssFilePath, modifiedCssContent);
 
                 // Call the global CSS injector
-                await app_controls.GlobalCssInjector();
+                //await app_controls.GlobalCssInjector();
 
                 Debug.WriteLine($"\nBackground color updated to {color} successfully!\n");
             }
@@ -372,6 +396,43 @@ namespace EpubReader
             }
         }
 
+        public static async Task UpdateBodyFontSize(string color)
+        {
+            Debug.WriteLine($"\nTryying to change backgournd color to {color}!\n");
+
+            try
+            {
+                string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
+                // Read the existing CSS file
+                string cssContent = File.ReadAllText(cssFilePath);
+
+                // Regular expression to find the body background-color declaration
+                string backgroundColorPattern = @"(?<=body\s*{[^}]*?font-size:\s*)([^;]*)(?=;)";
+
+                // Replace the existing background color for body with the new one
+                string modifiedCssContent = Regex.Replace(cssContent, backgroundColorPattern, color, RegexOptions.Singleline);
+
+                // If no background-color was found, add it
+                if (!Regex.IsMatch(cssContent, @"body\s*{[^}]*?font-size:"))
+                {
+                    modifiedCssContent = Regex.Replace(modifiedCssContent, @"body\s*{", $"body {{\n    font-size: {color};\n", RegexOptions.Singleline);
+                    Debug.WriteLine($"\nModified content:\n{modifiedCssContent}\n");
+                }
+
+                // Write the modified content back to the CSS file
+                File.WriteAllText(cssFilePath, modifiedCssContent);
+
+                // Call the global CSS injector
+                //await app_controls.GlobalCssInjector();
+
+                Debug.WriteLine($"\nBackground color updated to {color} successfully!\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating background color: {ex.Message}");
+            }
+        }
 
         private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -418,7 +479,7 @@ namespace EpubReader
         {
             if (_startUp >= confirmStartup)
             {
-                string color = _bookBackgroundColor[backgroundcolorComboBox.SelectedIndex];
+                string color = "#000000";
 
                 if (color == "Custom +")
                 {
@@ -513,9 +574,24 @@ namespace EpubReader
             // For example, display it in a message box
             if (!string.IsNullOrWhiteSpace(pythonPath))
             {
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
-                settings.pythonPath = pythonPath;
-                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+                // if path is valid 
+                if (File.Exists(pythonPath))
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.pythonPath = pythonPath;
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    PythonPathBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                }
+
+                else
+                {
+                    PythonPathBox.Text = "Invalid path...";
+                    PythonPathBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+                }
+
+                
+
             }
         }
 
@@ -535,6 +611,64 @@ namespace EpubReader
             {
                 _startUp++; }
 
+        }
+
+        private void PaddingButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string padding = PaddingBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(padding, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.Padding = padding;
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+
+                }
+            }
+            else
+            {
+                PaddingBox.Text = "Type a number bigger than 0...";
+                PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
+
+
+
+        }
+
+        private async void FontSizeButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string fontSize = FontSizeBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(fontSize, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                    await UpdateBodyFontSize(settings.FontSize);
+
+                }
+            }
+            else
+            {
+                FontSizeBox.Text = "Type a number bigger than 0...";
+                FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
         }
     }
 }

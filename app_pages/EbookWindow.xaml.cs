@@ -32,6 +32,8 @@ using System.Web;
 using ABI.Windows.ApplicationModel;
 using ContentDialog = Microsoft.UI.Xaml.Controls.ContentDialog;
 using LiveChartsCore.Themes;
+using Windows.UI.ViewManagement;
+using System.Text.RegularExpressions;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -72,6 +74,8 @@ namespace EpubReader.app_pages
 
         private string _emptyMessage = "*783kd4HJsn";
 
+        private string _selectedText = "";
+
         /// <summary>
         /// Constructor initializes the component and subscribes to Loaded and Unloaded events.
         /// </summary>
@@ -89,6 +93,8 @@ namespace EpubReader.app_pages
 
             this.InitializeComponent();
             PageStartup();
+            //this.Closed += MainWindow_Closed;
+
             ChangeCommandBarColors();
             navValueTuple = data;
             OpenEbookMessage(navValueTuple);
@@ -100,6 +106,101 @@ namespace EpubReader.app_pages
 
 
         }
+
+
+        private async void EbookWindow_OnSizeChanged(object sender, WindowSizeChangedEventArgs args)
+        {
+          
+            /*
+            int fontSize = 20;  // in px
+            int lineHeight = 20; // in px
+
+            MyWebView.EnsureCoreWebView2Async();
+            string documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
+            string  windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
+            string scrollValue = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;");
+
+            string bodyHeightScript = "document.body.scrollHeight;";
+            string bodyHeightValue = await MyWebView.CoreWebView2.ExecuteScriptAsync(bodyHeightScript);
+
+
+            double windowHeightValue = double.Parse(windowHeight);
+
+            double diff = windowHeightValue / (double)lineHeight;
+            int lines = (int)(Math.Floor(diff));
+
+            double newLineHeight = lineHeight + (windowHeightValue - lines * lineHeight) / (double)lines;
+            string newLineHeightString = $"{newLineHeight.ToString()}px";
+
+            Debug.WriteLine("EbookWindowSize:");
+            Debug.WriteLine($"Document Height = {documentHeight} | Window Height = {windowHeight}");
+            Debug.WriteLine($"Scroll Value = {scrollValue}");
+            Debug.WriteLine($"New Line Height = {newLineHeightString}");
+            Debug.WriteLine("****************************************************");
+
+            await UpdateLineWidth(newLineHeightString);
+
+            MyWebView.Reload();
+            //await RestorePositionAsync();
+            */
+
+        }
+
+        public static async Task UpdateLineWidth(string newFontFamily)
+        {
+
+            string cssFilePath = FileManagment.GetEbookViewerStyleFilePath();
+
+            // Read the existing CSS file
+            string cssContent = File.ReadAllText(cssFilePath);
+
+            // Regular expression to find the body font-family declaration
+            string pattern = @"(?<=body\s*{[^}]*?line-height:\s*).*?(?=;)";
+            string replacement = newFontFamily;
+
+            // Replace the existing font-family for body with the new one
+            string modifiedCssContent = Regex.Replace(cssContent, pattern, replacement, RegexOptions.Singleline);
+
+            // If no font-family was found, add it
+            if (!Regex.IsMatch(cssContent, @"body\s*{[^}]*?line-height:"))
+            {
+                modifiedCssContent = Regex.Replace(modifiedCssContent, @"body\s*{", $"body {{\n    line-height: {newFontFamily};\n", RegexOptions.Singleline);
+            }
+
+            // Write the modified content back to the CSS file
+            File.WriteAllText(cssFilePath, modifiedCssContent);
+
+
+            //await Task.Run(() => app_controls.GlobalCssInjector());
+
+            Debug.WriteLine($"\n{newFontFamily} updated successfully!\n");
+
+        }
+        private async void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            try
+            {
+                this.Closed -= MainWindow_Closed;
+
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                if (settings.translationService == "argos")
+                {
+                    await StopFlaskServer();
+                }
+
+                await SavePosition();
+                await CalculateTimeDifference();
+                WindowClosed?.Invoke(this, EventArgs.Empty);
+
+                this.Close();
+
+                Debug.WriteLine("MainWindow_Closed() - Success\n");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"MainWindow_Closed() - Fail - {ex.Message}\n");
+            }
+        }
         public async void PageStartup()
         {
             //string _font = await LoadFontComboBox();
@@ -109,6 +210,24 @@ namespace EpubReader.app_pages
 
             fontsComboBox.SelectedIndex = SettingsPage._bookReadingFonts.IndexOf(_globalSettings.font);
             ThemesComboBox.SelectedIndex = SettingsPage._themes.Keys.ToList().IndexOf(_globalSettings.Theme);
+
+            PaddingBox.Text = _globalSettings.Padding;
+
+            if (double.TryParse(_globalSettings.FontSize.Split("rem")[0], out double fontSizeValue))
+            {
+                int fontSizeValueInt = (int)(fontSizeValue * 10);
+                if (fontSizeValueInt > 0)
+                {
+                    FontSizeBox.Text = fontSizeValueInt.ToString();
+                }
+            }
+
+            else
+            {
+                FontSizeBox.Text = "Provide valid fontsize = whole numbers > 0";
+            }
+
+
             comboBoxesSetup();
 
 
@@ -224,6 +343,9 @@ namespace EpubReader.app_pages
 
                     Debug.WriteLine("SavePosition() - Success");
                     Debug.WriteLine("********************************\n");
+
+                    
+
 
                 }
                 catch (Exception ex)
@@ -488,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
                 await InitializeWebViewAsync();
-                await UpdateCssPath(_xhtmlPath, _cssPath);
+                //await UpdateCssPath(_xhtmlPath, _cssPath);
                 await RestorePositionAsync();
 
                 // print actuall scroll
@@ -496,8 +618,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 Debug.WriteLine(_ebook.ScrollValue);
                 Debug.WriteLine(await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"));
 
+                
+
+
                 while (_ebook.ScrollValue != await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"))
                 {
+                    if (_ebook.ScrollValue == "null")
+                    {
+                        _ebook.ScrollValue = "0";
+                    }
                     Debug.Write("Scroll = ");
                     Debug.WriteLine(_ebook.ScrollValue);
                     Debug.WriteLine(await MyWebView.CoreWebView2.ExecuteScriptAsync("window.scrollY;"));
@@ -577,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         private void CoreWebView2_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             string message = e.TryGetWebMessageAsString();
+            Debug.WriteLine($"CoreWebView2_WebMessageReceived = {message}");
 
             if (message.Contains("="))
             {
@@ -675,114 +805,124 @@ document.addEventListener('DOMContentLoaded', () => {
 
         public async Task ShowFlyoutAsync(string messageType, string messageContent)
         {
-            //Debug.WriteLine($"ShowFlyoutAsync - {messageType} - {messageContent}");
-            if (messageType == "CLICKED WORD")
+
+            if (messageContent != _selectedText)
             {
-                // remove any . , ! ? : ; symbols from the text
-                messageContent = await RemoveSymbols(messageContent);
-            }
+                //Debug.WriteLine($"ShowFlyoutAsync - {messageType} - {messageContent}");
+                if (messageType == "CLICKED WORD")
+                {
+                    // remove any . , ! ? : ; symbols from the text
+                    messageContent = await RemoveSymbols(messageContent);
+                }
 
-            // Create a new Flyout
-            Flyout flyout = new Flyout();
+                // Create a new Flyout
+                Flyout flyout = new Flyout();
 
-            // set target
-
-
-            flyout.Placement = FlyoutPlacementMode.Bottom;
-            flyout.ShowMode = FlyoutShowMode.Transient;
-            flyout.Closed += (s, e) =>
-            {
-                DummyTextBox.Focus(FocusState.Programmatic);
-            };
+                // set target
 
 
-            // Create content for the Flyout
-            StackPanel stackPanel = new StackPanel
-            {
-                Width = 200,
-
-            };
-
-            TextBlock textBlock1 = new TextBlock { Text = $"{messageContent}" };
-            textBlock1.FontWeight = FontWeights.Bold;
-            textBlock1.TextTrimming = TextTrimming.CharacterEllipsis; // Trims at the character level and adds ...
+                flyout.Placement = FlyoutPlacementMode.Bottom;
+                flyout.ShowMode = FlyoutShowMode.Transient;
+                flyout.Closed += (s, e) =>
+                {
+                    DummyTextBox.Focus(FocusState.Programmatic);
+                };
 
 
+                // Create content for the Flyout
+                StackPanel stackPanel = new StackPanel
+                {
+                    Width = 200,
 
-            // Create and configure the second TextBlock
-            TextBlock textBlock2 = new TextBlock
-            {
-                TextWrapping = TextWrapping.Wrap,
-                MaxWidth = stackPanel.Width
-            };
+                };
 
-            // Create the ScrollViewer and set its properties
-            ScrollViewer scrollViewer = new ScrollViewer
-            {
-                Content = textBlock2,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto, // Shows scrollbar if needed
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto // Shows scrollbar if needed
-
-            };
+                TextBlock textBlock1 = new TextBlock { Text = $"{messageContent}" };
+                textBlock1.FontWeight = FontWeights.Bold;
+                textBlock1.TextTrimming = TextTrimming.CharacterEllipsis; // Trims at the character level and adds ...
 
 
-            scrollViewer.Width = stackPanel.Width;
-            scrollViewer.Height = stackPanel.Height;
 
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
-            string sourceLanguage = await GetLanguageCode(_ebook.Language);
-            Debug.WriteLine($"Source Language = {_ebook.Language}");
-            Debug.WriteLine($"Target Language = {settings.language}");
-            string targetLanguage = await GetLanguageCode(settings.language);
+                // Create and configure the second TextBlock
+                TextBlock textBlock2 = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,
+                    MaxWidth = stackPanel.Width
+                };
 
-            string result = "";
+                // Create the ScrollViewer and set its properties
+                ScrollViewer scrollViewer = new ScrollViewer
+                {
+                    Content = textBlock2,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto, // Shows scrollbar if needed
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto // Shows scrollbar if needed
 
-            if (settings.translationService == "argos")
-            {
-                result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
-            }
-
-            else if (settings.translationService == "My Memory")
-            {
-                result = await GetTranslationMymemory(messageContent, sourceLanguage, targetLanguage);
-            }
+                };
 
 
-            if (messageType == "CLICKED WORD")
-            {
-                result = await RemoveSymbols(result);
+                scrollViewer.Width = stackPanel.Width;
+                scrollViewer.Height = stackPanel.Height;
+
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                string sourceLanguage = await GetLanguageCode(_ebook.Language);
+                Debug.WriteLine($"Source Language = {_ebook.Language}");
+                Debug.WriteLine($"Target Language = {settings.language}");
+                string targetLanguage = await GetLanguageCode(settings.language);
+
+                string result = "";
+
+                if (settings.translationService == "argos")
+                {
+                    result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
+                }
+
+                else if (settings.translationService == "My Memory")
+                {
+                    result = await GetTranslationMymemory(messageContent, sourceLanguage, targetLanguage);
+                }
+
+
+                if (messageType == "CLICKED WORD")
+                {
+                    result = await RemoveSymbols(result);
+                }
+                else
+                {
+                    result = await RepairTranlationTask(result);
+                }
+
+                textBlock2.Text = result;
+
+                Button closeButton = new Button { Content = "Save" };
+                closeButton.Margin = new Thickness(0, 5, 0, 0);
+
+
+                // Add close functionality
+                closeButton.Click += async (s, e) =>
+                {
+                    flyout.Hide();
+                    await StoreTranslation(sourceLanguage, targetLanguage, messageContent, result);
+                    DummyTextBox.Focus(FocusState.Programmatic);
+
+
+                };
+
+                // Add elements to the StackPanel
+                stackPanel.Children.Add(textBlock1);
+                stackPanel.Children.Add(textBlock2);
+                stackPanel.Children.Add(closeButton);
+
+                // Set the content of the Flyout
+                flyout.Content = stackPanel;
+
+                // Show the Flyout at a specific position after the Python script has finished
+                flyout.ShowAt(MyWebView); // 'MyWebView' refers to the control or page where the Flyout is shown
             }
             else
             {
-                result = await RepairTranlationTask(result);
+                _selectedText = messageContent;
             }
 
-            textBlock2.Text = result;
-
-            Button closeButton = new Button { Content = "Save" };
-            closeButton.Margin = new Thickness(0, 5, 0, 0);
-
-
-            // Add close functionality
-            closeButton.Click += async (s, e) =>
-            {
-                flyout.Hide();
-                await StoreTranslation(sourceLanguage, targetLanguage, messageContent, result);
-                DummyTextBox.Focus(FocusState.Programmatic);
-
-
-            };
-
-            // Add elements to the StackPanel
-            stackPanel.Children.Add(textBlock1);
-            stackPanel.Children.Add(textBlock2);
-            stackPanel.Children.Add(closeButton);
-
-            // Set the content of the Flyout
-            flyout.Content = stackPanel;
-
-            // Show the Flyout at a specific position after the Python script has finished
-            flyout.ShowAt(MyWebView); // 'MyWebView' refers to the control or page where the Flyout is shown
+            
             DummyTextBox.Focus(FocusState.Programmatic);
 
             // set focus back to viewergrid
@@ -901,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
-                await Task.Run(() => app_controls.GlobalCssInjector());
+                //await Task.Run(() => app_controls.GlobalCssInjector());
                 MyWebView.Reload(); // Reload the WebView to apply CSS changes
 
                 // Wait for the WebView to finish loading
@@ -1348,10 +1488,82 @@ document.addEventListener('DOMContentLoaded', () => {
             _foregroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
             _buttonColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
 
+            if (settings.ebookViewer == "epubjs")
+            {
+                MyWebView.Margin = new Thickness(Int32.Parse("0"));
+                UpdateCSSAction();
+            }
+            else
+            {
+                MyWebView.Margin = new Thickness(Int32.Parse(settings.Padding));
+                UpdateCSSAction();
+
+            }
+
             MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
             MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);
             Forward.Foreground = Backward.Foreground = Settings.Foreground = Home.Foreground = new SolidColorBrush(_buttonColor);
 
+        }
+
+        private void PaddingButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string padding = PaddingBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(padding, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.Padding = padding;
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                    Debug.WriteLine("PaddingButton_OnClick() - Success");
+                    ChangeCommandBarColors();
+                }
+            }
+            else
+            {
+                PaddingBox.Text = "Type a number bigger than 0...";
+                PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
+
+
+
+        }
+
+        private async void FontSizeButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string fontSize = FontSizeBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(fontSize, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                    await SettingsPage.UpdateBodyFontSize(settings.FontSize);
+                    Debug.WriteLine("FontSizeButton_OnClick() - Success");
+                    await UpdateCSSAction();
+                }
+            }
+            else
+            {
+                FontSizeBox.Text = "Type a number bigger than 0...";
+                FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
         }
 
 
@@ -1548,7 +1760,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("fontsComboBoxSelectionChanged() - Success");
+            Debug.WriteLine($"fontsComboBoxSelectionChanged() - Success - {startUp}");
 
             if (startUp >= 2)
             {
@@ -1574,7 +1786,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         private async void ThemesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("ThemesComboBox_OnSelectionChanged() - Success");
+            Debug.WriteLine($"ThemesComboBox_OnSelectionChanged() - Success - {startUp}");
             
             if (startUp >= 2)
             {
@@ -1607,6 +1819,8 @@ document.addEventListener('DOMContentLoaded', () => {
             var flyout = FlyoutBase.GetAttachedFlyout(button) as Flyout;
             flyout?.Hide();
         }
+
+        
     }
 
 }

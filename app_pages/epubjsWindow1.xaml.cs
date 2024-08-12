@@ -18,6 +18,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Web.WebView2.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using System.Text.Json;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -66,6 +67,220 @@ namespace EpubReader.app_pages
         public async void LoadWebViewAsync()
         {
             await epubjsWindowLoad();
+        }
+
+        private int startUp = 0;
+
+        private async void fontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine($"fontsComboBoxSelectionChanged() - Success - {startUp}");
+
+            if (startUp >= 2)
+            {
+                string newFontFamily = SettingsPage._bookReadingFonts[fontsComboBox.SelectedIndex];
+
+                // store to json
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.font = newFontFamily;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+
+
+                await SettingsPage.UpdateBodyFontFamily(newFontFamily);
+                await UpdateCSSAction();
+
+            }
+
+            else
+            {
+                startUp++;
+            }
+
+        }
+
+        private async void ThemesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine($"ThemesComboBox_OnSelectionChanged() - Success - {startUp}");
+
+            if (startUp >= 2)
+            {
+                string theme = SettingsPage._themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
+                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                settings.Theme = theme;
+                File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                await SettingsPage.UpdateBodyTextColor(SettingsPage._themes[theme]["text-color"]);
+                await SettingsPage.UpdateBodyBackgroundColor(SettingsPage._themes[theme]["background-color"]);
+                await UpdateCSSAction();
+                ChangeCommandBarColors();
+
+            }
+
+            else
+            {
+                startUp++;
+            }
+
+        }
+
+        private void Settings_OnClick(object sender, RoutedEventArgs e)
+        {
+            PopupControl.IsOpen = !PopupControl.IsOpen;
+        }
+
+        private void PaddingButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string padding = PaddingBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(padding, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.Padding = padding;
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                    Debug.WriteLine("PaddingButton_OnClick() - Success");
+                    ChangeCommandBarColors();
+                }
+            }
+            else
+            {
+                PaddingBox.Text = "Type a number bigger than 0...";
+                PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
+
+
+
+        }
+
+        public static Windows.UI.Color ParseHexColor(string hexColor)
+        {
+            if (hexColor.StartsWith("#"))
+            {
+                hexColor = hexColor.Substring(1);
+            }
+
+            byte a = 255;
+            byte r = byte.Parse(hexColor.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            byte g = byte.Parse(hexColor.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            byte b = byte.Parse(hexColor.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+
+            return Windows.UI.Color.FromArgb(a, r, g, b);
+        }
+
+
+        private async void ChangeCommandBarColors()
+        {
+            string color_string = "#efe0cd";
+            string font_string;
+            Windows.UI.Color _backgroundColor = ParseHexColor("#eed2ae");
+            Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
+            Windows.UI.Color _buttonColor;
+
+            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+
+
+            try
+            {
+                color_string = SettingsPage._themes[settings.Theme]["background-color"];
+                font_string = await (SettingsPage.LoadFontComboBox());
+            }
+
+            finally
+            {
+                Windows.UI.Color _viewerBackgroundColor = ParseHexColor(color_string);
+                ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
+            }
+
+            _backgroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["header-color"]);
+            _foregroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+            _buttonColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+
+            if (settings.ebookViewer == "epubjs")
+            {
+                MyWebView.Margin = new Thickness(Int32.Parse("0"));
+                UpdateCSSAction();
+            }
+            else
+            {
+                MyWebView.Margin = new Thickness(Int32.Parse(settings.Padding));
+                UpdateCSSAction();
+            }
+
+            MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
+            MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);
+            Forward.Foreground = Backward.Foreground = Settings.Foreground = Home.Foreground = new SolidColorBrush(_buttonColor);
+
+        }
+
+        private async Task UpdateCSSAction()
+        {
+            try
+            {
+                //await Task.Run(() => app_controls.GlobalCssInjector());
+                MyWebView.Reload(); // Reload the WebView to apply CSS changes
+
+                // Wait for the WebView to finish loading
+                MyWebView.NavigationCompleted += async (s, args) =>
+                {
+                    if (args.IsSuccess)
+                    {
+                        //await RestorePositionAsync(); // Restore scroll position
+                        //await ExecuteJavaScriptAsync(script1Path); // Re-execute JavaScript after reload
+                        //await ExecuteJavaScriptAsync(script2Path); // Execute JavaScript after the WebView has loaded
+
+
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Navigation failed.");
+                    }
+                };
+
+                Debug.WriteLine("UpdateCSSAction() - Success\n");
+            }
+
+            catch
+            {
+                Debug.WriteLine("UpdateCSSAction() - Fail\n");
+            }
+
+            //await MyWebView.CoreWebView2.ExecuteScriptAsync(script3);
+
+        }
+
+
+        private async void FontSizeButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // Get the text from the TextBox
+            string fontSize = FontSizeBox.Text;
+
+            // Try to convert the string to a double
+            if (double.TryParse(fontSize, out double paddingValue))
+            {
+                // Perform your action with the message here
+                // For example, display it in a message box
+                if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
+                {
+                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagment.GetGlobalSettingsFilePath()));
+                    settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
+                    File.WriteAllText(FileManagment.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
+                    FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
+                    await SettingsPage.UpdateBodyFontSize(settings.FontSize);
+                    Debug.WriteLine("FontSizeButton_OnClick() - Success");
+                    await UpdateCSSAction();
+                }
+            }
+            else
+            {
+                FontSizeBox.Text = "Type a number bigger than 0...";
+                FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#f2aeb4"));
+
+            }
         }
 
         public string jsPathConverter(string path)
@@ -134,11 +349,11 @@ namespace EpubReader.app_pages
             };
 
             var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", "", environmentOptions);
-            await epubjsWebView.EnsureCoreWebView2Async(environment);
+            await MyWebView.EnsureCoreWebView2Async(environment);
 
             //string htmlFilePath1 = "C:\\Users\\david_pmv0zjd\\Desktop\\epubjs-reader\\index.html";
             //string htmlFilePath2 = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\scripts\\epubjs-reader\\index.html";
-            epubjsWebView.Source = new Uri(htmlCode);
+            MyWebView.Source = new Uri(htmlCode);
         }
     }
 }

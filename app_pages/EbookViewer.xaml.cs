@@ -19,6 +19,7 @@ using Microsoft.UI.Xaml.Navigation;
 using EpubReader.code;
 using System.Text.Json;
 using EpubReader.app_pages;
+using Microsoft.UI.Windowing;
 
 namespace EpubReader
 {
@@ -91,6 +92,8 @@ setupEventListeners();
             ChangeCommandBarColors();
             MyWebView.Visibility = Visibility.Visible;
             RestorePositionAsync();
+
+            
 
 
         }
@@ -456,7 +459,7 @@ setupEventListeners();
         /// <param name="e"></param>
         private async void UpdateCSSAction(object sender, RoutedEventArgs e)
         {
-            await Task.Run(() => app_controls.GlobalCssInjector());
+            //await Task.Run(() => app_controls.GlobalCssInjector());
             MyWebView.Reload(); // Reload the WebView to apply CSS changes
 
             // Wait for the WebView to finish loading

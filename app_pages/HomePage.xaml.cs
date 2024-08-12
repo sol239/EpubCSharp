@@ -381,6 +381,7 @@ namespace EpubReader.app_pages
                 case "WebView2":
                     EbookWindow ebookWindow = new EbookWindow(navTuple);
                     ebookWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    Debug.WriteLine($"Current Size = {ebookWindow.AppWindow.Size}");
                     ebookWindow.Activate();
                     break;
             }
