@@ -21,6 +21,11 @@
 	<Content Include="code\**" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="app_pages\**" CopyToOutputDirectory="PreserveNewest" />
 	<Content Include="README.md"></Content>
+    <Content Include="app.manifest" />
+    <Content Include="app_pages\Assets\icon.ico" />
+    <Content Include="app_pages\iso639I_reduced.json" />
+    <Content Include="code\script.js" />
+    <Content Include="EpubReader 8468f6ccb553496d94602b82fc69a495\**" />
 
 
   </ItemGroup>
