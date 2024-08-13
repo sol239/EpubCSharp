@@ -1,24 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
 using System.Threading.Tasks;
 using EpubReader.code;
-using HarfBuzzSharp;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Web.WebView2.Core;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using System.Text.Json;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -77,15 +68,15 @@ namespace EpubReader.app_pages
 
             if (startUp >= 2)
             {
-                string newFontFamily = SettingsPage._bookReadingFonts[fontsComboBox.SelectedIndex];
+                string newFontFamily = SettingsPage.BookReadingFonts[fontsComboBox.SelectedIndex];
 
                 // store to json
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                settings.font = newFontFamily;
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                settings.Font = newFontFamily;
                 File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
 
-                await SettingsPage.UpdateBodyFontFamily(newFontFamily);
+                SettingsPage.UpdateBodyFontFamily(newFontFamily);
                 await UpdateCSSAction();
 
             }
@@ -103,12 +94,12 @@ namespace EpubReader.app_pages
 
             if (startUp >= 2)
             {
-                string theme = SettingsPage._themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                string theme = SettingsPage.Themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.Theme = theme;
                 File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
-                await SettingsPage.UpdateBodyTextColor(SettingsPage._themes[theme]["text-color"]);
-                await SettingsPage.UpdateBodyBackgroundColor(SettingsPage._themes[theme]["background-color"]);
+                SettingsPage.UpdateBodyTextColor(SettingsPage.Themes[theme]["text-color"]);
+                SettingsPage.UpdateBodyBackgroundColor(SettingsPage.Themes[theme]["background-color"]);
                 await UpdateCSSAction();
                 ChangeCommandBarColors();
 
@@ -138,7 +129,7 @@ namespace EpubReader.app_pages
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                    GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.Padding = padding;
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
@@ -181,13 +172,13 @@ namespace EpubReader.app_pages
             Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
             Windows.UI.Color _buttonColor;
 
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+            GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
             try
             {
-                color_string = SettingsPage._themes[settings.Theme]["background-color"];
-                font_string = await (SettingsPage.LoadFontComboBox());
+                color_string = SettingsPage.Themes[settings.Theme]["background-color"];
+                font_string = (SettingsPage.LoadFontComboBox());
             }
 
             finally
@@ -196,11 +187,11 @@ namespace EpubReader.app_pages
                 ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
             }
 
-            _backgroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["header-color"]);
-            _foregroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
-            _buttonColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+            _backgroundColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["header-color"]);
+            _foregroundColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["button-color"]);
+            _buttonColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["button-color"]);
 
-            if (settings.ebookViewer == "epubjs")
+            if (settings.EbookViewer == "epubjs")
             {
                 MyWebView.Margin = new Thickness(Int32.Parse("0"));
                 UpdateCSSAction();
@@ -266,11 +257,11 @@ namespace EpubReader.app_pages
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                    GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
-                    await SettingsPage.UpdateBodyFontSize(settings.FontSize);
+                    SettingsPage.UpdateBodyFontSize(settings.FontSize);
                     Debug.WriteLine("FontSizeButton_OnClick() - Success");
                     await UpdateCSSAction();
                 }

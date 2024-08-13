@@ -1,36 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Diagnostics;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Pickers;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Windows.Storage;
-using Windows.Storage.Pickers;
-using WinRT.Interop; // For initializing with the correct window handle
 
-
-// my usings
-using EpubReader.code;
-using Microsoft.UI.Xaml.Media.Imaging;
-using System.Threading.Tasks;
-using Windows.Networking.NetworkOperators;
-using EpubReader.code;
-using EpubReader;
 using EpubReader.app_pages;
-using System.Security.AccessControl;
-
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -42,52 +15,44 @@ namespace EpubReader
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    /// 
-    public sealed partial class MyMainWindow : Page
+    public sealed partial class MyMainWindow
     {
-        // my objects
-        EpubHandler epubHandler = new EpubHandler();
-        FileManagement _fileManagement = new FileManagement();
-        app_logging logger = new app_logging();
-        app_controls appControls = new app_controls();
-        RecentEbooksHandler REHandler = new RecentEbooksHandler();
-
-        public static MyMainWindow Instance { get; private set; }
-
-        public Frame contentFrame { get; private set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MyMainWindow"/> class.
+        /// </summary>
         public MyMainWindow()
         {
             this.InitializeComponent();
-            Debug.WriteLine("\nMY MAIN WINDOW CONSTRUCTOR CALLED\n");
-
             ContentFrame.Navigate(typeof(HomePage));
-
-            // Subscribe to visibility change events
-            NavigationViewService.NavigationViewVisibilityChanged += OnNavigationViewVisibilityChanged;
-
-            //LoadImages();
-
-
         }
-        public void NavigateToEbookViewer(Type pageType, (string ebookPlayOrder, string ebookFolderPath) navValueTuple)
+
+        /// <summary>
+        /// Occurs when the size of the window changes.
+        /// </summary>
+        /// <remarks>
+        /// The event provides a tuple containing the new width and height of the window.
+        /// </remarks>
+        public static event EventHandler< (double width, double height)> WindowResized;
+
+        /// <summary>
+        /// Handles the SizeChanged event for a FrameworkElement.
+        /// Invokes the WindowResized event with the new width and height of the element.
+        /// </summary>
+        /// <param name="sender">The source of the event, which is the FrameworkElement that has changed size.</param>
+        /// <param name="e">The event data containing the new size of the element.</param>
+        private void FrameworkElement_OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var _pageType = (typeof(EbookViewer), navValueTuple);
-            _ = ContentFrame.Navigate(pageType);
-        }
-        private async void AddBookButtonAction(object sender, RoutedEventArgs e)
-        {
-            await appControls.AddBookButtonMethod();
-            Debug.WriteLine("AddBookButtonAction");
-
+            double actualWidth = e.NewSize.Width;
+            double actualHeight = e.NewSize.Height;
+            WindowResized?.Invoke(this, (actualWidth, actualHeight));
         }
 
-        private void OnNavigationViewVisibilityChanged(Visibility visibility)
-        {
-            MyNavView.Visibility = visibility;
-        }
-
-
+        /// <summary>
+        /// Handles the selection change event for the NavigationView control.
+        /// Navigates to the appropriate page based on the selected item in the NavigationView pane.
+        /// </summary>
+        /// <param name="sender">The source of the event, which is the NavigationView control.</param>
+        /// <param name="args">The event data containing information about the selection change.</param>
         private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             FrameNavigationOptions navigationOptions = new FrameNavigationOptions();
@@ -98,56 +63,31 @@ namespace EpubReader
             }
 
             Type pageType = typeof(AllBooks);
-            var selectedItem =(NavigationViewItem)args.SelectedItem;
-            if (selectedItem.Name == NavView_AllBooks.Name)
+            var selectedItem = (NavigationViewItem)args.SelectedItem;
+            if (selectedItem.Name == NavViewAllBooks.Name)
             {
                 pageType = typeof(AllBooks);
             }
-            else if(selectedItem.Name == NavView_Settings.Name) {
+            else if (selectedItem.Name == NavViewSettings.Name)
+            {
                 pageType = typeof(SettingsPage);
 
             }
-            else if(selectedItem.Name == NavView_Stats.Name) {
+            else if (selectedItem.Name == NavViewStats.Name)
+            {
                 pageType = typeof(Stats);
             }
-            else if (selectedItem.Name == NavView_Home.Name)
+            else if (selectedItem.Name == NavViewHome.Name)
             {
                 pageType = typeof(HomePage);
             }
 
-            else if (selectedItem.Name == NavView_Dictionary.Name)
+            else if (selectedItem.Name == NavViewDictionary.Name)
             {
                 pageType = typeof(Dictionary);
             }
 
             ContentFrame.Navigate(pageType);
-        }
-
-        public void NavigateToEbookInfoPage()
-        {
-            Type pageType = typeof(EbookInfoPage);
-            if (ContentFrame != null)
-            {
-                _ = ContentFrame.Navigate(pageType);
-            }
-            else
-            {
-                // Handle the null case, possibly log an error or delay the navigation
-                Debug.WriteLine("ContentFrame is null");
-            }
-        }
-
-        // In the SecondWindow.xaml.cs or any other part where you have a reference to the window
-
-
-        public static event EventHandler< (double width, double height)> WindowResized;
-
-
-        private void FrameworkElement_OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            double actualWidth = e.NewSize.Width;
-            double actualHeight = e.NewSize.Height;
-            WindowResized?.Invoke(this, (actualWidth, actualHeight));
         }
     }
 }

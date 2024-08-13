@@ -1,0 +1,1963 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EpubReader</name>
+    </assembly>
+    <members>
+        <member name="T:EpubReader.App">
+            <summary>
+            Provides application-specific behavior to supplement the default Application class.
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.GetXamlType(System.Type)">
+            <summary>
+            GetXamlType(Type)
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.GetXamlType(System.String)">
+            <summary>
+            GetXamlType(String)
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.GetXmlnsDefinitions">
+            <summary>
+            GetXmlnsDefinitions()
+            </summary>
+        </member>
+        <member name="T:EpubReader.AllBooks">
+            <summary>
+            An empty page that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="P:EpubReader.AllBooks.Ebooks">
+            <summary>
+            Collection of Ebooks viewable in the AllBooks page.
+            </summary>
+        </member>
+        <member name="M:EpubReader.AllBooks.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.AllBooks"/> class and sets up its components.
+            </summary>
+        </member>
+        <member name="M:EpubReader.AllBooks.SelectViewer(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Opens the appropriate ebook viewer window based on the user's settings.
+            </summary>
+            <param name="navTuple">
+            A tuple containing the ebook's play order and folder path, used to initialize the viewer.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.OnAllBooksUnloaded(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the event when the AllBooks control is unloaded.
+            </summary>
+        </member>
+        <member name="M:EpubReader.AllBooks.OnSizeChanged(System.Object,System.ValueTuple{System.Double,System.Double})">
+            <summary>
+            Handles the event when the size of the main window changes.
+            </summary>
+            <param name="sender">
+            The source of the event
+            </param>
+            <param name="tp">
+            A tuple containing the new width and height of the window.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.PopulateEbooks(System.String,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Populates the Ebooks collection based on the specified sorting method and order, and optionally prints and debugs the process.
+            </summary>
+            <param name="method">
+            The method used for sorting or filtering the ebooks. Could represent criteria such as "Name", "Date", etc.
+            </param>
+            <param name="ascendingOrder">
+            A boolean indicating whether the sorting should be in ascending order. True for ascending, false for descending.
+            </param>
+            <param name="print">
+            A boolean indicating whether to print information about the ebooks. This might be used for debugging or logging purposes.
+            </param>
+            <param name="debug">
+            A boolean indicating whether to output debug information. If true, debug messages will be logged.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.LoadLangDict(System.Boolean)">
+            <summary>
+            Loads a dictionary of Language codes and their corresponding names from a JSON file and deserializes it into a dictionary.
+            </summary>
+            <param name="debug">
+            A boolean indicating whether to output debug information. If true, debug messages will be logged.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.AllBooksView_ItemClick(Microsoft.UI.Xaml.Controls.ItemsView,Microsoft.UI.Xaml.Controls.ItemsViewItemInvokedEventArgs)">
+            <summary>
+            Handles the click event on an item in the AllBooksView control, updating the details panel with information about the selected book.
+            </summary>
+            <param name="sender">
+            The ItemsView control that triggered the event.
+            </param>
+            <param name="args">
+            The event arguments containing the invoked item information.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.SecondWindow_WindowClosed(System.Object,System.EventArgs)">
+            <summary>
+            When the second window is closed, the Ebooks collection is cleared and repopulated to reflect any changes made to the ebooks.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.AllBooks.ComboBoxesSetup(System.Boolean)">
+            <summary>
+            Initializes and populates the combo boxes for sorting methods and languages.
+            </summary>
+            <param name="debug">
+            A boolean flag indicating whether to output debug information. If true, success or failure messages are logged.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.SortComboBox_OnSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event when the selection in the SortComboBox changes. 
+            Updates the list of ebooks based on the selected sorting method.
+            </summary>
+            <param name="sender">
+            The source of the event, which is the SortComboBox control.
+            </param>
+            <param name="e">
+            Provides data for the event, including the old and new selected items.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.LanguageComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event when the selection in the languageComboBox changes. 
+            Updates the Language of the selected ebook and saves the updated information to a JSON file.
+            </summary>
+            <param name="sender">
+            The source of the event, which is the languageComboBox control.
+            </param>
+            <param name="e">
+            Provides data for the event, including the old and new selected items.
+            </param>
+        </member>
+        <member name="M:EpubReader.AllBooks.DeleteButton_OnClick(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event of the delete button. The method performs the following actions:
+            <list type="number">
+            <item>Deletes the directory of the selected eBook and its contents using the <see cref="M:System.IO.Directory.Delete(System.String)"/> method.</item>
+            <item>Updates the JSON file that tracks all books by removing the entry for the deleted eBook using methods from <see cref="T:EpubReader.code.FileManagement"/> and <see cref="T:System.Text.Json.JsonSerializer"/>.</item>
+            <item>Repopulates the eBooks display list to reflect the removal of the eBook using the <see cref="M:EpubReader.AllBooks.PopulateEbooks(System.String,System.Boolean,System.Boolean,System.Boolean)"/> method.</item>
+            <item>Adjusts the width of the <see cref="F:EpubReader.AllBooks.AllBooksView"/> UI element to account for layout changes after the deletion.</item>
+            </list>
+            The method includes debug logging to trace execution and capture errors. If debug logging is enabled, detailed messages about the success or failure of each action are output.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">Event arguments that provide data about the event.</param>
+        </member>
+        <member name="M:EpubReader.AllBooks.ReadButton_OnClick(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Opens EbookWindow after the Read button is clicked.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.AllBooks.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.AllBooks.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.AllBooks.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.Dictionary">
+            <summary>
+            An empty page that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.Dictionary"/> class.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.OnSizeChanged(System.Object,System.ValueTuple{System.Double,System.Double})">
+            <summary>
+            Handles the size change event for the window or container. This method updates the width and height of
+            the <see cref="F:EpubReader.Dictionary.TransaltionsListView"/> control based on the new dimensions of the window or container.
+            </summary>
+            <param name="sender">The source of the event, typically the window or container whose size has changed.</param>
+            <param name="tp">A tuple containing the new width and height dimensions.</param>
+        </member>
+        <member name="M:EpubReader.Dictionary.LoadItems">
+            <summary>
+            Loads translation items into the <see cref="F:EpubReader.Dictionary.Translations"/> collection from a global dictionary JSON file.
+            This method performs the following actions:
+            <list type="number">
+            <item>Retrieves the path to the global dictionary JSON file using the <see cref="M:EpubReader.code.FileManagement.GetGlobalDictPath"/> method.</item>
+            <item>Reads the content of the JSON file and deserializes it into a <see cref="T:EpubReader.code.FileManagement.GlobalDictJson"/> object.</item>
+            <item>Iterates through the dictionary entries in the <see cref="P:EpubReader.code.FileManagement.GlobalDictJson.TranslationsDict"/>.</item>
+            <item>For each dictionary entry:
+            <list type="bullet">
+            <item>Creates a new <see cref="T:EpubReader.Translation"/> object.</item>
+            <item>Sets the <see cref="P:EpubReader.Translation.OriginalText"/> property to the dictionary key.</item>
+            <item>Sets the <see cref="P:EpubReader.Translation.TranslatedText"/> property to the third element of the dictionary value array (index 2).</item>
+            <item>Sets the <see cref="P:EpubReader.Translation.SourceLanguage"/> property to the first element of the dictionary value array (index 0).</item>
+            <item>Sets the <see cref="P:EpubReader.Translation.TargetLanguage"/> property to the second element of the dictionary value array (index 1).</item>
+            </list>
+            </item>
+            <item>Adds each newly created <see cref="T:EpubReader.Translation"/> object to the <see cref="F:EpubReader.Dictionary.Translations"/> collection.</item>
+            </list>
+            This method populates the <see cref="F:EpubReader.Dictionary.Translations"/> collection with translation data from a JSON file.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.TransaltionsListView_ItemClick(System.Object,Microsoft.UI.Xaml.Controls.ItemClickEventArgs)">
+            <summary>
+            Handles the click event of an item in the <see cref="F:EpubReader.Dictionary.TransaltionsListView"/>.
+            This method performs the following actions:
+            <list type="number">
+            <item>Cast the clicked item to the expected <see cref="T:EpubReader.Translation"/> type.</item>
+            <item>If the cast is successful, find the corresponding <see cref="T:Microsoft.UI.Xaml.Controls.ListViewItem"/> container for the clicked item.</item>
+            <item>Access the <see cref="T:Microsoft.UI.Xaml.Controls.TextBlock"/> controls within the container that display the original and translated text.</item>
+            <item>Toggle the <see cref="T:Microsoft.UI.Xaml.TextWrapping"/> and <see cref="T:Microsoft.UI.Xaml.TextTrimming"/> properties of the <see cref="T:Microsoft.UI.Xaml.Controls.TextBlock"/> controls:
+            <list type="bullet">
+            <item>If the <see cref="T:Microsoft.UI.Xaml.TextWrapping"/> is set to <see cref="F:Microsoft.UI.Xaml.TextWrapping.Wrap"/>, change it to <see cref="F:Microsoft.UI.Xaml.TextWrapping.NoWrap"/> and set <see cref="T:Microsoft.UI.Xaml.TextTrimming"/> to <see cref="F:Microsoft.UI.Xaml.TextTrimming.CharacterEllipsis"/>.</item>
+            <item>If the <see cref="T:Microsoft.UI.Xaml.TextWrapping"/> is set to <see cref="F:Microsoft.UI.Xaml.TextWrapping.NoWrap"/>, change it to <see cref="F:Microsoft.UI.Xaml.TextWrapping.Wrap"/> and set <see cref="T:Microsoft.UI.Xaml.TextTrimming"/> to <see cref="F:Microsoft.UI.Xaml.TextTrimming.None"/>.</item>
+            </list>
+            </item>
+            </list>
+            This method is used to toggle the text wrapping and trimming of the original and translated text blocks when an item is clicked.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.FindChild``1(Microsoft.UI.Xaml.DependencyObject,System.String)">
+            <summary>
+            Recursively searches for a child element of a specified type and name within a visual tree.
+            This method traverses the visual tree starting from the given parent element, looking for a child element
+            that matches the specified name. If such an element is found, it is returned as the specified type.
+            If no matching child is found, the method returns <c>null</c>.
+            </summary>
+            <param name="parent">The parent element from which to start the search. This should be a visual container
+            that may contain child elements.</param>
+            <param name="childName">The name of the child element to search for. This must match the <see cref="P:Microsoft.UI.Xaml.FrameworkElement.Name"/>
+            property of the desired child element.</param>
+            <typeparam name="T">The type of the child element to be returned. This should be a type that derives from
+            <see cref="T:Microsoft.UI.Xaml.DependencyObject"/>.</typeparam>
+            <returns>A child element of type <typeparamref name="T"/> if found, otherwise <c>null</c>.</returns>
+            <remarks>
+            This method uses the <see cref="T:Microsoft.UI.Xaml.Media.VisualTreeHelper"/> class to traverse the visual tree. It checks each child
+            of the given parent to see if it matches the specified name. If a match is found, it returns the child cast
+            to the specified type. If the child is not of the expected type, or if the name does not match, the method
+            continues searching recursively within each child element's subtree. The search terminates when all children
+            have been checked or when a matching child is found.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.Dictionary.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.Dictionary.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.Translation">
+            <summary>
+            Represents a translation entry containing details about a text translation.
+            This class encapsulates the original text, its translation, and the languages involved.
+            </summary>
+        </member>
+        <member name="P:EpubReader.Translation.OriginalText">
+            <summary>
+            Gets or sets the original text that needs to be translated.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the text in its original Language.
+            </value>
+        </member>
+        <member name="P:EpubReader.Translation.TranslatedText">
+            <summary>
+            Gets or sets the translated text.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the translated version of the original text.
+            </value>
+        </member>
+        <member name="P:EpubReader.Translation.SourceLanguage">
+            <summary>
+            Gets or sets the source Language code of the original text.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the Language code of the original text's Language (e.g., "en" for English).
+            </value>
+        </member>
+        <member name="P:EpubReader.Translation.TargetLanguage">
+            <summary>
+            Gets or sets the target Language code of the translated text.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the Language code of the target Language (e.g., "fr" for French).
+            </value>
+        </member>
+        <member name="T:EpubReader.app_pages.EbookWindow">
+            <summary>
+            An empty window that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.#ctor(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Constructor initializes the component and subscribes to Loaded and Unloaded events.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.SavePosition">
+            <summary>
+            Saves playorder and scroll position of the WebView and stores it in the ebookData.json file.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RestorePositionAsync">
+            <summary>
+            Loads the playorder and scroll position of the WebView from the ebookData.json file.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.ExecuteJavaScriptAsync(System.String)">
+            <summary>
+            Executes the JavaScript code in the WebView.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.EbookViewer_Loaded">
+            <summary>
+            Runs when the page is loaded. Initializes the WebView and executes JavaScript.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.InitializeWebViewAsync">
+            <summary>
+            Initializes the WebView and executes JavaScript.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCssPath(System.String,System.String)">
+            <summary>
+            Updates the CSS path in the XHTML file.
+            </summary>
+            <param name="xhtmlPath"></param>
+            <param name="newCssPath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCSSAction">
+            <summary>
+            Runs when the user clicks the Update CSS button. Updates the CSS path in the XHTML file.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.GoHomeAction(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Runs when the user clicks the Home button. Navigates to the main window.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.Backward_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Runs when the user clicks the Backward button. Scrolls up in the WebView. If the user has scrolled to the top of the page, navigates to the previous page.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.Forward_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Runs when the user clicks the Forward button. Scrolls down in the WebView. If the user has scrolled to the bottom of the page, navigates to the next page.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CheckForward">
+            <summary>
+            Checks whether the user has scrolled to the bottom of the page.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CheckBackward">
+            <summary>
+            Checks whether the user has scrolled to the top of the page.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.ChangeCommandBarColors">
+            <summary>
+            Changes the colors of the CommandBar buttons.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.ParseHexColor(System.String)">
+            <summary>
+            Parses
+            </summary>
+            <param name="hexColor"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.OpenEbookMessage(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Prints log messages to the Output window.
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.app_pages.epubjsWindow1">
+            <summary>
+            An empty window that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.epubjsWindow1.#ctor(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Constructor initializes the component and subscribes to Loaded and Unloaded events.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.epubjsWindow1.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.epubjsWindow1.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.epubjsWindow1.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.app_pages.HomePage">
+            <summary>
+            Class for the HomePage
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.app_pages.HomePage"/> class.
+            </summary>
+            <remarks>
+            This constructor sets up the event handlers for various events related to the <see cref="T:EpubReader.app_pages.HomePage"/> instance. 
+            It initializes the components of the page, subscribes to events such as when a book is added or when the main window is resized, 
+            and handles the page unloading event. Additionally, it invokes the <see cref="M:EpubReader.app_pages.HomePage.LoadImages2(System.Double)"/> method to perform further initialization tasks related to images.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.LoadImages2(System.Double)">
+            <summary>
+            Loads images representing recent ebooks into the <see cref="F:EpubReader.app_pages.HomePage.ImageStackPanel"/> with specified width for each item.
+            </summary>
+            <param name="stackPanelWidth">
+            The width to be applied to each image grid and stack panel. Default is 200.
+            </param>
+            <remarks>
+            This method performs the following steps:
+            <list type="number">
+            <item>Clears any existing children from the <see cref="F:EpubReader.app_pages.HomePage.ImageStackPanel"/> to prepare for new content.</item>
+            <item>Retrieves a list of recent ebooks, ordered by their last opened date, using <see cref="M:EpubReader.code.RecentEbooksHandler.GetRecentEbooksPathsUpdated(System.String,System.Boolean,System.Boolean,System.Boolean)"/>.</item>
+            <item>Iterates over each ebook in the list to create a visual representation.</item>
+            <item>For each ebook:
+              <list type="bullet">
+                <item>Creates a <see cref="T:Microsoft.UI.Xaml.Controls.Grid"/> to hold the ebook's image and details.</item>
+                <item>Sets up event handlers for mouse interactions to change the grid's background color and to handle clicks.</item>
+                <item>Creates a <see cref="T:Microsoft.UI.Xaml.Controls.StackPanel"/> for layout, containing an <see cref="T:Microsoft.UI.Xaml.Controls.Image"/> of the ebook cover and a <see cref="T:Microsoft.UI.Xaml.Controls.Button"/> to handle click events.</item>
+                <item>Creates another <see cref="T:Microsoft.UI.Xaml.Controls.StackPanel"/> to display the ebook's title and author.</item>
+                <item>Adds the image and details to the grid.</item>
+                <item>Adds the grid to the <see cref="F:EpubReader.app_pages.HomePage.ImageStackPanel"/>.</item>
+              </list>
+            </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.SelectViewer(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Opens the appropriate ebook viewer window based on the user's settings.
+            </summary>
+            <param name="navTuple">
+            A tuple containing the ebook's play order and folder path, used to initialize the viewer.
+            </param>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.OnHomePageUnloaded(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the Unloaded event for the <see cref="T:EpubReader.app_pages.HomePage"/>.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">Event data for the Unloaded/> event.</param>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.OnBookAdded(System.Object,System.String)">
+            <summary>
+            Handles the <see cref="E:EpubReader.code.EpubHandler.BookAddedEvent"/> event to display a dialog when a book is added.
+            </summary>
+            <param name="sender">The source of the event, typically the object that raised the <see cref="E:EpubReader.code.EpubHandler.BookAddedEvent"/>.</param>
+            <param name="message">The message to be displayed in the dialog, indicating the status of the book addition.</param>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.AddBookButtonAction(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for the "Add Book" button. This method attempts to add a book using the <see cref="M:EpubReader.code.AppControls.AddBookButtonMethod(System.Boolean)"/> 
+            and displays a dialog to inform the user of the result. It also reloads images or performs related tasks after the book addition attempt.
+            </summary>
+            <param name="sender">
+            The source of the event, which is typically the "Add Book" button that was clicked. This parameter is used to identify the control that triggered the event.
+            </param>
+            <param name="e">
+            The event data associated with the click event, providing additional information about the event. In this case, it contains data related to the button click action.
+            </param>
+            <remarks>
+            This method asynchronously invokes the <see cref="M:EpubReader.code.AppControls.AddBookButtonMethod(System.Boolean)"/> to perform the book addition process. 
+            Depending on the result of the book addition attempt, it displays a dialog to inform the user whether the operation was successful or failed. 
+            After showing the result dialog, it calls the <see cref="M:EpubReader.app_pages.HomePage.LoadImages2(System.Double)"/> method to refresh or load images or perform other related tasks.
+            </remarks>
+            <exception cref="T:System.Exception">
+            This method does not explicitly handle exceptions, but exceptions thrown during the execution of <see cref="M:EpubReader.code.AppControls.AddBookButtonMethod(System.Boolean)"/> 
+            or while showing the dialog may impact the method. Ensure proper error handling is in place in the <see cref="M:EpubReader.code.AppControls.AddBookButtonMethod(System.Boolean)"/> 
+            and other related methods to manage potential issues.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.OpenBookAddedDialogue(System.String,System.Boolean)">
+            <summary>
+            Asynchronously displays a dialog to indicate the status of a book addition operation.
+            </summary>
+            <param name="message">
+            The message to be shown in the dialog, which describes the result of the book addition.
+            </param>
+            <param name="debug">
+            A boolean value indicating whether to log debug messages. Default is <c>false</c>.
+            </param>
+            <remarks>
+            This method creates a <see cref="T:Microsoft.UI.Xaml.Controls.ContentDialog"/> with the specified message and displays it to the user.
+            The dialog's <c>XamlRoot</c> is set to the page's content root to ensure proper display within the current context.
+            If the dialog is shown successfully, a success message is logged. If an exception occurs, it is logged for troubleshooting.
+            </remarks>
+            <exception cref="T:System.Exception">
+            Any exceptions thrown while creating or showing the dialog are caught and logged.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.OnSizeChanged(System.Object,System.ValueTuple{System.Double,System.Double})">
+            <summary>
+            Handles the event when the size of the main window changes.
+            </summary>
+            <param name="sender">
+            The source of the event, typically the window or control whose size changed.
+            </param>
+            <param name="tp">
+            A tuple containing the new width and height of the window or control.
+            </param>
+            <remarks>
+            This method updates the internal width and height properties based on the new size. It then adjusts the width of the <see cref="F:EpubReader.app_pages.HomePage.ImageScrollViewer"/> 
+            and calls the <see cref="M:EpubReader.app_pages.HomePage.LoadImages2(System.Double)"/> method to reload images based on the new width. Note that setting the width of <see cref="F:EpubReader.app_pages.HomePage.ImageScrollViewer"/> 
+            directly can cause performance issues such as lag, which may need to be addressed.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.SecondWindow_WindowClosed(System.Object,System.EventArgs)">
+            <summary>
+            Loads images representing recent ebooks into the <see cref="F:EpubReader.app_pages.HomePage.ImageStackPanel"/>.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.ScrollLeft_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for scrolling the image viewer left.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.ScrollRight_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for scrolling the image viewer right.
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.app_pages.HomePage.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.GlobalSettingsJson">
+            <summary>
+            Represents global settings configuration loaded from a JSON file.
+            </summary>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.Font">
+            <summary>
+            Gets or sets the Font used in the application.
+            </summary>
+            <value>
+            A string representing the Font family or typeface.
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.BackgroundColor">
+            <summary>
+            Gets or sets the background color of the application.
+            </summary>
+            <value>
+            A string representing the background color, typically in a hexadecimal color code format (e.g., "#FFFFFF").
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.EbookViewer">
+            <summary>
+            Gets or sets the name or path of the ebook viewer application or component.
+            </summary>
+            <value>
+            A string representing the ebook viewer configuration or executable path.
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.TranslationService">
+            <summary>
+            Gets or sets the configuration for the translation service used in the application.
+            </summary>
+            <value>
+            A string representing the translation service configuration or API key.
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.PythonPath">
+            <summary>
+            Gets or sets the path to the Python executable used for scripting or other purposes.
+            </summary>
+            <value>
+            A string representing the file system path to the Python executable.
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.Language">
+            <summary>
+            Gets or sets the Language preference for the application.
+            </summary>
+            <value>
+            A string representing the Language code or name (e.g., "en-US" for English or "fr-FR" for French).
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.Theme">
+            <summary>
+            Gets or sets the theme configuration for the application.
+            </summary>
+            <value>
+            A string representing the theme name or identifier (e.g., "dark", "light").
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.Padding">
+            <summary>
+            Gets or sets the padding configuration for the application interface.
+            </summary>
+            <value>
+            A string representing the padding values, which may be in a specific format or unit (e.g., "10px", "1em").
+            </value>
+        </member>
+        <member name="P:EpubReader.GlobalSettingsJson.FontSize">
+            <summary>
+            Gets or sets the Font size configuration for the application.
+            </summary>
+            <value>
+            A string representing the Font size (e.g., "12pt", "14px").
+            </value>
+        </member>
+        <member name="T:EpubReader.SettingsPage">
+            <summary>
+            An empty page that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="F:EpubReader.SettingsPage.BookReadingFonts">
+            <summary>
+            A list of font families suitable for book reading.
+            </summary>
+            <value>
+            A <see cref="T:System.Collections.Generic.List`1"/> containing font names commonly used for reading, including both serif and sans-serif options.
+            </value>
+        </member>
+        <member name="F:EpubReader.SettingsPage.BookBackgroundColor">
+            <summary>
+            A list of background color options for book reading.
+            </summary>
+            <value>
+            A <see cref="T:System.Collections.Generic.List`1"/> containing color codes in hexadecimal format and a custom option for background colors.
+            </value>
+        </member>
+        <member name="F:EpubReader.SettingsPage.BookViewer">
+            <summary>
+            A list of ebook viewer options.
+            </summary>
+            <value>
+            A <see cref="T:System.Collections.Generic.List`1"/> containing names of ebook viewer technologies or components.
+            </value>
+        </member>
+        <member name="F:EpubReader.SettingsPage.TsServices">
+            <summary>
+            A list of available translation services.
+            </summary>
+            <value>
+            A <see cref="T:System.Collections.Generic.List`1"/> containing names of translation services or tools.
+            </value>
+        </member>
+        <member name="F:EpubReader.SettingsPage.Themes">
+            <summary>
+            A dictionary of theme configurations.
+            </summary>
+            <value>
+            A dictionary where each key is a theme name and each value is a dictionary
+            of CSS-like properties and their corresponding color values.
+            </value>
+        </member>
+        <member name="M:EpubReader.SettingsPage.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.SettingsPage"/> class.
+            </summary>
+            <remarks>
+            This constructor performs the following initialization tasks:
+            <list type="bullet">
+              <item>
+                Calls <see cref="M:EpubReader.SettingsPage.InitializeComponent"/> to initialize the user interface components defined in XAML.
+              </item>
+              <item>
+                Subscribes to the <see cref="E:EpubReader.MyMainWindow.WindowResized"/> event of <see cref="T:EpubReader.MyMainWindow"/> to handle window size changes via the <see cref="M:EpubReader.SettingsPage.OnSizeChanged(System.Object,System.ValueTuple{System.Double,System.Double})"/> method.
+              </item>
+              <item>
+                Subscribes to the <see cref="!:SettingsPage.Unloaded"/> event of the page to handle cleanup via the <see cref="M:EpubReader.SettingsPage.OnHomePageUnloaded(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)"/> method.
+              </item>
+              <item>
+                Calls <see cref="M:EpubReader.SettingsPage.LoadLangDict"/> to load the language dictionary necessary for localization.
+              </item>
+              <item>
+                Calls <see cref="M:EpubReader.SettingsPage.ComboBoxesSetup"/> to set up and configure any combo boxes present on the page.
+              </item>
+              <item>
+                Calls <see cref="M:EpubReader.SettingsPage.PageStartup"/> to perform any additional startup operations required for the page.
+              </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.SettingsPage.PageStartup">
+            <summary>
+            Initializes the page with settings loaded from a JSON configuration file.
+            </summary>
+            <remarks>
+            This method performs the following:
+            <list type="bullet">
+              <item>Loads global settings from a JSON file using <see cref="M:EpubReader.code.FileManagement.GetGlobalSettingsFilePath"/>.</item>
+              <item>Sets the selected indices of various combo boxes based on the loaded settings.</item>
+              <item>Updates text fields for Python path, padding, and font size.</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.SettingsPage.ComboBoxesSetup">
+            <summary>
+            Populates the combo boxes on the settings page with predefined options.
+            </summary>
+            <remarks>
+            This method adds items to the following combo boxes:
+            <list type="bullet">
+              <item><see cref="F:EpubReader.SettingsPage.FontsComboBox"/> with font names from <see cref="F:EpubReader.SettingsPage.BookReadingFonts"/>.</item>
+              <item><see cref="F:EpubReader.SettingsPage.EbookViewerComboBox"/> with ebook viewer options from <see cref="F:EpubReader.SettingsPage.BookViewer"/>.</item>
+              <item><see cref="F:EpubReader.SettingsPage.TranslationComboBox"/> with translation services from <see cref="F:EpubReader.SettingsPage.TsServices"/>.</item>
+              <item><see cref="F:EpubReader.SettingsPage.LanguageComboBox"/> with language codes from <see cref="F:EpubReader.SettingsPage._languageDict"/>.</item>
+              <item><see cref="F:EpubReader.SettingsPage.ThemesComboBox"/> with theme names from <see cref="F:EpubReader.SettingsPage.Themes"/>.</item>
+            </list>
+            <para>
+            The <see cref="F:EpubReader.SettingsPage.BookBackgroundColor"/> is currently not being populated.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.SettingsPage.UpdateBodyFontFamily(System.String,System.Boolean)">
+            <summary>
+            Updates the font family for the body element in the CSS file.
+            </summary>
+            <param name="newFontFamily">The new font family to apply to the body element.</param>
+            <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
+            <remarks>
+            This method modifies the CSS file by replacing or adding the font-family declaration within the body tag.
+            If no Font-family is found, it is added to the body declaration.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.SettingsPage.UpdateBodyBackgroundColor(System.String,System.Boolean)">
+            <summary>
+            Updates the background color for the body element in the CSS file.
+            </summary>
+            <param name="color">The new background color to be applied.</param>
+            <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.UpdateBodyTextColor(System.String,System.Boolean)">
+            <summary>
+            Updates the text color for the body element in the CSS file.
+            </summary>
+            <param name="color">The new text color to be applied.</param>
+            <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.UpdateBodyFontSize(System.String,System.Boolean)">
+            <summary>
+            Updates the font size for the body element in the CSS file.
+            </summary>
+            <param name="fontSize">The new font size to be applied, including units (e.g., "16px").</param>
+            <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.FontsComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event when the selected item in the FontsComboBox changes.
+            </summary>
+            <param name="sender">The source of the event, typically the ComboBox.</param>
+            <param name="e">Event data that contains information about the selection change.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.Convert8DigitHexTo6Digit(System.String)">
+            <summary>
+            Converts an 8-digit hexadecimal color code (with alpha) to a 6-digit hexadecimal color code (without alpha).
+            </summary>
+            <param name="hexColor">The 8-digit hex color string to convert. Can be in the format "#AARRGGBB" or "AARRGGBB".</param>
+            <returns>A 6-digit hex color string in the format "#RRGGBB".</returns>
+            <exception cref="T:System.ArgumentException">Thrown if the input is not in a valid 8-digit hex color format.</exception>
+        </member>
+        <member name="M:EpubReader.SettingsPage.BackgroundcolorComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event triggered when the selected item in the BackgroundcolorComboBox changes.
+            Updates the background color in the global settings and applies the change to the CSS file.
+            </summary>
+            <param name="sender">The source of the event, typically the ComboBox.</param>
+            <param name="e">Event data that contains information about the selection change.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.LoadFontComboBox">
+            <summary>
+            Loads the current font family from the CSS file used in the ebook viewer.
+            If a font family is found within the CSS file, it is returned; otherwise, a default value ("Merriweather") is returned.
+            </summary>
+            <returns>
+            The font family string found in the CSS file, or "Merriweather" if no match is found or the file does not exist.
+            </returns>
+        </member>
+        <member name="M:EpubReader.SettingsPage.LoadBackgroundColorComboBox">
+            <summary>
+            Loads the current background color from the CSS file used in the ebook viewer.
+            If a background color is found in the CSS file, it is returned; otherwise, a default value ("#efe0cd") is returned.
+            </summary>
+            <returns>
+            The background color string found in the CSS file, or "#efe0cd" if no background color is found or the file does not exist.
+            </returns>
+        </member>
+        <member name="M:EpubReader.SettingsPage.EbookViewerComboBoxComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the ebook viewer combo box.
+            Updates the global settings with the selected ebook viewer and saves the changes to the settings file.
+            </summary>
+            <param name="sender">The source of the event, typically the combo box control.</param>
+            <param name="e">The event data associated with the selection change event.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.TranslationComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the translation service combo box.
+            Updates the global settings with the selected translation service and saves the changes to the settings file.
+            </summary>
+            <param name="sender">The source of the event, typically the combo box control.</param>
+            <param name="e">The event data associated with the selection change event.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.LanguageComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the language combo box.
+            Updates the global settings with the selected language and saves the changes to the settings file.
+            </summary>
+            <param name="sender">The source of the event, typically the combo box control.</param>
+            <param name="e">The event data associated with the selection change event.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.PythonPath_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for the Python path button.
+            Validates the Python path provided in the TextBox, updates the global settings if the path is valid,
+            and provides visual feedback based on the validity of the path.
+            </summary>
+            <param name="sender">The source of the event, typically the button control.</param>
+            <param name="e">The event data associated with the click event.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.ThemesComboBox_OnSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the themes combo box.
+            Updates the global settings with the selected theme and applies the corresponding text and background colors to the body.
+            </summary>
+            <param name="sender">The source of the event, typically the themes combo box control.</param>
+            <param name="e">The event data associated with the selection change event.</param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.OnHomePageUnloaded(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles Unloaded event of the page.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.OnSizeChanged(System.Object,System.ValueTuple{System.Double,System.Double})">
+            <summary>
+            Handles the WindowResized event of the MyMainWindow class.
+            </summary>
+            <param name="sender"></param>
+            <param name="tp"></param>
+        </member>
+        <member name="M:EpubReader.SettingsPage.LoadLangDict">
+            <summary>
+            Loads the language dictionary from a JSON file.
+            </summary>
+        </member>
+        <member name="M:EpubReader.SettingsPage.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.SettingsPage.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.SettingsPage.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.Stats">
+            <summary>
+            A page that displays a grouped collection of items.
+            </summary>
+        </member>
+        <member name="P:EpubReader.Stats.Books">
+            <summary>
+            The collection of items to display.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Stats.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.Stats"/> class.
+            </summary>
+        </member>
+        <member name="M:EpubReader.Stats.GetColorFromValue(System.String)">
+            <summary>
+            Converts a time span represented as a string into a corresponding color based on predefined time intervals.
+            </summary>
+            <param name="value">A string representation of a time span. The string should be in a format that <see cref="M:System.TimeSpan.Parse(System.String)"/> can handle.</param>
+            <returns>
+            A <see cref="T:Windows.UI.Color"/> that corresponds to the time span. The color is chosen based on the time intervals defined in the method.
+            Returns a default color of black if the input string is invalid or if an exception occurs during processing.
+            </returns>
+            <remarks>
+            This method parses the input string into a <see cref="T:System.TimeSpan"/> and then compares it against a series of predefined intervals:
+            - Interval 0: 0 seconds
+            - Interval 1: 5 seconds
+            - Interval 2: 15 seconds
+            - Interval 3: 30 seconds
+            - Interval 4: 60 seconds
+            - Interval 5: 90 seconds
+            If the time span falls within one of these intervals, the corresponding color is returned. 
+            If the time span does not fall into any of the intervals, the default color is returned.
+            If the input string cannot be parsed into a <see cref="T:System.TimeSpan"/> or an exception is thrown, the method returns a default color of black.
+            </remarks>
+            <exception cref="T:System.FormatException">Thrown when the input string is not in a valid <see cref="T:System.TimeSpan"/> format.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when the input string is null.</exception>
+        </member>
+        <member name="M:EpubReader.Stats.CalendarView_CalendarViewDayItemChanging(Microsoft.UI.Xaml.Controls.CalendarView,Microsoft.UI.Xaml.Controls.CalendarViewDayItemChangingEventArgs)">
+            <summary>
+            Handles the event when a day item in the <see cref="T:Microsoft.UI.Xaml.Controls.CalendarView"/> is changing. 
+            Updates the background color of the day item based on associated data and checks for month changes.
+            </summary>
+            <param name="sender">The instance of <see cref="T:Microsoft.UI.Xaml.Controls.CalendarView"/> that is raising the event.</param>
+            <param name="args">The event arguments containing the item being changed and other related data.</param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="bullet">
+              <item>
+                Casts the args,Item to a <see cref="T:Microsoft.UI.Xaml.Controls.CalendarViewDayItem"/> to access its properties.
+              </item>
+              <item>
+                Retrieves the date key in the format "yyyy-MM-dd" for the current day item.
+              </item>
+              <item>
+                Checks if the date exists in any book's TimeDict dictionary. If it does, retrieves the associated value.
+              </item>
+              <item>
+                Sets the background color of the day item based on the value retrieved using <see cref="M:EpubReader.Stats.GetColorFromValue(System.String)"/>. 
+                If no matching entry is found, sets the background color to white.
+              </item>
+              <item>
+                Checks if the current day item's month is different from the previously tracked month. If so, updates the month 
+                and optionally performs additional setup such as updating charts for the new month.
+              </item>
+            </list>
+            If an exception occurs during processing, logs the error message to the debug output.
+            </remarks>
+            <exception cref="T:System.InvalidCastException">Thrown if args.Item cannot be cast to <see cref="T:Microsoft.UI.Xaml.Controls.CalendarViewDayItem"/>.</exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the date key is not found in TimeDict.</exception>
+        </member>
+        <member name="M:EpubReader.Stats.CalendarView_SelectedDatesChanged(Microsoft.UI.Xaml.Controls.CalendarView,Microsoft.UI.Xaml.Controls.CalendarViewSelectedDatesChangedEventArgs)">
+            <summary>
+            Handles the event when the selected dates in the <see cref="T:Microsoft.UI.Xaml.Controls.CalendarView"/> change.
+            Updates the <see cref="F:EpubReader.Stats.TimeSpentPerBookTextBlock"/> with the time spent on the selected date and logs relevant information.
+            </summary>
+            <param name="sender">The instance of <see cref="T:Microsoft.UI.Xaml.Controls.CalendarView"/> that is raising the event.</param>
+            <param name="args">The event arguments containing the newly selected dates.</param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="bullet">
+              <item>
+                Checks if there are any selected dates in the calendar view.
+              </item>
+              <item>
+                Retrieves the first selected date and formats it as "yyyy-MM-dd".
+              </item>
+              <item>
+                Checks if the formatted date exists in the <see cref="F:EpubReader.Stats._combinedDict"/> dictionary. If it does, parses the associated 
+                time span value and updates the <see cref="F:EpubReader.Stats.TimeSpentPerBookTextBlock"/> to display the time spent in hours, minutes, and seconds.
+                If the date is not found, sets the text to show "0s" for time spent.
+              </item>
+              <item>
+                Logs the formatted date and prints all keys from the <see cref="F:EpubReader.Stats._combinedDict"/> dictionary to the debug output.
+              </item>
+            </list>
+            If an exception occurs during processing, the error message is logged to the debug output.
+            </remarks>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the formatted date is not found in <see cref="F:EpubReader.Stats._combinedDict"/>.</exception>
+            <exception cref="T:System.FormatException">Thrown if the time span string in <see cref="F:EpubReader.Stats._combinedDict"/> is not in a valid format.</exception>
+        </member>
+        <member name="M:EpubReader.Stats.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.Stats.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.Stats.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.Book">
+            <summary>
+            Represents a book with a name and a dictionary of time entries associated with specific dates.
+            </summary>
+        </member>
+        <member name="P:EpubReader.Book.Name">
+            <summary>
+            Gets or sets the name of the book.
+            </summary>
+            <value>
+            A string representing the name of the book. 
+            </value>
+        </member>
+        <member name="P:EpubReader.Book.TimeDict">
+            <summary>
+            Gets or sets a dictionary that maps dates to time entries for the book.
+            </summary>
+            <value>
+            A <see cref="T:System.Collections.Generic.Dictionary`2"/> where the key is a date in "yyyy-MM-dd" format, 
+            and the value is a string representing the time spent on that date.
+            </value>
+        </member>
+        <member name="T:EpubReader.code.AppControls">
+            <summary>
+            Class to handle global app controls from different pages.
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.AppControls.AddBookButtonMethod(System.Boolean)">
+            <summary>
+            Asynchronously displays a file picker dialog to allow the user to select an eBook file and adds it to the eBook collection.
+            </summary>
+            <param name="debug">
+            Optional parameter that, when set to <c>true</c>, enables detailed debugging output. The default value is <c>false</c>.
+            </param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation. The task result is a <c>boolean</c> indicating whether the file was successfully added to the collection.
+            </returns>
+            <remarks>
+            The method initializes a file picker dialog with a filter for supported eBook formats. It then displays the dialog to the user. If the user selects a file, it attempts to add the file to the eBook collection. The success or failure of the operation is returned. 
+            If an exception occurs during the process, it is logged if debugging is enabled.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.code.AppControls.UpdateXhtmls(System.String,System.Boolean)">
+            <summary>
+            Asynchronously updates the CSS paths in XHTML files based on the navigation data of an eBook.
+            </summary>
+            <param name="ebookFolderPath">
+            The path to the folder containing the eBook files. This is used to locate the eBook's JSON data file and the CSS file for styling.
+            </param>
+            <param name="debug">
+            Optional parameter that, when set to <c>true</c>, enables detailed debugging output. The default value is <c>false</c>.
+            </param>
+            <remarks>
+            This method reads the eBook's JSON data file to obtain navigation data. For each XHTML file specified in the navigation data, it updates the CSS path to ensure that the XHTML files use the correct styling. 
+            If an error occurs during the update process, the exception message is logged if debugging is enabled.
+            </remarks>
+            <exception cref="T:System.Exception">
+            This method may throw exceptions if there are issues reading the JSON file or updating the CSS paths. Specific exceptions are not caught at this level but are logged if debugging is enabled.
+            </exception>
+        </member>
+        <member name="M:EpubReader.code.AppControls.UpdateXhtmlsRecursive(System.String)">
+            <summary>
+            Asynchronously updates the CSS paths in all XHTML files within the specified eBook folder and its subdirectories.
+            </summary>
+            <param name="ebookFolderPath">
+            The path to the folder containing the eBook files. This is used to locate all XHTML files within this directory and its subdirectories.
+            </param>
+            <remarks>
+            This method searches for all `.xhtml` files in the given eBook folder and its subdirectories. For each XHTML file found, it updates the CSS path to point to the appropriate CSS file. 
+            After processing all XHTML files, it logs a success message. If an exception occurs during the process, the exception message is logged, and the exception is rethrown.
+            </remarks>
+            <exception cref="T:System.Exception">
+            This method may throw exceptions if there are issues accessing files or updating CSS paths. The exception is logged and then rethrown for further handling.
+            </exception>
+        </member>
+        <member name="M:EpubReader.code.AppControls.GlobalCssInjector(System.Boolean)">
+            <summary>
+            Asynchronously injects the global CSS into all XHTML files of all eBooks.
+            </summary>
+            <param name="debug">
+            Optional parameter that, when set to <c>true</c>, enables detailed debugging output. The default value is <c>false</c>.
+            </param>
+            <remarks>
+            This method retrieves a list of all eBook directories and updates the CSS paths in the XHTML files for each eBook. 
+            If debugging is enabled, it logs success or failure messages based on the outcome of the operation. If an exception occurs, it is caught and logged, and the process continues for the remaining eBooks.
+            </remarks>
+            <exception cref="T:System.Exception">
+            This method may throw exceptions if errors occur during the CSS injection process. The exception is caught and logged if debugging is enabled, but may be rethrown or handled further up the call stack.
+            </exception>
+        </member>
+        <member name="M:EpubReader.code.AppControls.UpdateCssPath(System.String,System.String,System.Boolean)">
+            <summary>
+            Asynchronously updates the CSS path in an XHTML file and injects a script element into the document.
+            </summary>
+            <param name="xhtmlPath">
+            Optional parameter that, when set to <c>true</c>, enables detailed debugging output. The default value is <c>false</c>.
+            </param>
+            <param name="newCssPath">
+            The new CSS file path to be set in the <c>href</c> attributes of <c>&lt;link&gt;</c> elements within the XHTML document.
+            </param>
+            <param name="debug">
+            
+            </param>
+            <remarks>
+            This method attempts to update the CSS path in all <c>&lt;link&gt;</c> elements that reference a CSS file and injects a script element into the <c>&lt;body&gt;</c> section of the XHTML document. 
+            The operation is retried up to a specified number of times if an <see cref="T:System.IO.IOException"/> occurs, with a delay between retries. 
+            If the script injection or CSS path update fails, the exception is logged, and the method will retry the operation as needed.
+            </remarks>
+            <exception cref="T:System.IO.IOException">
+            This method may throw an <see cref="T:System.IO.IOException"/> if there are issues accessing or modifying the XHTML file. If the maximum number of retries is exceeded, the exception is rethrown.
+            </exception>
+            <exception cref="T:System.Exception">
+            Other exceptions may be thrown if there are issues parsing or saving the XHTML document. These exceptions are logged and rethrown.
+            </exception>
+        </member>
+        <member name="M:EpubReader.code.AppControls.GetListOfAllEbooks">
+            <summary>
+            Retrieves a list of all eBook directories within the eBooks folder.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:System.String"/> representing the paths of all immediate subdirectories (each directory corresponding to an eBook) in the eBooks folder.
+            </returns>
+            <remarks>
+            This method calls <see cref="M:EpubReader.code.FileManagement.GetEbooksFolderPath"/> to obtain the path of the eBooks folder, then retrieves the immediate subdirectories of that path.
+            Each subdirectory represents an eBook, and the method returns a list of these directories.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.code.AppControls.GetImmediateSubdirectories(System.String,System.Boolean)">
+            <summary>
+            Retrieves a list of immediate subdirectories for the specified root path.
+            </summary>
+            <param name="rootPath">
+            The root directory path from which to retrieve subdirectories.
+            </param>
+            <param name="debug">
+            Optional parameter that, when set to <c>true</c>, enables detailed debugging output. The default value is <c>false</c>.
+            </param>
+            <returns>
+            A <see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:System.String"/> representing the paths of the immediate subdirectories of the specified root directory.
+            </returns>
+            <remarks>
+            This method attempts to get all immediate subdirectories from the provided <paramref name="rootPath"/>. If the operation is successful, it returns a list of these subdirectories. 
+            If an exception occurs, such as unauthorized access, the exception message is logged if debugging is enabled.
+            </remarks>
+        </member>
+        <member name="T:EpubReader.code.Ebook">
+            <summary>
+            Represents an eBook with various metadata and file paths.
+            This class encapsulates information about an eBook including its title, author, Language, and various paths for managing the eBook's data.
+            </summary>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Title">
+            <summary>
+            Gets or sets the title of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the eBook's title.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Author">
+            <summary>
+            Gets or sets the author of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the name of the eBook's author.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Language">
+            <summary>
+            Gets or sets the Language of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the Language in which the eBook is written.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Publisher">
+            <summary>
+            Gets or sets the publisher of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the publisher of the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Description">
+            <summary>
+            Gets or sets the description of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> providing a summary or description of the eBook's content.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.DateAdded">
+            <summary>
+            Gets or sets the date when the eBook was added to the collection.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the date the eBook was added, formatted as a date string.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.DateLastOpened">
+            <summary>
+            Gets or sets the date when the eBook was last opened.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the date the eBook was last accessed, formatted as a date string.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Format">
+            <summary>
+            Gets or sets the format of the eBook (e.g., EPUB, PDF).
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> indicating the file format of the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.FileName">
+            <summary>
+            Gets or sets the file name of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the name of the eBook file.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.InBookPosition">
+            <summary>
+            Gets or sets the position of the eBook within a collection or library.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> indicating the eBook's position or identifier within a specific context.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.ScrollValue">
+            <summary>
+            Gets or sets the scroll value indicating the last read position in the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the last scroll position or bookmark in the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.BookOpenTime">
+            <summary>
+            Gets or sets the time when the eBook was last opened.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the timestamp of when the eBook was last accessed.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.BookCloseTime">
+            <summary>
+            Gets or sets the time when the eBook was closed.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the timestamp of when the eBook was last closed.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.BookReadTime">
+            <summary>
+            Gets or sets the total time spent reading the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the total reading time accumulated for the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.Status">
+            <summary>
+            Gets or sets the current status of the eBook.
+            Possible values include "Finished", "Not Started", and "Reading".
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> indicating the reading status of the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.StatsRecord1">
+            <summary>
+            Gets or sets a dictionary representing additional statistical records for the eBook.
+            </summary>
+            <value>
+            A dictionary where the key represents a statistic type and the value contains the statistic details.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.StatsRecord2">
+            <summary>
+            Gets or sets a secondary statistical record for the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> containing additional statistical information related to the eBook.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.NavData">
+            <summary>
+            Gets or sets a dictionary containing navigation data for the eBook.
+            </summary>
+            <value>
+            A dictionary where the key represents a navigation point and the value contains a list of associated data.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.EbookFolderPath">
+            <summary>
+            Gets or sets the path to the folder containing the eBook files.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the folder path where the eBook is stored.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.EbookDataFolderPath">
+            <summary>
+            Gets or sets the path to the folder containing eBook data files.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the folder where eBook data is stored.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.ContainerPath">
+            <summary>
+            Gets or sets the path to the container file of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the eBook's container file.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.ContentPath">
+            <summary>
+            Gets or sets the path to the main content file of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the eBook's main content file.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.CoverPath">
+            <summary>
+            Gets or sets the path to the cover image of the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the eBook's cover image file.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.JsonDataPath">
+            <summary>
+            Gets or sets the path to the JSON file containing eBook data.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the eBook's JSON data file.
+            </value>
+        </member>
+        <member name="P:EpubReader.code.Ebook.NavigationFilePath">
+            <summary>
+            Gets or sets the path to the navigation file for the eBook.
+            </summary>
+            <value>
+            A <see cref="T:System.String"/> representing the path to the eBook's navigation file.
+            </value>
+        </member>
+        <member name="T:EpubReader.code.AllBooks">
+            <summary>
+            Class for handling all books view
+            </summary>
+        </member>
+        <member name="P:EpubReader.code.AllBooks.Books">
+            <summary>
+            List of all books paths
+            </summary>
+        </member>
+        <member name="F:EpubReader.code.AllBooks.SortingMethods">
+            <summary>
+            Sort methods for sorting books
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.LoadAllBooksFromJson(System.Boolean)">
+            <summary>
+            Loads allBooks.json into Books List
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.AddBook(System.String)">
+            <summary>
+            Add an ebook's jsonDataPath to Books List
+            </summary>
+            <param name="ebookDataJsonPath"></param>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.AddBookStore(System.String)">
+            <summary>
+            Stores a ebook's jsonDataPath to allBooks JSON file
+            </summary>
+            <param name="ebookDataJsonPath"></param>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.StoreBooksToJson">
+            <summary>
+            Stores allBooks List to a allBooks.json file
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.RemoveBook(System.String)">
+            <summary>
+            Removes an ebook's jsonDataPath from Books List
+            </summary>
+            <param name="ebookDataJsonPath"></param>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.RemoveBookStore(System.String)">
+            <summary>
+            Removes an ebook's jsonDataPath from allBooks JSON file
+            </summary>
+            <param name="ebookDataJsonPath"></param>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.PrintAllBooks">
+            <summary>
+            Prints titles of all books on next line
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByName(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of ebooks ebub folder sorted by Name alphabetically
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByDateAdded(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of books ebub folder sorted by DateAdded
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByDateLastOpened(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of books ebub folder sorted by DateLastOpened
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByLenght(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of books ebub folder sorted by Lenght
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByAuthor(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of books ebub folder sorted by Author
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByPublisher(System.Boolean,System.Boolean)">
+            <summary>
+            Returns a list of books ebub folder sorted by Publisher
+            </summary>
+            <param name="ascendingOrder"></param>
+            <param name="print"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.GetBooksEpubFoldersByLanguage(System.Boolean,System.Boolean)">
+            <summary>
+            Retrieves a list of EPUB book folders sorted by Language.
+            </summary>
+            <param name="ascendingOrder">Determines the sort order of the books by Language. 
+            Set to <c>true</c> for ascending order or <c>false</c> for descending order.</param>
+            <param name="print">If set to <c>true</c>, prints the details of each book to the debug output.</param>
+            <returns>A list of strings representing the paths to the EPUB book folders, sorted by Language.</returns>
+            <remarks>
+            This method first loads all the book data from a JSON file, then sorts the books 
+            based on their Language, and optionally prints their details. The sort order 
+            can be either ascending or descending depending on the <paramref name="ascendingOrder"/> parameter.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.code.AllBooks.SelectSortMethod(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Selects and applies a sorting method to the list of EPUB book folders.
+            </summary>
+            <param name="method">The sorting method to apply. Valid options are: "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language".</param>
+            <param name="ascendingOrder">Determines the sort order. Set to <c>true</c> for ascending order, or <c>false</c> for descending order.</param>
+            <param name="print">If set to <c>true</c>, prints the details of each book to the debug output.</param>
+            <returns>A list of strings representing the paths to the EPUB book folders, sorted according to the specified method.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when an invalid sorting method is provided.</exception>
+        </member>
+        <member name="T:EpubReader.code.JsonHandler">
+            <summary>
+            Class for handling json files
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.JsonHandler.ReadEbookJsonFile(System.String,System.Boolean)">
+            <summary>
+            Reads and deserializes an eBook JSON file into an <see cref="T:EpubReader.code.Ebook"/> object.
+            </summary>
+            <param name="jsonPath">The file path of the JSON file to read.</param>
+            <param name="debug">If <c>true</c>, writes debug information to the output.</param>
+            <returns>The deserialized <see cref="T:EpubReader.code.Ebook"/> object, or a new <see cref="T:EpubReader.code.Ebook"/> if the operation fails.</returns>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown when the specified JSON file is not found.</exception>
+            <exception cref="T:System.Text.Json.JsonException">Thrown when deserialization of the JSON content fails.</exception>
+        </member>
+        <member name="M:EpubReader.code.JsonHandler.StoreJsonEbookFile(EpubReader.code.Ebook,System.String,System.Boolean)">
+            <summary>
+            Serializes an <see cref="T:EpubReader.code.Ebook"/> object and stores it as a JSON file.
+            </summary>
+            <param name="ebook">The <see cref="T:EpubReader.code.Ebook"/> object to serialize and store.</param>
+            <param name="jsonPath">The directory path where the JSON file will be saved.</param>
+            <param name="debug">If <c>true</c>, writes debug information to the output.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+            <exception cref="T:System.UnauthorizedAccessException">Thrown when the user lacks necessary permissions to write to the specified directory.</exception>
+            <exception cref="T:System.IO.IOException">Thrown when an I/O error occurs during file writing.</exception>
+        </member>
+        <member name="T:EpubReader.code.ContentHandler">
+            <summary>
+            Class for handling content of an epub file
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.ContentHandler.AddMetaData(System.String,System.String,System.Boolean)">
+            <summary>
+            Extracts the inner XML content of all elements with the specified tag from an XML file.
+            </summary>
+            <param name="contentPath">The file path to the XML content file to be parsed.</param>
+            <param name="xmlTag">The XML tag whose inner content is to be extracted and concatenated.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console.</param>
+            <returns>
+            A concatenated string of the inner XML content of all elements with the specified tag.
+            Returns <c>null</c> if an error occurs during the operation.
+            </returns>
+            <exception cref="T:System.Xml.XmlException">Thrown if the XML content is not well-formed.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown if the specified XML file does not exist.</exception>
+            <remarks>
+            This method attempts to load an XML document from the provided file path, searches for all elements 
+            matching the specified tag, and concatenates their inner XML content into a single string. 
+            If the process succeeds, the concatenated string is returned. If any errors occur, the method 
+            returns <c>null</c> and logs the error if debugging is enabled.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.code.ContentHandler.GetCoverImagePath(System.String,System.String,System.Boolean)">
+            <summary>
+            Retrieves the full file path of the cover image from an EPUB's content file (OPF).
+            </summary>
+            <param name="contentOpfPath">The file path to the OPF (Open Packaging Format) file.</param>
+            <param name="extractedEpubDir">The directory where the EPUB contents are extracted.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console.</param>
+            <returns>
+            The full file path to the cover image. If the cover image is not found, returns a path combining 
+            the <paramref name="extractedEpubDir"/> and the cover ID.
+            </returns>
+            <exception cref="T:System.Xml.XmlException">Thrown if the OPF file content is not well-formed.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown if the specified OPF file does not exist.</exception>
+            <remarks>
+            This method loads the OPF file, searches for the meta tag with the name attribute set to "cover," 
+            and retrieves the corresponding cover image's file path. If the cover image is found, 
+            its full path is returned. If any errors occur, the method returns a default path 
+            using the cover ID and logs the error if debugging is enabled.
+            </remarks>
+        </member>
+        <member name="T:EpubReader.code.RecentEbooksHandler">
+            <summary>
+            Class for handling file management
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.RecentEbooksHandler.GetRecentEbooksPathsUpdated(System.String,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Retrieves a list of recent eBooks that have a cover path, sorted according to the specified method.
+            </summary>
+            <param name="method">The sorting method to use. This could be "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language", etc.</param>
+            <param name="ascendingOrder">If <c>true</c>, sorts the eBooks in ascending order; otherwise, sorts them in descending order. Defaults to <c>true</c>.</param>
+            <param name="print">If <c>true</c>, prints the details of each eBook to the debug output. Defaults to <c>false</c>.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <returns>
+            A list of <see cref="T:EpubReader.code.Ebook"/> objects that have a cover path. If an error occurs during the process, returns <c>null</c>.
+            </returns>
+            <remarks>
+            This method initializes an instance of the <see cref="T:EpubReader.code.AllBooks"/> class to get the list of JSON file paths for eBooks, 
+            then reads each eBook file and filters out those that have a non-empty cover path. The filtered eBooks are returned in 
+            a list sorted according to the specified method and order. If any errors occur, the method logs the exception message 
+            if debugging is enabled and returns <c>null</c>.
+            </remarks>
+        </member>
+        <member name="T:EpubReader.code.EpubHandler">
+            <summary>
+            Class for handling file management
+            </summary>
+        </member>
+        <member name="E:EpubReader.code.EpubHandler.BookAddedEvent">
+            <summary>
+            Event that is triggered when a book is added to the system.
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.EpubHandler.ExtractEpub(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Extracts an EPUB file to a specified destination directory and initializes an <see cref="T:EpubReader.code.Ebook"/> object with relevant paths and metadata.
+            </summary>
+            <param name="epubFilePath">The file path to the EPUB file to be extracted.</param>
+            <param name="destination">The destination directory where the EPUB content will be extracted.</param>
+            <param name="fileName">The name of the EPUB file being processed. This will be used to set the <see cref="P:EpubReader.code.Ebook.FileName"/> property.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method opens the specified EPUB file as a ZIP archive, extracts its contents to a unique subdirectory within the 
+            specified destination, and initializes an <see cref="T:EpubReader.code.Ebook"/> object with paths and metadata derived from the extracted content.
+            A random tag is appended to the destination folder to avoid issues with file path length limitations.
+            The method sets properties on the <see cref="T:EpubReader.code.Ebook"/> object such as folder paths, navigation file paths, format, file name, and timestamps for 
+            when the book was added and last opened.
+            </remarks>
+            <exception cref="T:System.ArgumentException">Thrown if the <paramref name="epubFilePath"/> or <paramref name="destination"/> is invalid.</exception>
+            <exception cref="T:System.IO.IOException">Thrown if an I/O error occurs during file extraction or directory creation.</exception>
+            <exception cref="T:System.UnauthorizedAccessException">Thrown if the application does not have permission to access the file or directory.</exception>
+        </member>
+        <member name="M:EpubReader.code.EpubHandler.GetEpubContentFilePath(System.Boolean)">
+            <summary>
+            Retrieves the file path to the main content file of an EPUB by parsing the container XML file.
+            </summary>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method loads the container XML file from the EPUB, which is located in the META-INF directory. 
+            It then parses the XML to find and extract the path of the primary content file specified within the container XML. 
+            The extracted content file path is used to update the <see cref="F:EpubReader.code.EpubHandler._contentFilePath"/> and <see cref="P:EpubReader.code.Ebook.ContentPath"/> properties.
+            The method assumes that the container XML and content paths follow a specific format and that the necessary XML nodes and attributes are present.
+            </remarks>
+            <exception cref="T:System.IO.IOException">Thrown if there is an I/O error accessing the container XML file. The exception is only caught if the message contains "already exists".</exception>
+            <exception cref="T:System.Xml.XmlException">Thrown if there is an issue parsing the XML document.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if the XML content does not contain the expected format or required elements.</exception>
+        </member>
+        <member name="M:EpubReader.code.EpubHandler.AddEpub(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Adds an EPUB file to the system by extracting its contents, processing metadata, and updating relevant records.
+            </summary>
+            <param name="epubFilePath">The file path of the EPUB file to be added.</param>
+            <param name="destination">The directory where the EPUB file will be extracted.</param>
+            <param name="fileName">The name of the EPUB file being processed. This name will be used to determine the file's entry in the system.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <returns>
+            <c>true</c> if the EPUB file was successfully added and processed; otherwise, <c>false</c>.
+            </returns>
+            <remarks>
+            This method performs the following steps:
+            <list type="number">
+            <item>Extracts the EPUB file to the specified destination directory using the <see cref="M:EpubReader.code.EpubHandler.ExtractEpub(System.String,System.String,System.String,System.Boolean)"/> method.</item>
+            <item>Retrieves the path to the main content file of the EPUB using the <see cref="M:EpubReader.code.EpubHandler.GetEpubContentFilePath(System.Boolean)"/> method.</item>
+            <item>Processes metadata tags from the EPUB content and updates corresponding properties of the <see cref="F:EpubReader.code.EpubHandler._ebook"/> object, including title, author, Language, publisher, and description.</item>
+            <item>Determines and sets the cover image path for the EPUB using the <see cref="M:EpubReader.code.ContentHandler.GetCoverImagePath(System.String,System.String,System.Boolean)"/> method.</item>
+            <item>Clears any existing navigation data and extracts new navigation data from the EPUB's OPF file using the <see cref="M:EpubReader.code.Navigation.ExtractNavDataFromOpf(System.String,System.Boolean)"/> method.</item>
+            <item>Updates additional properties of the <see cref="F:EpubReader.code.EpubHandler._ebook"/> object, including navigation data, statistics, book position, scroll value, and status.</item>
+            <item>Saves the updated <see cref="F:EpubReader.code.EpubHandler._ebook"/> object to a JSON file using the <see cref="M:EpubReader.code.JsonHandler.StoreJsonEbookFile(EpubReader.code.Ebook,System.String,System.Boolean)"/> method.</item>
+            <item>Updates XHTML files related to the EPUB using the <see cref="M:EpubReader.code.AppControls.UpdateXhtmls(System.String,System.Boolean)"/> method.</item>
+            <item>Adds the EPUB book's information to the collection of books using the <see cref="M:EpubReader.code.AllBooks.AddBookStore(System.String)"/> method.</item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if any errors occur during the process of adding and processing the EPUB file.</exception>
+            <event cref="E:EpubReader.code.EpubHandler.BookAddedEvent">Triggered when the EPUB file is successfully added or if an error occurs during the process.</event>
+        </member>
+        <member name="M:EpubReader.code.EpubHandler.GenerateRandomTag(System.Int32)">
+            <summary>
+            Generates a random alphanumeric tag of the specified length.
+            </summary>
+            <param name="length">The length of the tag to generate. Must be greater than 0.</param>
+            <returns>A random alphanumeric string of the specified length.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the specified length is less than or equal to 0.</exception>
+            <remarks>
+            This method uses a combination of uppercase letters, lowercase letters, and digits to create a random tag.
+            It ensures that the length parameter is valid before generating the tag. If the length is not valid, an
+            <see cref="T:System.ArgumentOutOfRangeException"/> is thrown.
+            </remarks>
+        </member>
+        <member name="T:EpubReader.code.Navigation">
+            <summary>
+            Class for handling epub navigation data
+            </summary>
+        </member>
+        <member name="F:EpubReader.code.Navigation.NavData">
+            <summary>
+            Dictionary to store navigation data extracted from an EPUB file.
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.Navigation.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.code.Navigation"/> class.
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.Navigation.FindFilesWithExtensions(System.String,System.Collections.Generic.List{System.String},System.Boolean)">
+            <summary>
+            Finds a file with one of the specified extensions in a given directory and its subdirectories.
+            </summary>
+            <param name="directory">The directory to search within.</param>
+            <param name="extensions">A list of file extensions to search for, including the dot (e.g., ".txt").</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <returns>
+            The full path of the first file found with one of the specified extensions, or <c>null</c> if no matching files are found.
+            </returns>
+            <remarks>
+            This method searches through all files in the specified directory and its subdirectories. It returns the path of the first file that matches one of the provided extensions.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="directory"/> or <paramref name="extensions"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:EpubReader.code.Navigation.ExtractNavDataFromOpf(System.String,System.Boolean)">
+            <summary>
+            Extracts navigation data from an OPF (Open Packaging Format) file.
+            </summary>
+            <param name="opfFilePath">The file path of the OPF file to extract navigation data from.</param>
+            <param name="debug">If <c>true</c>, outputs debug information to the debug console. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method reads the OPF file to extract information about the manifest and spine elements. It populates the <see cref="F:EpubReader.code.Navigation.NavData"/> dictionary with the play order and source details of each item specified in the spine.
+            </remarks>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown when the specified OPF file does not exist.</exception>
+            <exception cref="T:System.Xml.XmlException">Thrown when there is an error parsing the OPF file.</exception>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.WriteTextToFileAsync(System.String,System.String)">
+            <summary>
+             Writes string content to file in the application storage
+            </summary>
+            <param name="fileName"></param>
+            <param name="content"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.CreateFolderAsync(System.String)">
+            <summary>
+            Creates a folder in the application storage
+            </summary>
+            <param name="folderName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.DoesFolderExistAsync(System.String)">
+            <summary>
+            Returns true if the folder exists in the application storage
+            </summary>
+            <param name="folderName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetAppAddress">
+            <summary>
+            Returns the application storage address
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetEbooksFolderPath">
+            <summary>
+            Returns the ebooks folder path ( = LocalState/ebooks )
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetSettingsFolderPath">
+            <summary>
+            Returns the settings folder path ( = LocalState/settings )
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetEbookViewerStyleFilePath">
+            <summary>
+            Returns the path of ebooks css file used for the ebook viewer
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetEbookDataJsonFile(System.String)">
+            <summary>
+            Returns the path of the ebook data json file
+            </summary>
+            <param name="ebookFolderPath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetEbookAllBooksJsonFile">
+            <summary>
+            Returns the path of the all books json file used for displaying all books in the library
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetBookContentFilePath(System.String,System.String)">
+            <summary>
+            Returns the path of the xhtml file from ebook data json file
+            </summary>
+            <param name="ebookFolderPath"></param>
+            <param name="playOrder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.CreateCssSettingsFile">
+            <summary>
+            Created the css file used for the ebook viewer
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.CreateGlobalSettingsFile">
+            <summary>
+            Creates the global settings file with default values
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.CreateGlobalDictFile">
+            <summary>
+            Created the global dictionary file used for storing the words and their translations
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetGlobalSettingsFilePath">
+            <summary>
+            Returns the path of the global settings file
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.DeleteEbooks(System.Boolean)">
+            <summary>
+            Deletes all the ebooks in the ebooks folder
+            </summary>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.GetGlobalDictPath">
+            <summary>
+            Returns the path of the global dictionary file
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EpubReader.code.FileManagement.StartUp(System.Boolean)">
+            <summary>
+            Method which runs at the start of the application
+            </summary>
+        </member>
+        <member name="T:EpubReader.code.FileManagement.GlobalDictJson">
+            <summary>
+            Dictionary data class used for storing the words and their translations
+            </summary>
+        </member>
+        <member name="T:EpubReader.MainWindow">
+            <summary>
+            An empty window that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="M:EpubReader.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MainWindow.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MainWindow.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.MyMainWindow">
+            <summary>
+            An empty page that can be used on its own or navigated to within a Frame.
+            </summary>
+            
+        </member>
+        <member name="M:EpubReader.MyMainWindow.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.MyMainWindow"/> class.
+            </summary>
+        </member>
+        <member name="E:EpubReader.MyMainWindow.WindowResized">
+            <summary>
+            Occurs when the size of the window changes.
+            </summary>
+            <remarks>
+            The event provides a tuple containing the new width and height of the window.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.FrameworkElement_OnSizeChanged(System.Object,Microsoft.UI.Xaml.SizeChangedEventArgs)">
+            <summary>
+            Handles the SizeChanged event for a FrameworkElement.
+            Invokes the WindowResized event with the new width and height of the element.
+            </summary>
+            <param name="sender">The source of the event, which is the FrameworkElement that has changed size.</param>
+            <param name="e">The event data containing the new size of the element.</param>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.NavigationView_OnSelectionChanged(Microsoft.UI.Xaml.Controls.NavigationView,Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the NavigationView control.
+            Navigates to the appropriate page based on the selected item in the NavigationView pane.
+            </summary>
+            <param name="sender">The source of the event, which is the NavigationView control.</param>
+            <param name="args">The event data containing information about the selection change.</param>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.Program">
+            <summary>
+            Program class
+            </summary>
+        </member>
+        <member name="T:EpubReader.EpubReader_XamlTypeInfo.XamlMetaDataProvider">
+            <summary>
+            Main class for providing metadata for the app or library
+            </summary>
+        </member>
+        <member name="M:EpubReader.EpubReader_XamlTypeInfo.XamlMetaDataProvider.GetXamlType(System.Type)">
+            <summary>
+            GetXamlType(Type)
+            </summary>
+        </member>
+        <member name="M:EpubReader.EpubReader_XamlTypeInfo.XamlMetaDataProvider.GetXamlType(System.String)">
+            <summary>
+            GetXamlType(String)
+            </summary>
+        </member>
+        <member name="M:EpubReader.EpubReader_XamlTypeInfo.XamlMetaDataProvider.GetXmlnsDefinitions">
+            <summary>
+            GetXmlnsDefinitions()
+            </summary>
+        </member>
+    </members>
+</doc>

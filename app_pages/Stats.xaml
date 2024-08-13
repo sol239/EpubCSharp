@@ -3,11 +3,8 @@
     x:Class="EpubReader.Stats"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:WinUI_ePubReader"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WinUI;assembly=LiveChartsCore.SkiaSharpView.WinUI"
-    xmlns:winUi="using:LiveChartsCore.SkiaSharpView.WinUI"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -30,8 +27,8 @@
             <!-- Row for additional content (if needed) -->
         </Grid.RowDefinitions>
 
-        <TextBlock Name="TimeSpentTextBlock"
-        Text="{x:Bind timeSpan, Mode=OneWay}"
+        <TextBlock
+        Text="{x:Bind _timeSpan2, Mode=OneWay}"
                Grid.Column="0"    
                Grid.Row="0"
                Margin="20"
@@ -42,7 +39,7 @@
                Grid.Row="1"
                Margin="20"
                HorizontalAlignment="Center" />
-        <CalendarView x:Name="calendarView" 
+        <CalendarView 
                   Grid.Column="0" 
                   Margin="20"
                   Grid.Row="2" 

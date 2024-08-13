@@ -3,7 +3,6 @@
     x:Class="EpubReader.app_pages.EbookWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:EpubReader.app_pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -67,7 +66,7 @@
         </Grid>
 
         <!-- WebView -->
-        <WebView2 x:Name="MyWebView"  
+        <WebView2 Grid.Column ="0"  x:Name="MyWebView"  
                    Grid.Row="1"
                    Grid.ColumnSpan="2"
                    Source=""
@@ -79,16 +78,16 @@
 
         </WebView2>
 
-        <Popup x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
+        <Popup Grid.Column="0" Grid.Row="0"  x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
             <Border     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="Black" BorderThickness="1" Padding="10">
             <StackPanel>
 
-                <StackPanel  Name="FontSizeStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
-                    <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer font size..." />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                    <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer Font size..." />
                     <Button Content=">" Click="FontSizeButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
                 </StackPanel>
 
-                <StackPanel Name="Padding"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
                     <TextBox Header ="Padding" x:Name="PaddingBox" Width="300" Height="Auto" PlaceholderText="Enter viewer padding..." />
                     <Button Content=">" Click="PaddingButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
                 </StackPanel>
@@ -97,20 +96,13 @@
                     <!-- ComboBox items -->
                 </ComboBox>
 
-                <ComboBox x:Name="fontsComboBox" Width="200" Height="58" PlaceholderText="Select font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
+                <ComboBox x:Name="FontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
                     <!-- ComboBox items -->
                 </ComboBox>
 
             </StackPanel>
         </Border>
         </Popup>
-
-
-
-
-
-        <Frame x:Name="EbookFrame" />
     </Grid>
-
 
 </Window>

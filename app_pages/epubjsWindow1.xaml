@@ -82,7 +82,7 @@
                 <StackPanel>
 
                     <StackPanel  Name="FontSizeStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
-                        <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer font size..." />
+                        <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer Font size..." />
                         <Button Content=">" Click="FontSizeButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
                     </StackPanel>
 
@@ -95,7 +95,7 @@
                         <!-- ComboBox items -->
                     </ComboBox>
 
-                    <ComboBox x:Name="fontsComboBox" Width="200" Height="58" PlaceholderText="Select font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
+                    <ComboBox x:Name="fontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
                         <!-- ComboBox items -->
                     </ComboBox>
 

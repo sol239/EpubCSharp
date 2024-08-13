@@ -10,18 +10,17 @@ namespace EpubReader.code;
 public class FileManagement
 {
 
-    private readonly app_logging _logger = new app_logging();
-
     // file names used in the app
     private static readonly string EbookFolderName = "ebooks"; 
     private static readonly string SettingsFolderName = "settings";
-    public static readonly List<String> SupportedEbooksFormats = new List<string>() {".epub"};
     private static readonly string EbookViewerStyleFileName = "ebook_viewer-style.css";
     private static readonly string GlobalSettingsFileName = "globalSettings.json";
     private static readonly string DictFileName = "globalDict.json";
     private static readonly string EbookDataFolderName = "DATA";
-    public static readonly string EbookDataFileName = "ebookData.json";
     private static readonly string EbookAllBooksFileName = "allBooks.json";
+
+    public static readonly List<String> SupportedEbooksFormats = new List<string>() { ".epub" };
+    public static readonly string EbookDataFileName = "ebookData.json";
 
 
     /// <summary>
@@ -76,7 +75,7 @@ public class FileManagement
         }
     }
     
-    /*
+    /* Deprecated
     public static string GetEbookFolderName()
     {
         return EbookFolderName;
@@ -197,8 +196,8 @@ public class FileManagement
     {
         string cssContent = @"/* Hide scrollbars for WebKit-based browsers */
                             body {
-                                font-family: 'Merriweather', serif;
-                                font-size: 150%;
+                                Font-family: 'Merriweather', serif;
+                                Font-size: 150%;
                                 color: #000000;
                                 /*
                                 background colors I like:display: EFE0CD, E4D8CD, E2D3C4, D4C2AF
@@ -243,12 +242,12 @@ public class FileManagement
     public static void CreateGlobalSettingsFile()
     {
         string filePath = GetAppAddress() + "\\" + SettingsFolderName + "\\" + GlobalSettingsFileName;
-        globalSettingsJson globalSettings = new globalSettingsJson();
-        globalSettings.ebookViewer = "WebView2";
-        globalSettings.font = "Merriweather";
-        globalSettings.backgroundColor = "#efe0cd";
-        globalSettings.translationService = "argos";
-        globalSettings.language = "English";
+        GlobalSettingsJson globalSettings = new GlobalSettingsJson();
+        globalSettings.EbookViewer = "WebView2";
+        globalSettings.Font = "Merriweather";
+        globalSettings.BackgroundColor = "#efe0cd";
+        globalSettings.TranslationService = "argos";
+        globalSettings.Language = "English";
         globalSettings.Theme = "Woodlawn";
         globalSettings.FontSize = "1.5rem";
         globalSettings.Padding = "60";
@@ -279,7 +278,7 @@ public class FileManagement
     /// <summary>
     /// Deletes all the ebooks in the ebooks folder
     /// </summary>
-    public void DeleteEbooks()
+    public void DeleteEbooks(bool debug = false)
     {
         try
         {
@@ -293,11 +292,17 @@ public class FileManagement
                 item.DeleteAsync().GetAwaiter().GetResult();
             }
 
-            Debug.WriteLine($"{_logger.DeleteEbooksMessageSuccess}");
+            if (debug)
+            {
+                Debug.WriteLine($"DeleteEbooks() - Success");
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{_logger.DeleteEbooksMessageFail} : {ex.Message}");
+            if (debug)
+            {
+                Debug.WriteLine($"DeleteEbooks() - Fail\n{ex}");
+            }
         }
     }
 

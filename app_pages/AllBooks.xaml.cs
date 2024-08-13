@@ -1,25 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
+using EpubReader.app_pages;
+using EpubReader.code;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-using EpubReader.code;
-using System.Collections.ObjectModel;
-using EpubReader.app_pages;
-using Microsoft.UI.Xaml.Media.Imaging;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,153 +21,193 @@ namespace EpubReader
     /// </summary>
     public sealed partial class AllBooks : Page
     {
+        private (string ebookPlayOrder, string ebookFolderPath) _navValueTuple;
 
-        private Frame contentFrame;
-
-        private (string ebookPlayOrder, string ebookFolderPath) naValueTuple;
-
-        private int BookGridWidth;
-        private int BookGridHeight;
-
-        private double BookCoverWidth;
-        private double BookCoverHeight;
-        private double BookCoverMinWidth;
-
-        private double BookStackPanelOpacity;
-        private double BookStackPanelHeight;
-
-        private double AllBooksViewWidth;
-        private double AllBooksViewHeight;
-
-        private double AllLayout_MaximumRowsOrColumns;
-        private double AllLayout_MinRowSpacing;
-        private double AllLayout_MinColumnSpacing;
-
-        double actualWidth;
-        double actualHeight;
+        private double _actualWidth;
+        private double _actualHeight;
 
         private Ebook _selectedEbook;
-        private bool _state = false;
+        private bool _state;
+        private string _method;
 
-        private string method;
-        private Dictionary<string, string> languageDict = new Dictionary<string, string>()
-        {
+        private readonly double _bottomOffset = 55;
 
-        };
+        private Dictionary<string, string> _languageDict;
 
-        public AllBooks()
-        {
-            this.InitializeComponent();
-            LoadLangDict();
-            MyMainWindow.WindowResized += OnSizeChanged; // Subscribe to the event
-            this.Unloaded += OnAllBooksUnloaded;
-
-            Ebooks = new ObservableCollection<Ebook>();
-            PopulateEbooks("Name", true, false);
-            comboBoxesSetup();
-
-
-        }
-
-        private void OnAllBooksUnloaded(object sender, RoutedEventArgs e)
-        {
-            MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
-        }
-
+        /// <summary>
+        /// Collection of Ebooks viewable in the AllBooks page.
+        /// </summary>
         public ObservableCollection<Ebook> Ebooks
         {
             get; private set;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AllBooks"/> class and sets up its components.
+        /// </summary>
+        public AllBooks()
+        {
+            this.InitializeComponent();
+            LoadLangDict();
+
+            MyMainWindow.WindowResized += OnSizeChanged; 
+            this.Unloaded += OnAllBooksUnloaded;
+
+            Ebooks = new ObservableCollection<Ebook>();
+            PopulateEbooks("Name", true, false);
+            ComboBoxesSetup();
+
+        }
+
+        /// <summary>
+        /// Opens the appropriate ebook viewer window based on the user's settings.
+        /// </summary>
+        /// <param name="navTuple">
+        /// A tuple containing the ebook's play order and folder path, used to initialize the viewer.
+        /// </param>
+        public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
+        {
+            GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+
+            switch (settings.EbookViewer)
+            {
+                case "epubjs":
+                    epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
+                    secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    secondWindow.Activate();
+                    break;
+
+                case "WebView2":
+                    EbookWindow ebookWindow = new EbookWindow(navTuple);
+                    ebookWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
+                    ebookWindow.Activate();
+                    break;
+            }
+        }
         
+        /// <summary>
+        /// Handles the event when the AllBooks control is unloaded.
+        /// </summary>
+        private void OnAllBooksUnloaded(object sender, RoutedEventArgs e)
+        {
+            MyMainWindow.WindowResized -= OnSizeChanged; // Unsubscribe from the event
+        }
+
+        /// <summary>
+        /// Handles the event when the size of the main window changes.
+        /// </summary>
+        /// <param name="sender">
+        /// The source of the event
+        /// </param>
+        /// <param name="tp">
+        /// A tuple containing the new width and height of the window.
+        /// </param>
         private void OnSizeChanged( object sender, (double width, double height) tp )
         {
-            actualWidth = tp.width;
-            actualHeight = tp.height;
+            _actualWidth = tp.width;
+            _actualHeight = tp.height;
 
-            if (actualHeight - 55 > 0)
+            if (_actualHeight - _bottomOffset > 0)
             {
-                AllBooksView.Height = actualHeight - 55;
-                InfoScrollViewer.Height = actualHeight - 55;
+                AllBooksView.Height = _actualHeight - _bottomOffset;
+                InfoScrollViewer.Height = _actualHeight - _bottomOffset;
             }
 
-            if (actualWidth - detailsPanel.Width > 0 && detailsPanel.Visibility == Visibility.Visible)
+            if (_actualWidth - detailsPanel.Width > 0 && detailsPanel.Visibility == Visibility.Visible)
             {
-                AllBooksView.Width = actualWidth - detailsPanel.Width;
+                AllBooksView.Width = _actualWidth - detailsPanel.Width;
             }
 
             else {
-                AllBooksView.Width = actualWidth;
+                AllBooksView.Width = _actualWidth;
             }
 
         }
 
-        private void PopulateEbooks(string method, bool ascendingOrder, bool print)
+        /// <summary>
+        /// Populates the Ebooks collection based on the specified sorting method and order, and optionally prints and debugs the process.
+        /// </summary>
+        /// <param name="method">
+        /// The method used for sorting or filtering the ebooks. Could represent criteria such as "Name", "Date", etc.
+        /// </param>
+        /// <param name="ascendingOrder">
+        /// A boolean indicating whether the sorting should be in ascending order. True for ascending, false for descending.
+        /// </param>
+        /// <param name="print">
+        /// A boolean indicating whether to print information about the ebooks. This might be used for debugging or logging purposes.
+        /// </param>
+        /// <param name="debug">
+        /// A boolean indicating whether to output debug information. If true, debug messages will be logged.
+        /// </param>
+        private void PopulateEbooks(string method, bool ascendingOrder, bool print, bool debug = false)
         {
-            // clear the Ebooks collection
-            Ebooks.Clear();
-            List<Ebook> ebookPaths = new List<Ebook>();
-
             try
             {
+                Ebooks.Clear();
+                List<Ebook> ebookPaths = new List<Ebook>() {};
                 ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
-                Debug.WriteLine("PopulateEbooks() 1.1 - Success");
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("PopulateEbooks() 1.1 - Fail - " + e.Message);
-            }
 
-            try
-            {
                 foreach (var ebook in ebookPaths)
                 {
 
                     Ebooks.Add(ebook);
-                    languageComboBox.SelectedIndex = languageDict.Keys.ToList().IndexOf(ebook.Language);
+                    languageComboBox.SelectedIndex = _languageDict.Keys.ToList().IndexOf(ebook.Language);
                 }
-                Debug.WriteLine("PopulateEbooks() 1.2 - Success");
+                if (debug) { Debug.WriteLine("PopulateEbooks() - Success"); }
+            }
+            catch(Exception e)
+            {
+                if (debug) { Debug.WriteLine("PopulateEbooks() - Fail - " + e.Message); }
+            }
+        }
+
+        /// <summary>
+        /// Loads a dictionary of Language codes and their corresponding names from a JSON file and deserializes it into a dictionary.
+        /// </summary>
+        /// <param name="debug">
+        /// A boolean indicating whether to output debug information. If true, debug messages will be logged.
+        /// </param>
+        private void LoadLangDict(bool debug = false)
+            {
+                try
+                {
+                    string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
+                    string json = File.ReadAllText(path);
+                    _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                    if (debug) { Debug.WriteLine("LoadLangDict() - Success"); }
+                }
+                catch (Exception e)
+                {
+                    if (debug) { Debug.WriteLine("LoadLangDict() - Fail - " + e.Message); }
+                }
             }
 
-            catch (Exception e)
-            {
-                Debug.WriteLine("PopulateEbooks() 1.2 - Fail - " + e.Message);
-            }
-        }
-        private void LoadLangDict()
-        {
-            try
-            {
-                string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
-                string json = File.ReadAllText(path);
-                languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                Debug.WriteLine("LoadLangDict() - Success");
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("LoadLangDict() - Fail - " + e.Message);
-            }
-        }
+        /// <summary>
+        /// Handles the click event on an item in the AllBooksView control, updating the details panel with information about the selected book.
+        /// </summary>
+        /// <param name="sender">
+        /// The ItemsView control that triggered the event.
+        /// </param>
+        /// <param name="args">
+        /// The event arguments containing the invoked item information.
+        /// </param>
         private void AllBooksView_ItemClick(ItemsView sender, ItemsViewItemInvokedEventArgs args)
         {
+            bool debug = false;
+
             try
             {
-                Ebook __selectedEbook = args.InvokedItem as Ebook;
+                Ebook selectedEbook = args.InvokedItem as Ebook;
 
                 if (_selectedEbook == null)
                 {
-                    _selectedEbook = __selectedEbook;
+                    _selectedEbook = selectedEbook;
                 }
 
-                if ((__selectedEbook.EbookFolderPath != _selectedEbook.EbookFolderPath) || detailsPanel.Visibility == Visibility.Collapsed)
-                
+                if ((selectedEbook.EbookFolderPath != _selectedEbook.EbookFolderPath) || detailsPanel.Visibility == Visibility.Collapsed)
                 {
-
-
-
-
-                    _selectedEbook = __selectedEbook;
-                    naValueTuple = (_selectedEbook.InBookPosition, _selectedEbook.EbookFolderPath);
+                    _selectedEbook = selectedEbook;
+                    _navValueTuple = (_selectedEbook.InBookPosition, _selectedEbook.EbookFolderPath);
 
                     // Populate the detailsPanel with the selected book's information
                     bookTitle.Text = _selectedEbook.Title;
@@ -196,72 +225,60 @@ namespace EpubReader
 
                     detailsPanel.Visibility = Visibility.Visible;
 
-                    if (actualWidth - detailsPanel.Width > 0 && detailsPanel.Visibility == Visibility.Visible)
+                    if (_actualWidth - detailsPanel.Width > 0 && detailsPanel.Visibility == Visibility.Visible)
                     {
-                        AllBooksView.Width = actualWidth - detailsPanel.Width;
+                        AllBooksView.Width = _actualWidth - detailsPanel.Width;
                     }
 
                     try
                     {
-                        languageComboBox.SelectedIndex = languageDict.Keys.ToList().IndexOf(_selectedEbook.Language);
+                        languageComboBox.SelectedIndex = _languageDict.Keys.ToList().IndexOf(_selectedEbook.Language);
                     }
                     catch
                     {
-
+                        languageComboBox.SelectedIndex = 1;
                     }
-                    Debug.WriteLine($"AllBooksView_ItemClick() - Success");
+                    
+                    if (debug) { Debug.WriteLine("AllBooksView_ItemClick() - Success - Details panel visible"); }
                 }
 
                 else
                 {
                     detailsPanel.Visibility = Visibility.Collapsed;
-                    AllBooksView.Width = actualWidth + detailsPanel.Width;
+                    AllBooksView.Width = _actualWidth + detailsPanel.Width;
 
-                    Debug.WriteLine($"AllBooksView_ItemClick() - Success - Details panel collapsed");
+                    if (debug) { Debug.WriteLine("AllBooksView_ItemClick() - Success - Details panel collapsed"); }
 
                 }
             }
 
             catch (Exception e)
             {
-                Debug.WriteLine($"AllBooksView_ItemClick() - Fail - {e.Message}");
-            }
-
-
-
-        }
-
-        public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
-        {
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-
-            switch (settings.ebookViewer)
-            {
-                case "epubjs":
-                    epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
-                    secondWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
-                    secondWindow.Activate();
-                    break;
-
-                case "WebView2":
-                    EbookWindow ebookWindow = new EbookWindow(navTuple);
-                    ebookWindow.WindowClosed += SecondWindow_WindowClosed; // Subscribe to the event
-                    ebookWindow.Activate();
-                    break;
+                if (debug) { Debug.WriteLine("AllBooksView_ItemClick() - Fail - " + e.Message); }
             }
 
         }
 
-        // Event handler for when the EbookWindow is closed
+        /// <summary>
+        /// When the second window is closed, the Ebooks collection is cleared and repopulated to reflect any changes made to the ebooks.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SecondWindow_WindowClosed(object sender, EventArgs e)
         {
             // clear the Ebooks collection
             Ebooks.Clear();
-            PopulateEbooks(method, true, false);
+            PopulateEbooks(_method, true, false);
 
         }
 
-        private void comboBoxesSetup()
+        /// <summary>
+        /// Initializes and populates the combo boxes for sorting methods and languages.
+        /// </summary>
+        /// <param name="debug">
+        /// A boolean flag indicating whether to output debug information. If true, success or failure messages are logged.
+        /// </param>
+        private void ComboBoxesSetup(bool debug = false)
         {
             try
             {
@@ -272,50 +289,78 @@ namespace EpubReader
 
                 SortComboBox.SelectedIndex = code.AllBooks.SortingMethods.IndexOf("Name");
 
-                foreach (var language in languageDict.Keys.ToList())
+                foreach (var language in _languageDict.Keys.ToList())
                 {
                     languageComboBox.Items.Add(language);
                 }
 
-                Debug.WriteLine("comboBoxesSetup() - Success");
+                if (debug)
+                {
+                    Debug.WriteLine("ComboBoxesSetup() - Success");
+                }
             }
-           
             catch (Exception e)
             {
-                Debug.WriteLine("comboBoxesSetup() - Fail - " + e.Message);
+                if (debug)
+                {
+                    Debug.WriteLine("ComboBoxesSetup() - Fail - " + e.Message);
+                }
             }
 
         }
+
+        /// <summary>
+        /// Handles the event when the selection in the SortComboBox changes. 
+        /// Updates the list of ebooks based on the selected sorting method.
+        /// </summary>
+        /// <param name="sender">
+        /// The source of the event, which is the SortComboBox control.
+        /// </param>
+        /// <param name="e">
+        /// Provides data for the event, including the old and new selected items.
+        /// </param>
 
         private void SortComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            bool debug = false;
             try
             {
-                method = (string)SortComboBox.SelectedValue;
-                PopulateEbooks(method, true, false);
-                Debug.WriteLine("SortComboBox_OnSelectionChanged() - Success");
+                _method = (string)SortComboBox.SelectedValue;
+                PopulateEbooks(_method, true, false);
+                if (debug) { Debug.WriteLine("SortComboBox_OnSelectionChanged() - Success"); }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("SortComboBox_OnSelectionChanged() - Fail - " + ex.Message);
+                if (debug) { Debug.WriteLine("SortComboBox_OnSelectionChanged() - Fail - " + ex.Message); }
             }
         }
 
-        private void languageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Handles the event when the selection in the languageComboBox changes. 
+        /// Updates the Language of the selected ebook and saves the updated information to a JSON file.
+        /// </summary>
+        /// <param name="sender">
+        /// The source of the event, which is the languageComboBox control.
+        /// </param>
+        /// <param name="e">
+        /// Provides data for the event, including the old and new selected items.
+        /// </param>
+        private void LanguageComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            bool debug = false;
 
             if (!_state)
             {
                 try
                 {
-                    string selectedLang = languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
+                    string selectedLang = _languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
                     _selectedEbook.Language = selectedLang;
                     File.WriteAllText(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath), JsonSerializer.Serialize(_selectedEbook));
-                    Debug.WriteLine("languageComboBoxSelectionChanged() - Success");
+                    if (debug) { Debug.WriteLine("LanguageComboBoxSelectionChanged() - Success"); }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("languageComboBoxSelectionChanged() - Fail - " + ex.Message);
+                    if (debug) { Debug.WriteLine("LanguageComboBoxSelectionChanged() - Fail - " + ex.Message); }
                 }
             }
 
@@ -323,118 +368,97 @@ namespace EpubReader
             {
                 _state = false;
             }
-
-        }
-        private void AllBooksView_OnRightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            Debug.WriteLine(AllBooksView.CurrentItemIndex.ToString());
-
         }
 
-        private async Task PrepareForDelete()
+        /// <summary>
+        /// Handles the click event of the delete button. The method performs the following actions:
+        /// <list type="number">
+        /// <item>Deletes the directory of the selected eBook and its contents using the <see cref="Directory.Delete"/> method.</item>
+        /// <item>Updates the JSON file that tracks all books by removing the entry for the deleted eBook using methods from <see cref="FileManagement"/> and <see cref="JsonSerializer"/>.</item>
+        /// <item>Repopulates the eBooks display list to reflect the removal of the eBook using the <see cref="PopulateEbooks"/> method.</item>
+        /// <item>Adjusts the width of the <see cref="AllBooksView"/> UI element to account for layout changes after the deletion.</item>
+        /// </list>
+        /// The method includes debug logging to trace execution and capture errors. If debug logging is enabled, detailed messages about the success or failure of each action are output.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">Event arguments that provide data about the event.</param>
+        private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
         {
-            string ebookFolderPath = _selectedEbook.EbookFolderPath;
-                Debug.WriteLine($"Selected Ebook folder path = {_selectedEbook.EbookFolderPath}");
-
-
-                try
-                {
-                    // remove dir
-                    Directory.Delete(ebookFolderPath, true);
-                    Debug.WriteLine("DeleteButton_OnClick() 1.1 - Success - Directory deleted");
-                }
-
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.1 - Fail - " + ex.Message);
-                }
-
-                try
-                {
-                    string allBooksJsonPath = FileManagement.GetEbookAllBooksJsonFile();
-                    List<string> Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(allBooksJsonPath));
-                    Books.Remove(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
-                    File.WriteAllText(allBooksJsonPath, JsonSerializer.Serialize(Books));
-                    Debug.WriteLine("DeleteButton_OnClick() 1.2 - Success - Book removed from allBooks.json");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.2 - Fail - " + ex.Message);
-                }
-        }
-
-        private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            // TO-DO
+            bool debug = false;
             try
             {
                 string ebookFolderPath = _selectedEbook.EbookFolderPath;
-                Debug.WriteLine($"Selected Ebook folder path = {_selectedEbook.EbookFolderPath}");
-
 
                 try
                 {
                     // remove dir
                     Directory.Delete(ebookFolderPath, true);
-                    Debug.WriteLine("DeleteButton_OnClick() 1.1 - Success - Directory deleted");
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.0 - Success - Directory removed"); }
                 }
 
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.1 - Fail - " + ex.Message);
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.1 - Fail - " + ex.Message); }
                 }
 
                 try
                 {
                     string allBooksJsonPath = FileManagement.GetEbookAllBooksJsonFile();
-                    List<string> Books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(allBooksJsonPath));
-                    Books.Remove(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
-                    File.WriteAllText(allBooksJsonPath, JsonSerializer.Serialize(Books));
-                    Debug.WriteLine("DeleteButton_OnClick() 1.2 - Success - Book removed from allBooks.json");
+                    List<string> books = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(allBooksJsonPath));
+                    books.Remove(FileManagement.GetEbookDataJsonFile(_selectedEbook.EbookFolderPath));
+                    File.WriteAllText(allBooksJsonPath, JsonSerializer.Serialize(books));
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.2 - Success - AllBooks.json updated"); }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.2 - Fail - " + ex.Message);
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.2 - Fail - " + ex.Message); }
                 }
 
                 try
                 {
                     PopulateEbooks("Name", true, false);
-                    Debug.WriteLine("DeleteButton_OnClick() 1.3 - Success - Ebooks collection updated");
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.3 - Success - Ebooks repopulated"); }
                 }
 
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.3 - Fail - " + ex.Message);
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.3 - Fail - " + ex.Message); }
                 }
 
                 try
                 {
                     // BUG = after it is collapsed, page is navigated to HomePage
                     //detailsPanel.Visibility = Visibility.Collapsed;
-                    AllBooksView.Width = actualWidth + detailsPanel.Width;
-                    Debug.WriteLine("DeleteButton_OnClick() 1.4 - Success - Details panel collapsed");
+                    AllBooksView.Width = _actualWidth + detailsPanel.Width;
+                    if (debug)
+                    {
+                        Debug.WriteLine("DeleteButton_OnClick() 1.4 - Success - Details panel collapsed");
+                    }
                 }
 
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("DeleteButton_OnClick() 1.4 - Fail - " + ex.Message);
+                    if (debug) { Debug.WriteLine("DeleteButton_OnClick() 1.4 - Fail - " + ex.Message); }
                 }
 
                 _state = true;
 
-                Debug.WriteLine("DeleteButton_OnClick() - Success");
+                if (debug) { Debug.WriteLine("DeleteButton_OnClick() - Success"); }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("DeleteButton_OnClick() - Fail - " + ex.Message);
+                if (debug) { Debug.WriteLine("DeleteButton_OnClick() - Fail - " + ex.Message); }
             }
         }
 
-
+        /// <summary>
+        /// Opens EbookWindow after the Read button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ReadButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SelectViewer(naValueTuple);
+            SelectViewer(_navValueTuple);
         }
     }
 

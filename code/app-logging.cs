@@ -13,6 +13,7 @@ using WinRT.Interop; // For initializing with the correct window handle
 
 
 namespace EpubReader.code;
+/*
 public class app_logging
 {
     // epub-handler.cs:
@@ -73,3 +74,4 @@ public class app_logging
 
 
 }
+*/

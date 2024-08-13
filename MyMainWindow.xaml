@@ -3,13 +3,12 @@
       x:Class="EpubReader.MyMainWindow"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:local="using:WinUI_ePubReader"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d">
 
     <Page.Resources>
-        <Style x:Key="CustomButtonStyle" TargetType="Button">
+        <Style TargetType="Button">
             <Setter Property="Background" Value="LightBlue"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="10"/>
@@ -23,24 +22,20 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <NavigationView Name="MyNavView"
-                                PaneDisplayMode="Top" 
-                                Grid.Row="0"
-                                
-                                IsSettingsVisible="False"
-                                SelectionFollowsFocus="Enabled"
-                                IsBackButtonVisible="Collapsed"
-                                SelectionChanged="NavigationView_OnSelectionChanged">
+        <NavigationView PaneDisplayMode="Top" 
+                        Grid.Row="0"
+                        IsSettingsVisible="False"
+                        SelectionFollowsFocus="Enabled"
+                        IsBackButtonVisible="Collapsed"
+                        SelectionChanged="NavigationView_OnSelectionChanged">
             
 
             <NavigationView.MenuItems>
-
-                
-                <NavigationViewItem Content="Home" Name="NavView_Home"/>
-                <NavigationViewItem Content="All books" Name="NavView_AllBooks"/>
-                <NavigationViewItem Content="Stats" Name="NavView_Stats"/>
-                <NavigationViewItem Content="Dictionary" Name="NavView_Dictionary"/>
-                <NavigationViewItem Icon="Setting" Name="NavView_Settings"/>
+                <NavigationViewItem Content="Home" Name="NavViewHome"/>
+                <NavigationViewItem Content="All books" Name="NavViewAllBooks"/>
+                <NavigationViewItem Content="Stats" Name="NavViewStats"/>
+                <NavigationViewItem Content="Dictionary" Name="NavViewDictionary"/>
+                <NavigationViewItem Icon="Setting" Name="NavViewSettings"/>
 
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" />

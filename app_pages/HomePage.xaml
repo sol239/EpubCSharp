@@ -3,13 +3,10 @@
     x:Class="EpubReader.app_pages.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:EpubReader.app_pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-
 
 <Page.Resources>
     </Page.Resources>
@@ -31,9 +28,8 @@
                 HorizontalAlignment="Right"
                 Content="Add Book"
                 Margin="10,10,10,0"
-                Click="AddBookButtonAction">
-                
-                        
+                Click="AddBookButtonAction"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         </Button>
 
         <Grid Grid.Row="1">
@@ -51,17 +47,17 @@
                           Grid.Column="1"
                           >
                 <StackPanel Orientation="Horizontal" x:Name="ImageStackPanel" Spacing="20">
-                    <!-- Images will be added here -->
+                    <!-- Covers will be added here -->
                 </StackPanel>
             </ScrollViewer>
         </Grid>
 
         <!-- Left Button -->
         <Button Content="◀" Width="50" Click="ScrollLeft_Click" Margin="10" 
-                HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1"/>
+                HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
 
         <!-- Right Button -->
         <Button Content="▶" Width="50" Click="ScrollRight_Click" Margin="10" 
-                HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1"/>
+                HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
     </Grid>
 </Page>

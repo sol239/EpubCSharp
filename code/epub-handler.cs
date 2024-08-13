@@ -1,61 +1,240 @@
 using System;
 using System.Collections.Generic;
-using System.IO.Compression;
-using System.Xml;
-using System.Xml.Linq;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace EpubReader.code;
 
 /// <summary>
-/// Class containg ebook's data
+/// Represents an eBook with various metadata and file paths.
+/// This class encapsulates information about an eBook including its title, author, Language, and various paths for managing the eBook's data.
 /// </summary>
 public class Ebook
 {
-    // Ebook attributes
+    /// <summary>
+    /// Gets or sets the title of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the eBook's title.
+    /// </value>
     public string Title { get; set; }
+
+    /// <summary>
+    /// Gets or sets the author of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the name of the eBook's author.
+    /// </value>
     public string Author { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Language of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the Language in which the eBook is written.
+    /// </value>
     public string Language { get; set; }
+
+    /// <summary>
+    /// Gets or sets the publisher of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the publisher of the eBook.
+    /// </value>
     public string Publisher { get; set; }
+
+    /// <summary>
+    /// Gets or sets the description of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> providing a summary or description of the eBook's content.
+    /// </value>
     public string Description { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date when the eBook was added to the collection.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the date the eBook was added, formatted as a date string.
+    /// </value>
     public string DateAdded { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date when the eBook was last opened.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the date the eBook was last accessed, formatted as a date string.
+    /// </value>
     public string DateLastOpened { get; set; }
+
+    /// <summary>
+    /// Gets or sets the format of the eBook (e.g., EPUB, PDF).
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> indicating the file format of the eBook.
+    /// </value>
     public string Format { get; set; }
+
+    /// <summary>
+    /// Gets or sets the file name of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the name of the eBook file.
+    /// </value>
     public string FileName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the position of the eBook within a collection or library.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> indicating the eBook's position or identifier within a specific context.
+    /// </value>
     public string InBookPosition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the scroll value indicating the last read position in the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the last scroll position or bookmark in the eBook.
+    /// </value>
     public string ScrollValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time when the eBook was last opened.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the timestamp of when the eBook was last accessed.
+    /// </value>
     public string BookOpenTime { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time when the eBook was closed.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the timestamp of when the eBook was last closed.
+    /// </value>
     public string BookCloseTime { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total time spent reading the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the total reading time accumulated for the eBook.
+    /// </value>
     public string BookReadTime { get; set; }
 
-    public string Status { get; set; }   // Finished, Not Started, Reading
+    /// <summary>
+    /// Gets or sets the current status of the eBook.
+    /// Possible values include "Finished", "Not Started", and "Reading".
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> indicating the reading status of the eBook.
+    /// </value>
+    public string Status { get; set; }
+
+    /// <summary>
+    /// Gets or sets a dictionary representing additional statistical records for the eBook.
+    /// </summary>
+    /// <value>
+    /// A dictionary where the key represents a statistic type and the value contains the statistic details.
+    /// </value>
     public Dictionary<string, string> StatsRecord1 { get; set; }
+
+    /// <summary>
+    /// Gets or sets a secondary statistical record for the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> containing additional statistical information related to the eBook.
+    /// </value>
     public string StatsRecord2 { get; set; }
+
+    /// <summary>
+    /// Gets or sets a dictionary containing navigation data for the eBook.
+    /// </summary>
+    /// <value>
+    /// A dictionary where the key represents a navigation point and the value contains a list of associated data.
+    /// </value>
     public Dictionary<string, List<string>> NavData { get; set; }
 
-    // Paths
+    /// <summary>
+    /// Gets or sets the path to the folder containing the eBook files.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the folder path where the eBook is stored.
+    /// </value>
     public string EbookFolderPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the folder containing eBook data files.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the folder where eBook data is stored.
+    /// </value>
     public string EbookDataFolderPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the container file of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the eBook's container file.
+    /// </value>
     public string ContainerPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the main content file of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the eBook's main content file.
+    /// </value>
     public string ContentPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the cover image of the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the eBook's cover image file.
+    /// </value>
     public string CoverPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the JSON file containing eBook data.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the eBook's JSON data file.
+    /// </value>
     public string JsonDataPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to the navigation file for the eBook.
+    /// </summary>
+    /// <value>
+    /// A <see cref="string"/> representing the path to the eBook's navigation file.
+    /// </value>
     public string NavigationFilePath { get; set; }
-    
 }
+
 
 /// <summary>
 /// Class for handling all books view
 /// </summary>
 public class AllBooks
 {
-    // List containing paths to ebooks jsonDataFiles
+
+    /// <summary>
+    /// List of all books paths
+    /// </summary>
     public List<string> Books { get; set; }
+
+    /// <summary>
+    /// Sort methods for sorting books
+    /// </summary>
     public static List<string> SortingMethods = new List<string> { "Name", "DateAdded", "DateLastOpened", "Author", "Publisher", "Language" };
 
     /// <summary>
@@ -372,15 +551,15 @@ public class AllBooks
     }
 
     /// <summary>
-    /// Retrieves a list of EPUB book folders sorted by language.
+    /// Retrieves a list of EPUB book folders sorted by Language.
     /// </summary>
-    /// <param name="ascendingOrder">Determines the sort order of the books by language. 
+    /// <param name="ascendingOrder">Determines the sort order of the books by Language. 
     /// Set to <c>true</c> for ascending order or <c>false</c> for descending order.</param>
     /// <param name="print">If set to <c>true</c>, prints the details of each book to the debug output.</param>
-    /// <returns>A list of strings representing the paths to the EPUB book folders, sorted by language.</returns>
+    /// <returns>A list of strings representing the paths to the EPUB book folders, sorted by Language.</returns>
     /// <remarks>
     /// This method first loads all the book data from a JSON file, then sorts the books 
-    /// based on their language, and optionally prints their details. The sort order 
+    /// based on their Language, and optionally prints their details. The sort order 
     /// can be either ascending or descending depending on the <paramref name="ascendingOrder"/> parameter.
     /// </remarks>
     public List<string> GetBooksEpubFoldersByLanguage(bool ascendingOrder, bool print)
@@ -715,7 +894,7 @@ public class EpubHandler
     private List<string> _metadataTags = new List<string> { 
         "dc:title", 
         "dc:creator", 
-        "dc:language", 
+        "dc:Language", 
         "dc:publisher", 
         "dc:description"
     };
@@ -890,12 +1069,12 @@ public class EpubHandler
     /// <list type="number">
     /// <item>Extracts the EPUB file to the specified destination directory using the <see cref="ExtractEpub"/> method.</item>
     /// <item>Retrieves the path to the main content file of the EPUB using the <see cref="GetEpubContentFilePath"/> method.</item>
-    /// <item>Processes metadata tags from the EPUB content and updates corresponding properties of the <see cref="_ebook"/> object, including title, author, language, publisher, and description.</item>
+    /// <item>Processes metadata tags from the EPUB content and updates corresponding properties of the <see cref="_ebook"/> object, including title, author, Language, publisher, and description.</item>
     /// <item>Determines and sets the cover image path for the EPUB using the <see cref="ContentHandler.GetCoverImagePath"/> method.</item>
-    /// <item>Clears any existing navigation data and extracts new navigation data from the EPUB's OPF file using the <see cref="Navigation.ExtractNavDataFromOPF"/> method.</item>
+    /// <item>Clears any existing navigation data and extracts new navigation data from the EPUB's OPF file using the <see cref="Navigation.ExtractNavDataFromOpf"/> method.</item>
     /// <item>Updates additional properties of the <see cref="_ebook"/> object, including navigation data, statistics, book position, scroll value, and status.</item>
     /// <item>Saves the updated <see cref="_ebook"/> object to a JSON file using the <see cref="JsonHandler.StoreJsonEbookFile"/> method.</item>
-    /// <item>Updates XHTML files related to the EPUB using the <see cref="app_controls.UpdateXhtmls"/> method.</item>
+    /// <item>Updates XHTML files related to the EPUB using the <see cref="AppControls.UpdateXhtmls"/> method.</item>
     /// <item>Adds the EPUB book's information to the collection of books using the <see cref="AllBooks.AddBookStore"/> method.</item>
     /// </list>
     /// </remarks>
@@ -924,7 +1103,7 @@ public class EpubHandler
                     case "dc:creator":
                         _ebook.Author = metadata;
                         break;
-                    case "dc:language":
+                    case "dc:Language":
                         _ebook.Language = metadata;
                         break;
                     case "dc:publisher":
@@ -941,7 +1120,7 @@ public class EpubHandler
 
             // Clear existing navigation data and extract new data from the EPUB
             _nvg.NavData.Clear();
-            _nvg.ExtractNavDataFromOPF(_ebook.ContentPath);
+            _nvg.ExtractNavDataFromOpf(_ebook.ContentPath);
             _ebook.NavData = _nvg.NavData;
 
             // Initialize other properties of the _ebook object
@@ -954,7 +1133,7 @@ public class EpubHandler
             JsonHandler.StoreJsonEbookFile(_ebook, _ebook.EbookDataFolderPath);
 
             // Update XHTML files
-            await app_controls.UpdateXhtmls(_ebook.EbookFolderPath);
+            await AppControls.UpdateXhtmls(_ebook.EbookFolderPath);
 
             // Add the book to the collection
             AllBooks allBooks = new AllBooks();
@@ -1026,7 +1205,7 @@ public class EpubHandler
     }
 
     /// <summary>
-    /// Returns the language of the ebook
+    /// Returns the Language of the ebook
     /// </summary>
     private void CheckEbookLanguage()
     {
@@ -1042,9 +1221,14 @@ public class EpubHandler
 public class Navigation
 {
 
-    // PlayOrder : { Source, Text }
+    /// <summary>
+    /// Dictionary to store navigation data extracted from an EPUB file.
+    /// </summary>
     public Dictionary<string, List<string>> NavData;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Navigation"/> class.
+    /// </summary>
     public Navigation()
     {
         NavData = new Dictionary<string, List<string>>();
@@ -1097,7 +1281,7 @@ public class Navigation
     /// </remarks>
     /// <exception cref="FileNotFoundException">Thrown when the specified OPF file does not exist.</exception>
     /// <exception cref="XmlException">Thrown when there is an error parsing the OPF file.</exception>
-    public void ExtractNavDataFromOPF(string opfFilePath, bool debug = false)
+    public void ExtractNavDataFromOpf(string opfFilePath, bool debug = false)
     {
 
         try
@@ -1143,7 +1327,7 @@ public class Navigation
                 string text = manifestData[idref][1];
 
                 NavData.Add(playOrder.ToString(),
-                    new List<string> { $"{System.IO.Path.GetDirectoryName(opfFilePath)}\\{source}", text });
+                    new List<string> { $"{Path.GetDirectoryName(opfFilePath)}\\{source}", text });
 
                 if (debug) {
                     Debug.WriteLine("");
@@ -1154,13 +1338,13 @@ public class Navigation
                 }
             }
 
-            if (debug) { Debug.WriteLine("ExtractNavDataFromOPF() - Success"); } 
+            if (debug) { Debug.WriteLine("ExtractNavDataFromOpf() - Success"); } 
             
         }
 
         catch (Exception ex)
         {
-            if (debug) { Debug.WriteLine($"ExtractNavDataFromOPF() - Fail - {ex.Message}"); }
+            if (debug) { Debug.WriteLine($"ExtractNavDataFromOpf() - Fail - {ex.Message}"); }
         }
 
     }
@@ -1217,4 +1401,5 @@ public class Navigation
 
 
 }
+
 

@@ -11,6 +11,8 @@
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>C:\Users\david_pmv0zjd\source\repos\EpubReader\doc.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Assets\scripts\ebook.js" />
@@ -30,7 +32,6 @@
     <Content Remove="Assets\scripts\epubjs-reader\js\reader.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="app_pages\EbookInfoPage.xaml" />
     <None Remove="app_pages\EbookViewerWindow.xaml" />
     <None Remove="app_pages\EbookWindow.xaml" />
     <None Remove="app_pages\epubjsWindow1.xaml" />
@@ -102,12 +103,15 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
-  <ItemGroup>
-    <CustomAdditionalCompileInputs Remove="app_pages\EbookInfoPage.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="app_pages\EbookInfoPage.xaml" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <CustomAdditionalCompileInputs Remove="MainWindow.xaml" />
   </ItemGroup>

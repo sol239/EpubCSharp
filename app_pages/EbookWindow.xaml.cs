@@ -3,37 +3,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml.Linq;
+using EpubReader.code;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using EpubReader.code;
-using HarfBuzzSharp;
-using System.Reflection;
-using Windows.System;
 using Microsoft.Web.WebView2.Core;
-using System.Text.Json;
-using Microsoft.UI.Text;
-using Microsoft.UI.Xaml.Documents;
-using System.Net.Http;
-using System.Text;
-using Windows.Media.Protection.PlayReady;
+using Windows.System;
 using static EpubReader.code.FileManagement;
-using System.Threading;
-using System.Web;
-using ABI.Windows.ApplicationModel;
 using ContentDialog = Microsoft.UI.Xaml.Controls.ContentDialog;
-using LiveChartsCore.Themes;
-using Windows.UI.ViewManagement;
-using System.Text.RegularExpressions;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -82,10 +70,10 @@ namespace EpubReader.app_pages
         public EbookWindow((string ebookPlayOrder, string ebookFolderPath) data)
         {
 
-            globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+            GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
-            if (settings.translationService == "argos")
+            if (settings.TranslationService == "argos")
             {
                 Thread flaskThread = new Thread(StartFlaskServer);
                 flaskThread.Start();
@@ -154,14 +142,14 @@ namespace EpubReader.app_pages
             // Read the existing CSS file
             string cssContent = File.ReadAllText(cssFilePath);
 
-            // Regular expression to find the body font-family declaration
+            // Regular expression to find the body Font-family declaration
             string pattern = @"(?<=body\s*{[^}]*?line-height:\s*).*?(?=;)";
             string replacement = newFontFamily;
 
-            // Replace the existing font-family for body with the new one
+            // Replace the existing Font-family for body with the new one
             string modifiedCssContent = Regex.Replace(cssContent, pattern, replacement, RegexOptions.Singleline);
 
-            // If no font-family was found, add it
+            // If no Font-family was found, add it
             if (!Regex.IsMatch(cssContent, @"body\s*{[^}]*?line-height:"))
             {
                 modifiedCssContent = Regex.Replace(modifiedCssContent, @"body\s*{", $"body {{\n    line-height: {newFontFamily};\n", RegexOptions.Singleline);
@@ -182,8 +170,8 @@ namespace EpubReader.app_pages
             {
                 this.Closed -= MainWindow_Closed;
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                if (settings.translationService == "argos")
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                if (settings.TranslationService == "argos")
                 {
                     await StopFlaskServer();
                 }
@@ -206,10 +194,10 @@ namespace EpubReader.app_pages
             //string _font = await LoadFontComboBox();
             //string _color = await LoadBackgroundColorComboBox();
 
-            globalSettingsJson _globalSettings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+            GlobalSettingsJson _globalSettings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
-            fontsComboBox.SelectedIndex = SettingsPage._bookReadingFonts.IndexOf(_globalSettings.font);
-            ThemesComboBox.SelectedIndex = SettingsPage._themes.Keys.ToList().IndexOf(_globalSettings.Theme);
+            FontsComboBox.SelectedIndex = SettingsPage.BookReadingFonts.IndexOf(_globalSettings.Font);
+            ThemesComboBox.SelectedIndex = SettingsPage.Themes.Keys.ToList().IndexOf(_globalSettings.Theme);
 
             PaddingBox.Text = _globalSettings.Padding;
 
@@ -235,12 +223,12 @@ namespace EpubReader.app_pages
 
         private void comboBoxesSetup()
         {
-            foreach (var font in SettingsPage._bookReadingFonts)
+            foreach (var font in SettingsPage.BookReadingFonts)
             {
-                fontsComboBox.Items.Add(font);
+                FontsComboBox.Items.Add(font);
             }
 
-            foreach (var theme in SettingsPage._themes.Keys.ToList())
+            foreach (var theme in SettingsPage.Themes.Keys.ToList())
             {
                 ThemesComboBox.Items.Add(theme);
             }
@@ -339,7 +327,7 @@ namespace EpubReader.app_pages
                     filePath = Path.GetDirectoryName(filePath);
 
                     // Store the JSON ebook file
-                    await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
+                    JsonHandler.StoreJsonEbookFile(_ebook, filePath);
 
                     Debug.WriteLine("SavePosition() - Success");
                     Debug.WriteLine("********************************\n");
@@ -411,7 +399,7 @@ namespace EpubReader.app_pages
                     filePath = Path.GetDirectoryName(filePath);
 
                     // Store the JSON ebook file
-                    await JsonHandler.StoreJsonEbookFile(_ebook, filePath);
+                    JsonHandler.StoreJsonEbookFile(_ebook, filePath);
                 }
 
                 Debug.WriteLine($"CalculateTimeDifference() - Success\n");
@@ -784,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             try
             {
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
                 string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
@@ -862,20 +850,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollViewer.Width = stackPanel.Width;
                 scrollViewer.Height = stackPanel.Height;
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 string sourceLanguage = await GetLanguageCode(_ebook.Language);
                 Debug.WriteLine($"Source Language = {_ebook.Language}");
-                Debug.WriteLine($"Target Language = {settings.language}");
-                string targetLanguage = await GetLanguageCode(settings.language);
+                Debug.WriteLine($"Target Language = {settings.Language}");
+                string targetLanguage = await GetLanguageCode(settings.Language);
 
                 string result = "";
 
-                if (settings.translationService == "argos")
+                if (settings.TranslationService == "argos")
                 {
                     result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
                 }
 
-                else if (settings.translationService == "My Memory")
+                else if (settings.TranslationService == "My Memory")
                 {
                     result = await GetTranslationMymemory(messageContent, sourceLanguage, targetLanguage);
                 }
@@ -1083,8 +1071,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                if (settings.translationService == "argos")
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                if (settings.TranslationService == "argos")
                 {
                     await StopFlaskServer();
                 }
@@ -1461,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         /// <summary>
         /// Changes the colors of the CommandBar buttons.
         /// </summary>
-        private async void ChangeCommandBarColors()
+        private void ChangeCommandBarColors()
         {
             string color_string = "#efe0cd";
             string font_string;
@@ -1469,13 +1457,13 @@ document.addEventListener('DOMContentLoaded', () => {
             Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
             Windows.UI.Color _buttonColor;
 
-        globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+        GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
             try
             {
-                color_string = SettingsPage._themes[settings.Theme]["background-color"];
-                font_string = await (SettingsPage.LoadFontComboBox());
+                color_string = SettingsPage.Themes[settings.Theme]["background-color"];
+                font_string = (SettingsPage.LoadFontComboBox());
             }
 
             finally
@@ -1484,11 +1472,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ViewerGrid.Background = new SolidColorBrush(_viewerBackgroundColor);
             }
 
-            _backgroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["header-color"]);
-            _foregroundColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
-            _buttonColor = ParseHexColor(SettingsPage._themes[settings.Theme]["button-color"]);
+            _backgroundColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["header-color"]);
+            _foregroundColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["button-color"]);
+            _buttonColor = ParseHexColor(SettingsPage.Themes[settings.Theme]["button-color"]);
 
-            if (settings.ebookViewer == "epubjs")
+            if (settings.EbookViewer == "epubjs")
             {
                 MyWebView.Margin = new Thickness(Int32.Parse("0"));
                 UpdateCSSAction();
@@ -1518,7 +1506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(padding) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                    GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.Padding = padding;
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     PaddingBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
@@ -1549,11 +1537,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // For example, display it in a message box
                 if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
                 {
-                    globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                    GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                     settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
-                    await SettingsPage.UpdateBodyFontSize(settings.FontSize);
+                     SettingsPage.UpdateBodyFontSize(settings.FontSize);
                     Debug.WriteLine("FontSizeButton_OnClick() - Success");
                     await UpdateCSSAction();
                 }
@@ -1613,7 +1601,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try
             {
 
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
                 string workingDirectory = Directory.GetCurrentDirectory();
 
@@ -1626,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Debug.WriteLine($"Python script path: {scriptPath}");
 
                 flaskProcess = new Process();
-                flaskProcess.StartInfo.FileName = settings.pythonPath;  // Command to run Python
+                flaskProcess.StartInfo.FileName = settings.PythonPath;  // Command to run Python
                 flaskProcess.StartInfo.Arguments = scriptPath; // Your Python script
                 flaskProcess.StartInfo.UseShellExecute = false;
                 flaskProcess.StartInfo.RedirectStandardOutput = true;
@@ -1764,15 +1752,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (startUp >= 2)
             {
-                string newFontFamily = SettingsPage._bookReadingFonts[fontsComboBox.SelectedIndex];
+                string newFontFamily = SettingsPage.BookReadingFonts[FontsComboBox.SelectedIndex];
 
                 // store to json
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                settings.font = newFontFamily;
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                settings.Font = newFontFamily;
                 File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
 
 
-                await SettingsPage.UpdateBodyFontFamily(newFontFamily);
+                SettingsPage.UpdateBodyFontFamily(newFontFamily);
                 await UpdateCSSAction();
 
             }
@@ -1790,12 +1778,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (startUp >= 2)
             {
-                string theme = SettingsPage._themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
-                globalSettingsJson settings = JsonSerializer.Deserialize<globalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+                string theme = SettingsPage.Themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
+                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
                 settings.Theme = theme;
                 File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
-                await SettingsPage.UpdateBodyTextColor(SettingsPage._themes[theme]["text-color"]);
-                await SettingsPage.UpdateBodyBackgroundColor(SettingsPage._themes[theme]["background-color"]);
+                SettingsPage.UpdateBodyTextColor(SettingsPage.Themes[theme]["text-color"]);
+                SettingsPage.UpdateBodyBackgroundColor(SettingsPage.Themes[theme]["background-color"]);
                 await UpdateCSSAction();
                 ChangeCommandBarColors();
 

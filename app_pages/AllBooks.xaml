@@ -10,8 +10,6 @@
     xmlns:code="using:EpubReader.code"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
-
 
      <Page.Resources>
         <DataTemplate x:Key="PhotoItemTemplate" x:DataType="code:Ebook">
@@ -44,8 +42,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid x:Name="rootGrid">
-        <!-- Define a Grid with two rows and two columns -->
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -55,7 +52,6 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Place the ItemsView in the first cell -->
         <ItemsView Name="AllBooksView"
                    Grid.RowSpan="2" Grid.ColumnSpan="2"
                    ItemsSource="{x:Bind Ebooks}"
@@ -68,8 +64,7 @@
                    HorizontalAlignment="Left">
 
             <ItemsView.Layout>
-                <UniformGridLayout x:Name="AllLayout"
-                                   MaximumRowsOrColumns="5" 
+                <UniformGridLayout MaximumRowsOrColumns="5" 
                                    MinRowSpacing="10" 
                                    MinColumnSpacing="10"
                                    MinItemWidth="210"
@@ -78,7 +73,6 @@
 
         </ItemsView>
 
-        <!-- Place the ComboBox in the top right corner -->
         <ComboBox Grid.Row="0" Grid.Column="0"
                   VerticalAlignment="Top"
                   HorizontalAlignment="Left"
@@ -96,16 +90,15 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       Width="400"
-
                       Height="574">
 
-                <StackPanel                  Visibility="Collapsed" 
+                <StackPanel Visibility="Collapsed" 
                             Grid.Column="1"
                             Grid.Row="1"
                             Width="400"
-                          Background="{ThemeResource SystemControlBackgroundAltHighBrush}"
-                          x:Name="detailsPanel"
-                          >
+                            Background="{ThemeResource SystemControlBackgroundAltHighBrush}"
+                            x:Name="detailsPanel">
+
                     <TextBlock x:Name="bookTitle" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" Margin="5, 10, 5, 10"/>
                     <TextBlock x:Name="bookAuthor" FontStyle="Italic" TextWrapping="Wrap" Margin="5"/>
                     <TextBlock x:Name="bookReadTime" Margin="5"/>
@@ -118,7 +111,7 @@
                         Width="200" 
                         Height="58"
                         Margin="5"
-                        SelectionChanged="languageComboBoxSelectionChanged">
+                        SelectionChanged="LanguageComboBoxSelectionChanged">
 
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
