@@ -102,8 +102,8 @@
                     <TextBlock x:Name="bookTitle" FontSize="24" FontWeight="Bold" TextWrapping="Wrap" Margin="5, 10, 5, 10"/>
                     <TextBlock x:Name="bookAuthor" FontStyle="Italic" TextWrapping="Wrap" Margin="5"/>
                     <TextBlock x:Name="bookReadTime" Margin="5"/>
-                    <Button Name="DeleteButton" Content="Delete" Click="DeleteButton_OnClick" Margin="5"></Button>
-                    <Button Name="ReadButton" Content="Read"  Click="ReadButton_OnClick" Margin="5"></Button>
+                <Button Name="DeleteButton" Content="Delete" Click="DeleteButton_OnClick" Margin="5" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"></Button>
+                <Button Name="ReadButton" Content="Read"  Click="ReadButton_OnClick" Margin="5" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"></Button>
 
                     <ComboBox 
                         Header="Ebook Language"

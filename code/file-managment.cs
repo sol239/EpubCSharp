@@ -256,7 +256,7 @@ public class FileManagement
         globalSettings.EbookViewer = "WebView2";
         globalSettings.Font = "Merriweather";
         globalSettings.BackgroundColor = "#efe0cd";
-        globalSettings.TranslationService = "argos";
+        globalSettings.TranslationService = "My Memory";
         globalSettings.Language = "English";
         globalSettings.Theme = "Woodlawn";
         globalSettings.FontSize = "1.5rem";

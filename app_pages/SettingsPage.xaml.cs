@@ -191,7 +191,6 @@ namespace EpubReader
     {
         "argos",
         "My Memory",
-        "dictionary"
     };
 
         /// <summary>
