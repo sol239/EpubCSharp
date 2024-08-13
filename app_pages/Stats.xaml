@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="EpubReader.Stats"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Width="Auto" Height="900">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <!-- Column for CalendarView -->
+            <!-- <ColumnDefinition Width="*"/> -->
+            <!-- Column for CartesianChart -->
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Row for TextBlock -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row for CalendarView and CartesianChart -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row for TextBlock -->
+            <RowDefinition Height="Auto"/>
+            <!-- Row for additional content (if needed) -->
+        </Grid.RowDefinitions>
+
+        <TextBlock
+        Text="{x:Bind _timeSpan2, Mode=OneWay}"
+               Grid.Column="0"    
+               Grid.Row="0"
+               Margin="20"
+               HorizontalAlignment="Center" />
+        <TextBlock Name="TimeSpentPerBookTextBlock"
+               Text="Ahoj"
+               Grid.Column="0"    
+               Grid.Row="1"
+               Margin="20"
+               HorizontalAlignment="Center" />
+        <CalendarView 
+                  Grid.Column="0" 
+                  Margin="20"
+                  Grid.Row="2" 
+                  HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Stretch" 
+                  CalendarViewDayItemChanging="CalendarView_CalendarViewDayItemChanging"
+                  CalendarItemForeground="Black"
+                  TodayForeground="Black"
+                  SelectedDatesChanged="CalendarView_SelectedDatesChanged"
+                  
+                  
+                  />
+        <!--
+        <winUi:CartesianChart x:Name="lineChart"
+                          Grid.Column="1"
+                          Grid.Row="2"
+                          Padding="20" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch"/>
+        
+        -->
+
+    </Grid>
+
+</Page>
