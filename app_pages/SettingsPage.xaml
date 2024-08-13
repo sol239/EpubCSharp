@@ -102,7 +102,7 @@
             </ComboBox>
 
             <ComboBox 
-                Header="Translation Viewer"
+                Header="Translation Service"
                 x:Name="TranslationComboBox" 
                 Width="200" 
                 Height="58"

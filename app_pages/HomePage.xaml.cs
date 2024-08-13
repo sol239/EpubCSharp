@@ -191,7 +191,7 @@ Debug.WriteLine(title);
                     secondWindow.Activate();
                     break;
 
-                case "WebView2":
+                case "Custom":
                     EbookWindow ebookWindow = new EbookWindow(navTuple);
                     ebookWindow.WindowClosed += SecondWindow_WindowClosed;
                     ebookWindow.Title = title;

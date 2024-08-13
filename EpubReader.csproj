@@ -17,17 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="scripts\**" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="Assets\icon.ico" />
 	<Content Include="code\**" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="app_pages\**" CopyToOutputDirectory="PreserveNewest" />
+	<Content Include="README.md"></Content>
 
 
   </ItemGroup>
@@ -94,9 +87,6 @@
     <Content Include="app_pages\iso639I_reduced.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="code\ebook.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="code\script.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -105,9 +95,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="code\app-logging.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
     <Compile Update="code\app_controls.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -119,7 +106,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Update="Assets\icon.ico">
+    <Content Update="app_pages\Assets\icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

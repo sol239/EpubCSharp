@@ -177,7 +177,7 @@ namespace EpubReader
         /// </value>
         public static List<string> BookViewer = new List<string>
     {
-        "WebView2",
+        "Custom",
         "epubjs"
     };
 

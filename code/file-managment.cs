@@ -253,7 +253,7 @@ public class FileManagement
     {
         string filePath = GetAppAddress() + "\\" + SettingsFolderName + "\\" + GlobalSettingsFileName;
         GlobalSettingsJson globalSettings = new GlobalSettingsJson();
-        globalSettings.EbookViewer = "WebView2";
+        globalSettings.EbookViewer = "Custom";
         globalSettings.Font = "Merriweather";
         globalSettings.BackgroundColor = "#efe0cd";
         globalSettings.TranslationService = "My Memory";
