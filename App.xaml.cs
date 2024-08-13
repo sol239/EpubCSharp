@@ -74,6 +74,7 @@ namespace EpubReader
             rootFrame.NavigationFailed += OnNavigationFailed;
             rootFrame.Navigate(typeof(MyMainWindow), args.Arguments);
             Window.Content = rootFrame;
+            Window.Title = "EpubReader";
             Window.Activate();
         }
 
