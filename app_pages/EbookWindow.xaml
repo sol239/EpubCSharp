@@ -24,6 +24,17 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <Ellipse 
+            Name ="ArgosEllipse"
+            Width="5" 
+            Height="5" 
+            Fill="#ff9cb3" 
+            HorizontalAlignment="Left" 
+            VerticalAlignment="Top"
+            Margin="10,10,0,0" 
+            Visibility="Collapsed"
+            Canvas.ZIndex="1" />
+
         <Grid>
             <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact"  IsTabStop="False" OverflowButtonVisibility="Collapsed">
                 <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
@@ -43,7 +54,6 @@
                         <FontIcon Glyph="&#xE713;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-
 
 
                 <AppBarButton x:Name="Home" Label="Home" Click="GoHomeAction">

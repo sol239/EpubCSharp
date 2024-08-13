@@ -10,7 +10,7 @@
 
 
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="574" Padding="20">
+    <ScrollViewer Name="SettingsScrollViewer"  VerticalScrollBarVisibility="Auto" Height="574" Padding="20">
         <StackPanel>
 
             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">

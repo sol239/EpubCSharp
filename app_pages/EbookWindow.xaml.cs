@@ -56,7 +56,9 @@ namespace EpubReader.app_pages
 
         private static Process _flaskProcess;
 
-        private int startUp = 0;
+        private int _startUp = 0;
+
+        private static bool _isArgosReady = false;
 
         /// <summary>
         /// Event handler for the WindowClosed event.
@@ -248,6 +250,12 @@ namespace EpubReader.app_pages
             {
                 FontSizeBox.Text = "Provide valid fontsize = whole numbers > 0";
             }
+
+            if (globalSettings.TranslationService == "argos")
+            {
+                CheckArgosState();
+            }
+
             ComboBoxesSetup();
         }
 
@@ -612,7 +620,6 @@ closeTime = DateTime.Now;
                 await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
                 _xhtmlPath = FileManagement.GetBookContentFilePath(_navValueTuple.ebookFolderPath, _ebook.InBookPosition);
 if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
-
             }
 
             catch (Exception ex)
@@ -671,6 +678,7 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
             finally
             {
                 SaveBookOpenTime();
+                
             }
         }
 
@@ -1083,7 +1091,7 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
 
                 if (settings.TranslationService == "argos")
                 {
-                    result = await GetTranslation(messageContent, sourceLanguage, targetLanguage);
+                    result = await PerformTranslation(messageContent, sourceLanguage, targetLanguage);
                 }
 
                 else if (settings.TranslationService == "My Memory")
@@ -2044,13 +2052,13 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// This method reads the global settings to determine if the translation service is "argos". 
         /// If so, it creates and starts a new thread to execute the <see cref="StartFlaskServer"/> method.
         /// The threading ensures that the Flask server starts asynchronously and does not block the main thread.
-        /// </remarks>
+        /// </remarksx
         /// <example>
         /// <code>
         /// StartFlaskServerThread();
         /// </code>
         /// </example>
-        private void StartFlaskServerThread()
+        private async void StartFlaskServerThread()
         {
 
             GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
@@ -2058,7 +2066,8 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
 
             if (settings.TranslationService == "argos")
             {
-                Task.Run(() => StartFlaskServer(debug: false));
+                await Task.Run(() => StartFlaskServer(debug: false));
+                
 
             }
         }
@@ -2135,70 +2144,184 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// string translatedText = await GetTranslation("Hello", "en", "es", true);
         /// </code>
         /// </example>
-        public static async Task<string> GetTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = false)
+
+
+        public static async Task<string> StartInitialization(string sourceLanguage, string targetLanguage, bool debug = true)
         {
             try
             {
-                var url = "http://127.0.0.1:5000/translate"; // URL of your Flask server
+                var initUrl = "http://127.0.0.1:5000/initialize";
+                var initRequestData = new
+                {
+                    source_language = sourceLanguage,
+                    target_language = targetLanguage
+                };
 
-                // Create the request data
-                var requestData = new
+                var initJson = JsonSerializer.Serialize(initRequestData);
+                var initContent = new StringContent(initJson, Encoding.UTF8, "application/json");
+
+                try
+                {
+                    HttpResponseMessage initResponse = await Client.PostAsync(initUrl, initContent);
+                    initResponse.EnsureSuccessStatusCode();
+
+                    if (debug) { Debug.WriteLine("Initialization request sent."); }
+                    return "Initialization request sent.";
+                }
+                catch (HttpRequestException e)
+                {
+                    if (debug) { Debug.WriteLine($"Initialization request error: {e.Message}"); }
+                    return $"ERROR: Initialization request failed: {e.Message}";
+                }
+            }
+            catch (Exception ex)
+            {
+                if (debug) { Debug.WriteLine($"StartInitialization() - Fail - {ex.Message}"); }
+                return $"ERROR: Unexpected failure: {ex.Message}";
+            }
+        }
+
+        public static async Task<string> GetTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
+        {
+            try
+            {
+                var translationUrl = "http://127.0.0.1:5000/translate";
+                var translationRequestData = new
                 {
                     text = text,
                     source_language = sourceLanguage,
                     target_language = targetLanguage
                 };
 
-                // Convert request data to JSON
-                var json = JsonSerializer.Serialize(requestData);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var translationJson = JsonSerializer.Serialize(translationRequestData);
+                var translationContent = new StringContent(translationJson, Encoding.UTF8, "application/json");
 
                 try
                 {
-                    // Send the POST request
-                    HttpResponseMessage response = await Client.PostAsync(url, content);
+                    HttpResponseMessage translationResponse = await Client.PostAsync(translationUrl, translationContent);
+                    translationResponse.EnsureSuccessStatusCode();
+                    var translationResponseString = await translationResponse.Content.ReadAsStringAsync();
 
-                    // Ensure the request was successful
-                    response.EnsureSuccessStatusCode();
-
-                    // Read the response content
-                    var responseString = await response.Content.ReadAsStringAsync();
-
-                    // Parse the JSON response
-                    using (JsonDocument doc = JsonDocument.Parse(responseString))
+                    using (JsonDocument doc = JsonDocument.Parse(translationResponseString))
                     {
                         if (doc.RootElement.TryGetProperty("translated_text", out JsonElement translatedTextElement))
                         {
-                            var translatedText = translatedTextElement.GetString();
-                            // Print the translated text
-                            if (debug)
-                            {
-                                Debug.WriteLine($"Translated text: {translatedText}");
-                                Debug.WriteLine("GetTranslation() - Success");
-                            }
-                            return translatedText;
+                            return translatedTextElement.GetString();
                         }
                         else
                         {
-                            if (debug) {Debug.WriteLine("Response does not contain 'translated_text' field.");}
-                            return "ERROR";
+                            return "ERROR: Translation response format error.";
                         }
                     }
                 }
                 catch (HttpRequestException e)
                 {
-                    if (debug) {Debug.WriteLine($"Request error: {e.Message}");}
-                    return "ERROR";
+                    if (debug) { Debug.WriteLine($"Translation request error: {e.Message}"); }
+                    return "ERROR: Translation request failed.";
                 }
-
             }
-
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"GetTranslation() - Fail - {ex.Message}");}
-                return "ERROR";
+                if (debug) { Debug.WriteLine($"GetTranslation() - Fail - {ex.Message}"); }
+                return "ERROR: Unexpected failure.";
             }
         }
+
+
+        public static async Task<string> CheckInitializationStatus(string sourceLanguage, string targetLanguage, bool debug = true)
+        {
+            try
+            {
+                string status = "not started";
+                while (status.Contains("not started") || status.Contains("in progress"))
+                {
+                    var statusUrl = $"http://127.0.0.1:5000/initialize/status?source_language={sourceLanguage}&target_language={targetLanguage}";
+                    HttpResponseMessage statusResponse = await Client.GetAsync(statusUrl);
+                    statusResponse.EnsureSuccessStatusCode();
+
+                    var statusString = await statusResponse.Content.ReadAsStringAsync();
+                    using (JsonDocument doc = JsonDocument.Parse(statusString))
+                    {
+                        if (doc.RootElement.TryGetProperty("initialization_status", out JsonElement statusElement))
+                        {
+                            status = statusElement.GetString();
+                            Debug.WriteLine($"Initialization status: {status}");
+                            if (!( status.Contains("not started") || status.Contains("in progress")))
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            status = "ERROR: Status response format error.";
+                        }
+                    }
+                    await Task.Delay(5000);
+                }
+
+                if (status.Contains("failed"))
+                {
+                    return $"ERROR: Initialization failed: {status}";
+                }
+
+                return "Initialization completed successfully.";
+            }
+            catch (Exception ex)
+            {
+                if (debug) { Debug.WriteLine($"CheckInitializationStatus() - Fail - {ex.Message}"); }
+                return $"ERROR: Unexpected failure: {ex.Message}";
+            }
+        }
+
+        private void CheckArgosState()
+        {
+            if (_isArgosReady)
+            {
+                Debug.WriteLine("Ellipse visible");
+                ArgosEllipse.Fill = new SolidColorBrush(ParseHexColor("#c2ffd2"));
+                ArgosEllipse.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Debug.WriteLine("Ellipse visible");
+                ArgosEllipse.Fill = new SolidColorBrush(ParseHexColor("#ff9cb3"));
+                ArgosEllipse.Visibility = Visibility.Visible;
+            }
+        } 
+
+        private  async Task<string> PerformTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
+        {
+            Debug.WriteLine($"Source Language = {sourceLanguage} | Target Language = {targetLanguage}");
+            string translationResult = "ERROR: Translation request failed.";
+            if (!_isArgosReady)
+            {
+                var initResult = await StartInitialization(sourceLanguage, targetLanguage, debug);
+
+                while (true)
+                {
+                    string statusResult = await CheckInitializationStatus(sourceLanguage, targetLanguage, debug);
+                    
+Debug.WriteLine($"statusResult = {statusResult}");
+                    if (!statusResult.Contains("ERROR"))
+                    {
+                        _isArgosReady = true;
+                        translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
+                        if (!(translationResult.Contains("ERROR") && !(translationResult.Contains("INTERNAL SERVER ERROR"))))
+                        {
+                            break;
+                        }
+                    }
+                    _isArgosReady = false;
+                    await Task.Delay(10000);
+                }
+            }
+
+            translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
+            Debug.WriteLine($"translationResult = {translationResult}");
+            return translationResult;
+        }
+
+
 
         /// <summary>
         /// Retrieves a translated text from the MyMemory translation service.
@@ -2262,8 +2385,8 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// <param name="sender">The source of the event, typically the ComboBox control.</param>
         /// <param name="e">The event arguments containing the details of the selection change.</param>
         /// <remarks>
-        /// This method checks if the application startup process is complete (i.e., `startUp` is at least 2) before updating the font settings.
-        /// If the startup process is not yet complete, it increments the `startUp` counter. Once the startup is complete, it:
+        /// This method checks if the application startup process is complete (i.e., `_startUp` is at least 2) before updating the font settings.
+        /// If the startup process is not yet complete, it increments the `_startUp` counter. Once the startup is complete, it:
         /// - Retrieves the selected font family from the ComboBox.
         /// - Deserializes the global settings JSON file to get the current settings.
         /// - Updates the `Font` property with the new font family and saves the updated settings back to the JSON file.
@@ -2271,7 +2394,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// </remarks>
         private void FontsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (startUp >= 2)
+            if (_startUp >= 2)
             {
                 string newFontFamily = SettingsPage.BookReadingFonts[FontsComboBox.SelectedIndex];
 
@@ -2285,7 +2408,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
 
             else
             {
-                startUp++;
+                _startUp++;
             }
             
         }
@@ -2297,8 +2420,8 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// <param name="sender">The source of the event, typically the ComboBox control.</param>
         /// <param name="e">The event arguments containing the details of the selection change.</param>
         /// <remarks>
-        /// This method checks if the application startup process is complete (i.e., `startUp` is at least 2) before updating the theme settings.
-        /// If the startup process is not yet complete, it increments the `startUp` counter. Once the startup is complete, it:
+        /// This method checks if the application startup process is complete (i.e., `_startUp` is at least 2) before updating the theme settings.
+        /// If the startup process is not yet complete, it increments the `_startUp` counter. Once the startup is complete, it:
         /// - Retrieves the selected theme from the ComboBox.
         /// - Deserializes the global settings JSON file to get the current settings.
         /// - Updates the `Theme` property with the new theme and saves the updated settings back to the JSON file.
@@ -2307,7 +2430,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         /// </remarks>
         private void ThemesComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (startUp >= 2)
+            if (_startUp >= 2)
             {
                 string theme = SettingsPage.Themes.Keys.ToList()[ThemesComboBox.SelectedIndex];
                 GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
@@ -2321,7 +2444,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
 
             else
             {
-                startUp++;
+                _startUp++;
             }
         }
 

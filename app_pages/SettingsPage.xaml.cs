@@ -111,6 +111,7 @@ namespace EpubReader
 
         private double _actualWidth;
         private double _actualHeight;
+        private double _bottomOffset = 40;
 
         private Windows.UI.Color _colorSelected;
 
@@ -780,6 +781,9 @@ UpdateBodyBackgroundColor(Themes[theme]["background-color"]);
         {
             _actualWidth = tp.width;
             _actualHeight = tp.height;
+
+            SettingsScrollViewer.Width = _actualWidth;
+            SettingsScrollViewer.Height = _actualHeight - _bottomOffset;
         }
 
         /// <summary>
