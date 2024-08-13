@@ -2313,10 +2313,12 @@ Debug.WriteLine($"statusResult = {statusResult}");
                     }
                     _isArgosReady = false;
                     await Task.Delay(10000);
+                    CheckArgosState();
+
                 }
             }
-
-            translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
+            CheckArgosState();
+                        translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
             Debug.WriteLine($"translationResult = {translationResult}");
             return translationResult;
         }
