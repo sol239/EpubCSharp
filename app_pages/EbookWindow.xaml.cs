@@ -2127,26 +2127,33 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
         }
 
         /// <summary>
-        /// Sends a translation request to the Flask server and retrieves the translated text.
+        /// Asynchronously initiates the initialization process by sending a POST request to a specified URL 
+        /// with the provided source and target languages in JSON format.
         /// </summary>
-        /// <param name="text">The text to be translated.</param>
-        /// <param name="sourceLanguage">The language code of the source text.</param>
-        /// <param name="targetLanguage">The language code to translate the text into.</param>
-        /// <param name="debug">If true, enables debug logging to trace method execution and responses.</param>
-        /// <returns>A task representing the asynchronous operation, with a string result of the translated text or "ERROR" in case of failure.</returns>
+        /// <param name="sourceLanguage">The source language for the initialization process.</param>
+        /// <param name="targetLanguage">The target language for the initialization process.</param>
+        /// <param name="debug">
+        /// Optional parameter to enable or disable debug output. 
+        /// If true, debug messages will be written to the debug output stream. Default is true.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation, 
+        /// with a result of type <see cref="string"/>. The result will be a message indicating 
+        /// whether the initialization request was sent successfully or an error occurred.
+        /// </returns>
+        /// <exception cref="HttpRequestException">
+        /// Thrown if the HTTP request fails, providing detailed error information in the returned string.
+        /// </exception>
+        /// <exception cref="Exception">
+        /// Catches all other exceptions that may occur during the execution, 
+        /// returning a message that includes the exception details.
+        /// </exception>
         /// <remarks>
-        /// This method constructs a JSON payload with the text and language information, sends a POST request to a Flask server,
-        /// and processes the response to extract the translated text. The response is expected to be in JSON format with a 
-        /// "translated_text" field. Debug logging is optional and provides details about the request and response for troubleshooting.
+        /// This method constructs a JSON payload with the specified source and target languages, 
+        /// and sends it to the initialization endpoint. If the request is successful, 
+        /// a success message is returned. Otherwise, an error message is returned.
         /// </remarks>
-        /// <example>
-        /// <code>
-        /// string translatedText = await GetTranslation("Hello", "en", "es", true);
-        /// </code>
-        /// </example>
-
-
-        public static async Task<string> StartInitialization(string sourceLanguage, string targetLanguage, bool debug = true)
+        private static async Task<string> StartInitialization(string sourceLanguage, string targetLanguage, bool debug = true)
         {
             try
             {
@@ -2181,7 +2188,23 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             }
         }
 
-        public static async Task<string> GetTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
+        /// <summary>
+        /// Sends a translation request to the server and returns the translated text.
+        /// </summary>
+        /// <param name="text">The text to be translated.</param>
+        /// <param name="sourceLanguage">The source language of the text.</param>
+        /// <param name="targetLanguage">The target language for the translation.</param>
+        /// <param name="debug">If true, enables debug output. Default is true.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> containing the translated text or an error message if the translation fails.
+        /// </returns>
+        /// <remarks>
+        /// The method sends a POST request with the text and language parameters in JSON format to the translation server.
+        /// It handles potential errors and returns appropriate error messages if the translation fails or if the server response is malformed.
+        /// </remarks>
+        /// <exception cref="HttpRequestException">Thrown if the HTTP request fails.</exception>
+        /// <exception cref="Exception">Catches all other exceptions that may occur during execution.</exception>
+        private static async Task<string> GetTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
         {
             try
             {
@@ -2227,8 +2250,19 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             }
         }
 
-
-        public static async Task<string> CheckInitializationStatus(string sourceLanguage, string targetLanguage, bool debug = true)
+        /// <summary>
+        /// Asynchronously sends a translation request to a specified URL and returns the translated text.
+        /// </summary>
+        /// <param name="text">The text to be translated.</param>
+        /// <param name="sourceLanguage">The source language of the text.</param>
+        /// <param name="targetLanguage">The target language for the translation.</param>
+        /// <param name="debug">If true, enables debug output. Default is true.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> with the translated text, or an error message if the translation fails.
+        /// </returns>
+        /// <exception cref="HttpRequestException">Thrown if the HTTP request fails.</exception>
+        /// <exception cref="Exception">Catches all other exceptions that may occur during execution.</exception>
+        private static async Task<string> CheckInitializationStatus(string sourceLanguage, string targetLanguage, bool debug = true)
         {
             try
             {
@@ -2273,6 +2307,13 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             }
         }
 
+        /// <summary>
+        /// Updates the visual state of the ArgosEllipse based on the readiness of Argos.
+        /// </summary>
+        /// <remarks>
+        /// Changes the color and visibility of ArgosEllipse depending on the _isArgosReady flag.
+        /// A green color indicates readiness, while a red color indicates that Argos is not ready.
+        /// </remarks>
         private void CheckArgosState()
         {
             if (_isArgosReady)
@@ -2287,9 +2328,23 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 ArgosEllipse.Fill = new SolidColorBrush(ParseHexColor("#ff9cb3"));
                 ArgosEllipse.Visibility = Visibility.Visible;
             }
-        } 
+        }
 
-        private  async Task<string> PerformTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
+        /// <summary>
+        /// Asynchronously performs a translation, initializing the translation service if necessary.
+        /// </summary>
+        /// <param name="text">The text to be translated.</param>
+        /// <param name="sourceLanguage">The source language of the text.</param>
+        /// <param name="targetLanguage">The target language for the translation.</param>
+        /// <param name="debug">If true, enables debug output. Default is true.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> with the translated text, or an error message if the translation fails.
+        /// </returns>
+        /// <remarks>
+        /// If the translation service is not ready, the method initializes it, checks its status,
+        /// and attempts the translation again until successful or an error occurs.
+        /// </remarks>
+        private async Task<string> PerformTranslation(string text, string sourceLanguage, string targetLanguage, bool debug = true)
         {
             Debug.WriteLine($"Source Language = {sourceLanguage} | Target Language = {targetLanguage}");
             string translationResult = "ERROR: Translation request failed.";
@@ -2322,8 +2377,6 @@ Debug.WriteLine($"statusResult = {statusResult}");
             Debug.WriteLine($"translationResult = {translationResult}");
             return translationResult;
         }
-
-
 
         /// <summary>
         /// Retrieves a translated text from the MyMemory translation service.
