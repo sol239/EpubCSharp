@@ -13,33 +13,8 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>C:\Users\david_pmv0zjd\source\repos\EpubReader\doc.xml</DocumentationFile>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Remove="Assets\scripts\ebook.js" />
-    <Content Remove="Assets\scripts\epubjs-reader\css\main.css" />
-    <Content Remove="Assets\scripts\epubjs-reader\css\normalize.css" />
-    <Content Remove="Assets\scripts\epubjs-reader\css\popup.css" />
-    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.eot60518104" />
-    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.svg60518104" />
-    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.ttf60518104" />
-    <Content Remove="Assets\scripts\epubjs-reader\font\fontello.woff60518104" />
-    <Content Remove="Assets\scripts\epubjs-reader\img\loader.gif" />
-    <Content Remove="Assets\scripts\epubjs-reader\index.html" />
-    <Content Remove="Assets\scripts\epubjs-reader\js\epub.js" />
-    <Content Remove="Assets\scripts\epubjs-reader\js\libs\jquery.min.js" />
-    <Content Remove="Assets\scripts\epubjs-reader\js\libs\screenfull.min.js" />
-    <Content Remove="Assets\scripts\epubjs-reader\js\libs\zip.min.js" />
-    <Content Remove="Assets\scripts\epubjs-reader\js\reader.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="app_pages\EbookViewerWindow.xaml" />
-    <None Remove="app_pages\EbookWindow.xaml" />
-    <None Remove="app_pages\epubjsWindow1.xaml" />
-    <None Remove="app_pages\HomePage.xaml" />
-    <None Remove="MainWindow.xaml" />
-    <None Remove="scripts\epubjs-reader\ebookLocator.js" />
-    <None Remove="scripts\script.js" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -50,17 +25,11 @@
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="scripts\**" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
+    <Content Include="Assets\icon.ico" />
+	<Content Include="code\**" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="app_pages\**" CopyToOutputDirectory="PreserveNewest" />
 
-  <ItemGroup>
-    <Compile Remove="code\venv\**" />
-    <EmbeddedResource Remove="code\venv\**" />
-    <None Remove="code\venv\**" />
-    <Page Remove="code\venv\**" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Content Remove="scripts\script.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -113,12 +82,6 @@
     <Optimize>True</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <CustomAdditionalCompileInputs Remove="MainWindow.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Remove="MainWindow.xaml" />
-  </ItemGroup>
-  <ItemGroup>
     <CustomAdditionalCompileInputs Remove="app_pages\epubjsWindow1.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -126,5 +89,38 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Remove="code\venv\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app_pages\iso639I_reduced.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="code\ebook.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="code\script.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="code\translation_script.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="code\app-logging.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="code\app_controls.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="code\epub-handler.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="code\file-managment.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

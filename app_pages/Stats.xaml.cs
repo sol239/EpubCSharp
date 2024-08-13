@@ -39,7 +39,52 @@ namespace EpubReader
             LoadBooks();
         }
 
-        public void LoadBooks()
+        /// <summary>
+        /// Loads ebook data from multiple folders, aggregates the reading time, and updates the UI with the 
+        /// combined statistics. The method also logs detailed debug information if the <paramref name="debug"/> 
+        /// parameter is set to true.
+        /// </summary>
+        /// <param name="debug">Indicates whether detailed debug information should be logged. Defaults to false.</param>
+        /// <remarks>
+        /// This method performs the following tasks:
+        /// <list type="number">
+        /// <item>
+        /// <description>
+        /// Iterates over all ebook folders returned by <see cref="AppControls.GetListOfAllEbooks"/>.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// For each folder, attempts to retrieve the associated JSON data file using 
+        /// <see cref="FileManagement.GetEbookDataJsonFile"/> and parses it into an <see cref="Ebook"/> object 
+        /// using <see cref="JsonHandler.ReadEbookJsonFile"/>.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// Aggregates the total reading time across all ebooks by summing the <see cref="Ebook.BookReadTime"/> 
+        /// values, handling any parsing errors by defaulting to zero time.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// Combines the reading statistics from all ebooks into a single dictionary, merging the times for 
+        /// duplicate keys.
+        /// </description>
+        /// </item>
+        /// <item>
+        /// <description>
+        /// Adds the combined statistics as a new <see cref="Book"/> to the application's list of books, and updates 
+        /// the UI to display the total reading time for the current day.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <exception cref="Exception">
+        /// Catches any exceptions that occur during the processing of ebooks and logs 
+        /// them if debug mode is enabled. The method attempts to handle errors gracefully, setting defaults where necessary.
+        /// </exception>
+        public void LoadBooks(bool debug = false)
         {
 
             try
@@ -55,34 +100,34 @@ namespace EpubReader
                     try
                     {
                         jsonDataFilePath = FileManagement.GetEbookDataJsonFile(ebookFolderPath);
-                        Debug.WriteLine($"LoadBooks() 1 - Success\n");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Success");}
                     }
 
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"LoadBooks() 1 - Fail - {ex.Message}\n");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Fail - {ex.Message}");}
                     }
 
                     try
                     {
                         ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
-                        Debug.WriteLine($"LoadBooks() 1.1 - Success\n");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Success");}
                     }
                     catch
                     {
-                        Debug.WriteLine($"LoadBooks() 1.1 - Fail\n");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Fail");}
                     }
 
                     try
                     {
                         _timeSpan += TimeSpan.Parse(ebook.BookReadTime);
-                        Debug.WriteLine($"LoadBooks() 1.2 - Success\n");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Success");}
                     }
 
                     catch
                     {
-                        Debug.WriteLine($"LoadBooks() 1.2 - Fail\n");
                         _timeSpan += TimeSpan.Parse("00:00:00");
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Fail");}
                     }
 
                     finally
@@ -102,13 +147,12 @@ namespace EpubReader
                                     TimeSpan newTimeSpan = timeSpan.Add(timeSpan2);
                                     _combinedDict[entry.Key] = newTimeSpan.ToString();
                                 }
-
-                                Debug.WriteLine($"LoadBooks() 2 - Success\n");
+if (debug) { Debug.WriteLine($"LoadBooks() 4 - Success");}
                             }
 
                             catch (Exception ex)
                             {
-                                Debug.WriteLine($"LoadBooks() 2 - Fail - {ex.Message}\n");
+                                if (debug) { Debug.WriteLine($"LoadBooks() 4 - Fail - {ex.Message}");}
                             }
                         }
 
@@ -125,25 +169,22 @@ namespace EpubReader
                     TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[DateTime.Now.ToString("yyyy-MM-dd")]);
 
                     TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: {_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
+if (debug) { Debug.WriteLine($"LoadBooks() 5 - Success");}
 
-
-                    Debug.WriteLine($"LoadBooks() 3 - Success\n");
                 }
 
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"LoadBooks() 3 - Fail - {ex.Message}\n");
-
                     TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: 0s";
-
+if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}");}
                 }
 
-                Debug.WriteLine($"LoadBooks() - Success\n");
+                if (debug) { Debug.WriteLine($"LoadBooks() - Success");}
             }
 
             catch (Exception ex)
             {
-                Debug.WriteLine($"LoadBooks() - Fail - {ex.Message}\n");
+                if (debug) { Debug.WriteLine($"LoadBooks() - Fail - {ex.Message}");}
             }
 
         }

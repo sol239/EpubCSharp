@@ -228,8 +228,18 @@ namespace EpubReader.code
 
                     try
                     {
+
+                        // Get the path to the application's installed location
+                        StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+
+                        // Define the relative path to the script file
+                        string relativePath = "code\\script.js";
+
+                        // Combine the installed location path with the relative path
+                        string path = Path.Combine(installedLocation.Path, relativePath);
+
                         // Path to the external script
-                        string scriptPath = "C:/Users/david_pmv0zjd/source/repos/EpubReader/code/script.js";
+                        string scriptPath = path;
 
                         // Create a script element with the src attribute
                         XElement scriptElement = new XElement(XName.Get("script", "http://www.w3.org/1999/xhtml"),

@@ -10,6 +10,7 @@ using EpubReader.code;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -787,7 +788,15 @@ UpdateBodyBackgroundColor(Themes[theme]["background-color"]);
         /// </summary>
         private void LoadLangDict()
         {
-            string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
+            // Get the path to the application's installed location
+            StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+
+            // Define the relative path to the script file
+            string relativePath = "app_pages\\iso639I_reduced.json";
+
+            // Combine the installed location path with the relative path
+            string path = Path.Combine(installedLocation.Path, relativePath);
+
             string json = File.ReadAllText(path);
             _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
         }

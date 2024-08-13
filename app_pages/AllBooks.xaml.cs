@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Windows.Storage;
 using EpubReader.app_pages;
 using EpubReader.code;
 using Microsoft.UI.Xaml;
@@ -171,7 +172,15 @@ namespace EpubReader
             {
                 try
                 {
-                    string path = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\app_pages\\iso639I_reduced.json";
+                    // Get the path to the application's installed location
+                    StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
+
+                    // Define the relative path to the script file
+                    string relativePath = "app_pages\\iso639I_reduced.json";
+
+                    // Combine the installed location path with the relative path
+                    string path = Path.Combine(installedLocation.Path, relativePath);
+
                     string json = File.ReadAllText(path);
                     _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
                     if (debug) { Debug.WriteLine("LoadLangDict() - Success"); }

@@ -342,8 +342,6 @@ namespace EpubReader.app_pages
             var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", "", environmentOptions);
             await MyWebView.EnsureCoreWebView2Async(environment);
 
-            //string htmlFilePath1 = "C:\\Users\\david_pmv0zjd\\Desktop\\epubjs-reader\\index.html";
-            //string htmlFilePath2 = "C:\\Users\\david_pmv0zjd\\source\\repos\\EpubReader\\scripts\\epubjs-reader\\index.html";
             MyWebView.Source = new Uri(htmlCode);
         }
     }

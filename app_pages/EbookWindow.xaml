@@ -96,7 +96,7 @@
                     <!-- ComboBox items -->
                 </ComboBox>
 
-                <ComboBox x:Name="FontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
+                <ComboBox x:Name="FontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="FontsComboBoxSelectionChanged">
                     <!-- ComboBox items -->
                 </ComboBox>
 

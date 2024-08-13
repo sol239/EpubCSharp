@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 
 namespace EpubReader.code;
+/// <summary>
+/// Class used for file management in the application
+/// </summary>
 public class FileManagement
 {
 
@@ -19,7 +22,14 @@ public class FileManagement
     private static readonly string EbookDataFolderName = "DATA";
     private static readonly string EbookAllBooksFileName = "allBooks.json";
 
+    /// <summary>
+    /// List of supported ebook formats
+    /// </summary>
     public static readonly List<String> SupportedEbooksFormats = new List<string>() { ".epub" };
+
+    /// <summary>
+    /// Name of the file used for storing the recent ebooks
+    /// </summary>
     public static readonly string EbookDataFileName = "ebookData.json";
 
 
@@ -351,6 +361,9 @@ public class FileManagement
     /// </summary>
     public class GlobalDictJson
     {
+        /// <summary>
+        /// Dictionary used for storing the words and their translations
+        /// </summary>
         public Dictionary<string, List<string>> TranslationsDict { get; set; } 
     }
 }

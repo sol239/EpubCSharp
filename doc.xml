@@ -9,6 +9,46 @@
             Provides application-specific behavior to supplement the default Application class.
             </summary>
         </member>
+        <member name="P:EpubReader.App.Window">
+            <summary>
+            Static property to access the main window of the application.
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.App"/> class.
+            </summary>
+        </member>
+        <member name="M:EpubReader.App.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)">
+            <summary>
+            Handles the application launch and initializes the main window. This method overrides the 
+            <see cref="M:Microsoft.UI.Xaml.Application.OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs)"/> method to set up and configure the 
+            application's main window after performing necessary startup operations, such as file management.
+            </summary>
+            <param name="args">Contains the event data for the launch event. This includes any arguments 
+            that were passed to the application at startup.</param>
+            <exception cref="T:System.Exception">Thrown if an exception occurs during the execution of 
+            <see cref="M:EpubReader.code.FileManagement.StartUp(System.Boolean)"/>. The exception is logged and then re-thrown to halt the 
+            application if necessary.</exception>
+            <remarks>
+            The method ensures that the file management startup procedure is completed before proceeding 
+            to create and display the main window. If the file management fails, the exception is logged 
+            for debugging purposes, and the application is halted by re-throwing the exception.
+            
+            After successful file management, a new <see cref="P:EpubReader.App.Window"/> is created and configured with a 
+            specified size and position. The <see cref="T:Microsoft.UI.Xaml.Controls.Frame"/> is then initialized and navigated to the 
+            application's main page (<see cref="T:EpubReader.MyMainWindow"/>). Finally, the window is activated to display 
+            the content to the user.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.App.OnNavigationFailed(System.Object,Microsoft.UI.Xaml.Navigation.NavigationFailedEventArgs)">
+            <summary>
+            Invoked when Navigation to a certain page fails
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+            <exception cref="T:System.Exception"></exception>
+        </member>
         <member name="M:EpubReader.App.InitializeComponent">
             <summary>
             InitializeComponent()
@@ -317,63 +357,583 @@
             An empty window that can be used on its own or navigated to within a Frame.
             </summary>
         </member>
+        <member name="E:EpubReader.app_pages.EbookWindow.WindowClosed">
+            <summary>
+            Event handler for the WindowClosed event.
+            </summary>
+        </member>
         <member name="M:EpubReader.app_pages.EbookWindow.#ctor(System.ValueTuple{System.String,System.String})">
             <summary>
             Constructor initializes the component and subscribes to Loaded and Unloaded events.
             </summary>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.SavePosition">
+        <member name="M:EpubReader.app_pages.EbookWindow.EbookWindow_OnSizeChanged(System.Object,Microsoft.UI.Xaml.WindowSizeChangedEventArgs)">
             <summary>
-            Saves playorder and scroll position of the WebView and stores it in the ebookData.json file.
+            Not working correctly.
+            Handles the event when the size of the eBook window changes. This method adjusts the line height 
+            of the text displayed in the WebView to ensure that the text is properly aligned and spaced based 
+            on the new window size.
             </summary>
-            <returns></returns>
+            <param name="sender">The source of the event, typically the eBook window.</param>
+            <param name="args">The <see cref="T:Microsoft.UI.Xaml.WindowSizeChangedEventArgs"/> containing the event data, such as the new window size.</param>
+            <remarks>
+            The method performs the following tasks:
+            <list type="bullet">
+            <item><description>Ensures that the WebView's CoreWebView2 instance is initialized.</description></item>
+            <item><description>Executes JavaScript in the WebView to obtain the document height, window height, and current scroll position.</description></item>
+            <item><description>Calculates the optimal line height for the text based on the new window height, ensuring consistent text spacing.</description></item>
+            <item><description>Logs relevant information for debugging purposes, such as document height, window height, and the calculated line height.</description></item>
+            <item><description>Calls <see cref="M:EpubReader.app_pages.EbookWindow.UpdateLineWidth(System.String)"/> to apply the new line height and reloads the WebView to reflect the changes.</description></item>
+            </list>
+            </remarks>
+            <exception cref="T:System.FormatException">Thrown if the height values returned from the WebView are not in a valid numeric format.</exception>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.RestorePositionAsync">
+        <member name="M:EpubReader.app_pages.EbookWindow.UpdateLineWidth(System.String)">
             <summary>
-            Loads the playorder and scroll position of the WebView from the ebookData.json file.
+            Updates the line height in the CSS file used by the eBook viewer to the specified value.
             </summary>
-            <returns></returns>
+            <param name="newFontFamily">The new line-height value to be set in the CSS file.</param>
+            <returns>A task representing the asynchronous operation.</returns>
+            <remarks>
+            This method performs the following steps:
+            <list type="number">
+            <item><description>Retrieves the path of the CSS file using <see cref="M:EpubReader.code.FileManagement.GetEbookViewerStyleFilePath"/>.</description></item>
+            <item><description>Reads the existing content of the CSS file.</description></item>
+            <item><description>Uses a regular expression to locate and replace the current <c>line-height</c> value in the <c>body</c> selector with the new value.</description></item>
+            <item><description>If a <c>line-height</c> declaration is not found within the <c>body</c> selector, the method adds a new <c>line-height</c> property.</description></item>
+            <item><description>Writes the modified CSS content back to the file.</description></item>
+            </list>
+            </remarks>
+            <exception cref="T:System.IO.IOException">Thrown if there is an error reading from or writing to the CSS file.</exception>
+            <exception cref="T:System.ArgumentException">Thrown if the <paramref name="newFontFamily"/> is null or empty.</exception>
+            <exception cref="T:System.Text.RegularExpressions.RegexMatchTimeoutException">Thrown if the regular expression operation times out.</exception>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.ExecuteJavaScriptAsync(System.String)">
+        <member name="M:EpubReader.app_pages.EbookWindow.MainWindow_Closed(System.Object,Microsoft.UI.Xaml.WindowEventArgs)">
             <summary>
-            Executes the JavaScript code in the WebView.
+            Handles the closing event of the main window. This method performs cleanup operations 
+            and ensures that necessary actions are taken before the window is fully closed.
             </summary>
-            <returns></returns>
+            <param name="sender">The source of the event, typically the main window.</param>
+            <param name="args">The <see cref="T:Microsoft.UI.Xaml.WindowEventArgs"/> containing the event data.</param>
+            <remarks>
+            The method first detaches the <c>MainWindow_Closed</c> event handler to prevent any potential recursive calls. 
+            It then stops the Flask server thread, saves the current position, and calculates the time difference.
+            If these operations succeed, it invokes the <c>WindowClosed</c> event, signaling that the window has been closed.
+            Finally, the window is closed. If an exception occurs during any of these operations, it is caught, and an error 
+            message is logged for debugging purposes.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there is an issue during the cleanup process or while performing any of the asynchronous tasks.</exception>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.EbookViewer_Loaded">
+        <member name="M:EpubReader.app_pages.EbookWindow.PageStartup">
             <summary>
-            Runs when the page is loaded. Initializes the WebView and executes JavaScript.
+            Initializes the page settings by loading global configurations and setting up UI elements 
+            like combo boxes and text boxes with the appropriate values from the settings.
             </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
+            <remarks>
+            This method deserializes the global settings from a JSON file and applies the values to the corresponding 
+            UI elements on the page. It sets the selected index of the fonts and themes combo boxes, adjusts the padding, 
+            and parses the font size from the settings. If the font size is valid, it is applied to the font size text box; 
+            otherwise, a default message is set. Finally, the method calls <c>comboBoxesSetup()</c> to perform any additional 
+            setup required for the combo boxes.
+            </remarks>
+            <exception cref="T:System.Text.Json.JsonException">Thrown if there is an error during the deserialization of the global settings JSON file.</exception>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown if the global settings file is not found.</exception>
+            <exception cref="T:System.FormatException">Thrown if the font size cannot be parsed to a double.</exception>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.InitializeWebViewAsync">
+        <member name="M:EpubReader.app_pages.EbookWindow.ComboBoxesSetup">
             <summary>
-            Initializes the WebView and executes JavaScript.
+            Populates the combo boxes on the page with available font and theme options.
             </summary>
-            <returns></returns>
+            <remarks>
+            This method iterates through the list of available book reading fonts and theme names 
+            defined in the SettingsPage class. It adds each font to the FontsComboBox 
+            and each theme to the <c>ThemesComboBox</c>. This setup ensures that users can select 
+            from the predefined options when configuring the page settings.
+            </remarks>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCssPath(System.String,System.String)">
+        <member name="M:EpubReader.app_pages.EbookWindow.ChangeBooksStatus">
             <summary>
-            Updates the CSS path in the XHTML file.
+            Updates the status of the eBook based on its current status. If the eBook status is "Not Started",
+            it changes the status to "Reading". The updated status is then saved back to the JSON file.
             </summary>
-            <param name="xhtmlPath"></param>
-            <param name="newCssPath"></param>
-            <returns></returns>
+            <remarks>
+            This method reads the eBook data from a JSON file specified by the path in <c>_navValueTuple</c>. 
+            It checks the current status of the eBook and performs the following updates:
+            <list type="bullet">
+            <item>
+            <description>If the status is "Not Started", it changes the status to "Reading".</description>
+            </item>
+            <item>
+            <description>If the status is "Finished" or "Reading", no changes are made.</description>
+            </item>
+            </list>
+            After updating the status, the method serializes the modified eBook object and writes it back to the JSON file.
+            </remarks>
+            <exception cref="T:System.IO.IOException">Thrown if there is an error reading from or writing to the eBook JSON file.</exception>
+            <exception cref="T:System.Text.Json.JsonException">Thrown if there is an error during the serialization or deserialization of the eBook data.</exception>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCSSAction">
+        <member name="M:EpubReader.app_pages.EbookWindow.EbookWindow_Closed(System.Object,System.EventArgs)">
             <summary>
-            Runs when the user clicks the Update CSS button. Updates the CSS path in the XHTML file.
+            Handles the event when the eBook window is closed. This method triggers a custom event 
+            to notify subscribers that the window has been closed.
             </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
+            <param name="sender">The source of the event, typically the eBook window.</param>
+            <param name="e">The <see cref="T:System.EventArgs"/> containing the event data.</param>
+            <remarks>
+            This method raises the <c>WindowClosed</c> event, if there are any subscribers, to signal that 
+            the eBook window has been closed. The event can be used to perform any additional cleanup 
+            or notify other parts of the application about the window closure.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there are issues with raising the event or if event handlers have errors.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.SaveBookOpenTime">
+            <summary>
+            Saves the current date and time as the time when the book was opened.
+            </summary>
+            <remarks>
+            This asynchronous method updates the <c>BookOpenTime</c> property of the <c>_ebook</c> 
+            object with the current date and time in string format. This information can be used 
+            for tracking when the book was last opened or for other time-related features in the application.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there is an issue accessing or modifying the <c>_ebook</c> object.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.SavePosition(System.Boolean)">
+            <summary>
+            Saves the current position and related information of the eBook. This includes 
+            the current scroll position, in-book position, and the date/time when the book was last opened and closed.
+            </summary>
+            <param name="debug">Optional. If true, enables debug logging to track the success or failure of each operation.</param>
+            <remarks>
+            This asynchronous method performs the following actions:
+            <list type="number">
+            <item>
+            <description>Attempts to retrieve and save the current scroll position from the WebView. If retrieval fails, a default value of "0" is used.</description>
+            </item>
+            <item>
+            <description>Saves the current play order of the eBook to indicate the in-book position. If an error occurs, the operation is logged.</description>
+            </item>
+            <item>
+            <description>Records the current date and time as the last opened date of the eBook. Any errors during this process are logged if debugging is enabled.</description>
+            </item>
+            </list>
+            The method also updates the <c>BookCloseTime</c> property to the current date and time, and saves the updated eBook data to a JSON file.
+            If any exception occurs during the operations, it is logged if debugging is enabled. The final block ensures that the eBook data is 
+            saved even if some parts of the operation fail.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there is an issue with retrieving the scroll position, saving the eBook data, or handling the eBook file.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CalculateTimeDifference(System.Boolean)">
+            <summary>
+            Calculates the difference between the time the book was opened and the time it was closed. 
+            It updates the total reading time and stores the updated information in the eBook data.
+            </summary>
+            <param name="debug">Optional. If true, enables debug logging to track the success or failure of the operations.</param>
+            <remarks>
+            This asynchronous method performs the following actions:
+            <list type="number">
+            <item>
+            <description>Attempts to parse and set the <c>openTime</c> from the <c>BookOpenTime</c> property. If parsing fails, the current time is used.</description>
+            </item>
+            <item>
+            <description>Attempts to parse and set the <c>closeTime</c> from the <c>BookCloseTime</c> property. If parsing fails, the current time is used.</description>
+            </item>
+            <item>
+            <description>Calculates the time difference between <c>closeTime</c> and <c>openTime</c>. It then adds this difference to the previously recorded reading time.</description>
+            </item>
+            <item>
+            <description>Updates the <c>BookReadTime</c> property with the total reading time, which includes the time difference.</description>
+            </item>
+            <item>
+            <description>Saves the updated eBook data to a JSON file and logs the success or failure of the operation if debugging is enabled.</description>
+            </item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there is an issue with parsing date and time values, calculating time differences, or storing the eBook data.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StoreEbookStats(System.TimeSpan,System.Boolean)">
+             <summary>
+             Stores the time difference for the current date in the eBook's statistics record.
+             </summary>
+             <param name="timeDifference">The <see cref="T:System.TimeSpan"/> representing the duration to be recorded.</param>
+             <param name="debug">Optional. If true, enables debug logging to track the success or failure of the operation.</param>
+             <remarks>
+             This asynchronous method updates the eBook's statistics record by storing the given <paramref name="timeDifference"/> 
+             for the current date. If there is an existing record for the current date, it adds the time difference to the existing 
+             value. If no record exists for the current date, it creates a new entry.
+            
+             If <c>StatsRecord1</c> is null, it is initialized with a new dictionary and the time difference is added.
+             If <c>StatsRecord1</c> is empty, a new dictionary is created and the time difference is added.
+             If <c>StatsRecord1</c> contains an entry for the current date, the existing value is updated with the new time difference.
+            
+             The method also handles exceptions that may occur during this process and logs them if debugging is enabled.
+             </remarks>
+             <exception cref="T:System.Exception">Thrown if there is an issue with updating the eBook's statistics record or handling the time span.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RestorePositionAsync(System.Boolean)">
+            <summary>
+            Restores the reading position of the eBook by scrolling to the previously saved position and loading the appropriate content.
+            </summary>
+            <param name="debug">Optional. If true, enables debug logging to track the success or failure of the operation.</param>
+            <remarks>
+            This asynchronous method performs the following actions:
+            <list type="bullet">
+            <item>
+            <description>Reads the eBook data from the JSON file located at the path specified in <c>_navValueTuple.ebookFolderPath</c>.</description>
+            </item>
+            <item>
+            <description>Ensures that the WebView2 control is properly initialized.</description>
+            </item>
+            <item>
+            <description>Scrolls the WebView2 control to the vertical position specified by the <c>ScrollValue</c> property of the eBook.</description>
+            </item>
+            <item>
+            <description>Sets the XHTML content file path based on the eBook’s current position using <c>InBookPosition</c>.</description>
+            </item>
+            </list>
+            If an exception occurs during any of these operations, it will be logged if debugging is enabled.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if there is an issue with reading the eBook data, initializing WebView2, or executing the script.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.EbookViewer_Loaded(System.Boolean)">
+            <summary>
+            Asynchronously handles the initialization and positioning of the ebook viewer when it is loaded.
+            </summary>
+            <param name="debug">
+            Optional. A boolean flag indicating whether debug information should be logged. Defaults to <c>false</c>.
+            </param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="bullet">
+              <item>
+                Initializes the web view asynchronously using <see cref="M:EpubReader.app_pages.EbookWindow.InitializeWebViewAsync(System.Boolean)"/>.
+              </item>
+              <item>
+                Restores the previously saved scroll position using <see cref="M:EpubReader.app_pages.EbookWindow.RestorePositionAsync(System.Boolean)"/>.
+              </item>
+              <item>
+                Continuously compares the current scroll position of the ebook viewer with the value obtained from the web view script execution.
+                If the scroll value is "null", it is set to "0". This comparison and restoration loop continues until the scroll position matches.
+              </item>
+            </list>
+            In case of an exception, the method logs a failure message if the <paramref name="debug"/> parameter is set to <c>true</c>.
+            Regardless of success or failure, it ensures that the book's open time is saved by calling <see cref="M:EpubReader.app_pages.EbookWindow.SaveBookOpenTime"/>.
+            </remarks>
+            <exception cref="T:System.Exception">
+            Throws any exceptions that occur during the initialization or scroll restoration processes.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.InitializeWebViewAsync(System.Boolean)">
+            <summary>
+            Asynchronously initializes the WebView control and configures its settings and content.
+            </summary>
+            <param name="debug">
+            Optional. A boolean flag indicating whether debug information should be logged. Defaults to <c>false</c>.
+            </param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="bullet">
+              <item>
+                Ensures the WebView's core environment is initialized by calling <see cref="M:Microsoft.UI.Xaml.Controls.WebView2.EnsureCoreWebView2Async"/>.
+              </item>
+              <item>
+                Subscribes to the <see cref="M:EpubReader.app_pages.EbookWindow.CoreWebView2_WebMessageReceived(System.Object,Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs)"/> event to handle messages from the web content.
+              </item>
+              <item>
+                Enables JavaScript execution in the WebView by setting MyWebView.CoreWebView2.Settings.IsScriptEnabled = true; to <c>true</c>.
+              </item>
+              <item>
+                Retrieves the path to the ebook content file using <see cref="M:EpubReader.code.FileManagement.GetBookContentFilePath(System.String,System.String)"/> and sets it as the source of the WebView.
+              </item>
+            </list>
+            If the method completes successfully and <paramref name="debug"/> is set to <c>true</c>, a success message is logged.
+            If an exception occurs, it logs the error message if <paramref name="debug"/> is set to <c>true</c>.
+            </remarks>
+            <exception cref="T:System.Exception">
+            Throws any exceptions that occur during the initialization process, such as failure to initialize the WebView or set its source.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CoreWebView2_WebMessageReceived(System.Object,Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs)">
+            <summary>
+            Handles the WebMessageReceived event for the CoreWebView2 control, processing messages received from the web content.
+            </summary>
+            <param name="sender">
+            The source of the event, which is expected to be the <see cref="T:Microsoft.Web.WebView2.Core.CoreWebView2"/> control.
+            </param>
+            <param name="e">
+            An instance of <see cref="T:Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs"/> containing data related to the received web message.
+            </param>
+            <remarks>
+            This method processes messages sent from the web content based on their format and content:
+            <list type="bullet">
+              <item>
+                If the message contains an equals sign ("="), it is split into a type and content based on the equals sign. If the content is not equal to the value of <see cref="F:EpubReader.app_pages.EbookWindow._emptyMessage"/>, 
+                it triggers the <see cref="M:EpubReader.app_pages.EbookWindow.ShowFlyoutAsync(System.String,System.String)"/> method to display a flyout with the message type and content.
+              </item>
+              <item>
+                If the message is "scrolledDown" (after trimming whitespace), the <see cref="M:EpubReader.app_pages.EbookWindow.MoveForward"/> method is called to handle forward scrolling.
+              </item>
+              <item>
+                If the message is "scrolledUp" (after trimming whitespace), the <see cref="M:EpubReader.app_pages.EbookWindow.MoveBackward"/> method is called to handle backward scrolling.
+              </item>
+            </list>
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if the message content or any required components are unexpectedly null or missing.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RemoveLeadingTrailingSymbols(System.String,System.Char[],System.Boolean)">
+            <summary>
+            Removes specified leading or trailing characters from a given string.
+            </summary>
+            <param name="text">
+            The string from which characters will be removed.
+            </param>
+            <param name="charsToRemove">
+            An array of characters to be removed from the string.
+            </param>
+            <param name="removeLeading">
+            A boolean value indicating whether to remove leading characters (<c>true</c>) or trailing characters (<c>false</c>).
+            </param>
+            <returns>
+            A new string with the specified leading or trailing characters removed.
+            </returns>
+            <remarks>
+            If <paramref name="removeLeading"/> is <c>true</c>, characters from the start of the string that match any character in <paramref name="charsToRemove"/> are removed.
+            If <paramref name="removeLeading"/> is <c>false</c>, characters from the end of the string that match any character in <paramref name="charsToRemove"/> are removed.
+            The method stops removing characters when a character not in <paramref name="charsToRemove"/> is encountered or the boundary of the string is reached.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if the <paramref name="text"/> or <paramref name="charsToRemove"/> parameters are <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RemoveSymbols(System.String)">
+            <summary>
+            Asynchronously removes specified leading and trailing symbols from a given string.
+            </summary>
+            <param name="text">
+            The string from which symbols will be removed.
+            </param>
+            <returns>
+            A task that represents the asynchronous operation. The task result contains the string with the specified symbols removed from the start and end.
+            </returns>
+            <remarks>
+            This method performs the following operations:
+            <list type="bullet">
+              <item>
+                Defines an array of symbols to be removed, including punctuation, whitespace, and various other special characters.
+              </item>
+              <item>
+                Calls <see cref="M:EpubReader.app_pages.EbookWindow.RemoveLeadingTrailingSymbols(System.String,System.Char[],System.Boolean)"/> to remove symbols from the start of the string that match any character in the defined array.
+              </item>
+              <item>
+                Calls <see cref="M:EpubReader.app_pages.EbookWindow.RemoveLeadingTrailingSymbols(System.String,System.Char[],System.Boolean)"/> again to remove symbols from the end of the string that match any character in the defined array.
+              </item>
+              <item>
+                Returns the modified string with the specified symbols removed from both ends.
+              </item>
+            </list>
+            This method performs synchronous operations within the asynchronous context and does not actually perform any asynchronous operations.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if the <paramref name="text"/> parameter is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RepairTranslation(System.String)">
+            <summary>
+            Asynchronously repairs a given text by addressing specific translation issues and removing extraneous whitespace.
+            </summary>
+            <param name="text">
+            The text to be repaired.
+            </param>
+            <returns>
+            A task that represents the asynchronous operation. The task result contains the repaired text with specified issues corrected and trailing whitespace removed.
+            </returns>
+            <remarks>
+            This method performs the following operations:
+            <list type="bullet">
+              <item>
+                Replaces occurrences of the Unicode character <c>\u2581</c> (a lower one eighth block) with a space character. This is specifically aimed at fixing translation issues from Argos translate in English to Czech translations.
+              </item>
+              <item>
+                Removes any leading or trailing whitespace characters from the text using <see cref="M:System.String.Trim"/>.
+              </item>
+            </list>
+            Note that the method is defined as asynchronous but does not perform any asynchronous operations. The <c>async</c> keyword is used to ensure compatibility with asynchronous programming patterns.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if the <paramref name="text"/> parameter is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.GetLanguageCode(System.String,System.Boolean)">
+            <summary>
+            Retrieves the language code for a given language name from a JSON dictionary file.
+            </summary>
+            <param name="endoLanguageName">
+            The name of the language for which the code is to be retrieved.
+            </param>
+            <param name="debug">
+            Optional. A boolean flag indicating whether debug information should be logged. Defaults to <c>false</c>.
+            </param>
+            <returns>
+            The language code corresponding to the specified language name. Returns "en" if the language name is not found or an error occurs.
+            </returns>
+            <remarks>
+            This method performs the following operations:
+            <list type="bullet">
+              <item>
+                Reads and deserializes the global settings JSON file into a <see cref="T:EpubReader.GlobalSettingsJson"/> object. (Note: The deserialized object is not used in this method but is part of the initial setup.)
+              </item>
+              <item>
+                Reads and deserializes a JSON file containing a dictionary of language names to language codes. This file is located at a hardcoded path.
+              </item>
+              <item>
+                Retrieves the language code for the specified <paramref name="endoLanguageName"/> from the dictionary.
+              </item>
+              <item>
+                Logs the success or failure of the operation if <paramref name="debug"/> is <c>true</c>, including the retrieved code or the exception message.
+              </item>
+            </list>
+            If an exception occurs, the method returns "en" as a default language code.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if <paramref name="endoLanguageName"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            Thrown if the specified JSON file at the hardcoded path is not found.
+            </exception>
+            <exception cref="T:System.Text.Json.JsonException">
+            Thrown if there is an error in deserializing the JSON files.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.ShowFlyoutAsync(System.String,System.String)">
+            <summary>
+            Asynchronously displays a flyout with translation or content based on the provided message type and content.
+            </summary>
+            <param name="messageType">
+            The type of message that determines how the flyout should be presented (e.g., "CLICKED WORD").
+            </param>
+            <param name="messageContent">
+            The content to be displayed and translated in the flyout.
+            </param>
+            <remarks>
+            This method performs the following operations:
+            <list type="bullet">
+              <item>
+                If <paramref name="messageContent"/> is different from a stored value (<c>_selectedText</c>), it processes the content based on the <paramref name="messageType"/>.
+              </item>
+              <item>
+                For the "CLICKED WORD" message type, it removes certain punctuation and whitespace characters from <paramref name="messageContent"/> by calling <see cref="M:EpubReader.app_pages.EbookWindow.RemoveSymbols(System.String)"/>.
+              </item>
+              <item>
+                Creates and configures a <see cref="T:Microsoft.UI.Xaml.Controls.Flyout"/> control to display the message content and additional translation results.
+              </item>
+              <item>
+                Configures the flyout's placement, show mode, and event handling (e.g., focusing a text box when closed).
+              </item>
+              <item>
+                Creates a <see cref="T:Microsoft.UI.Xaml.Controls.StackPanel"/> to hold the content of the flyout, including:
+                <list type="bullet">
+                  <item>
+                    A <see cref="T:Microsoft.UI.Xaml.Controls.TextBlock"/> displaying the original message content with bold text and ellipsis if it overflows.
+                  </item>
+                  <item>
+                    A <see cref="T:Microsoft.UI.Xaml.Controls.ScrollViewer"/> containing another <see cref="T:Microsoft.UI.Xaml.Controls.TextBlock"/> that will display the translation or processed result.
+                  </item>
+                  <item>
+                    A <see cref="T:Microsoft.UI.Xaml.Controls.Button"/> labeled "Save" that, when clicked, hides the flyout, saves the translation, and focuses a text box.
+                  </item>
+                </list>
+              </item>
+              <item>
+                Determines the translation service to use based on global settings and retrieves the translation using either Argos or MyMemory.
+              </item>
+              <item>
+                Processes the translation result by removing symbols or repairing the translation based on <paramref name="messageType"/>.
+              </item>
+              <item>
+                Sets the flyout content to the configured stack panel and displays the flyout at a specified control (e.g., <c>MyWebView</c>).
+              </item>
+            </list>
+            If <paramref name="messageContent"/> matches the stored <c>_selectedText</c>, it simply updates the stored text.
+            </remarks>
+            <exception cref="T:System.Exception">
+            Handles exceptions related to file access, JSON deserialization, or translation services, falling back to default behavior in case of errors.
+            </exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StoreTranslation(System.String,System.String,System.String,System.String)">
+            <summary>
+            Adds or updates a translation entry in the global dictionary.
+            </summary>
+            <param name="sourceLanguage">The source language code.</param>
+            <param name="targetLanguage">The target language code.</param>
+            <param name="originalText">The original text to translate.</param>
+            <param name="translatedText">The translated text.</param>
+            <remarks>
+            Reads the global dictionary JSON file, adds or updates the translation entry if it doesn't already exist,
+            and writes the updated dictionary back to the file. The web view is then focused programmatically.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown for file access or serialization issues.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.RunPythonScript(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Executes a Python script with specified arguments and returns the script's output.
+            </summary>
+            <param name="text">The text to be processed by the Python script.</param>
+            <param name="sourceLanguage">The source language code.</param>
+            <param name="targetLanguage">The target language code.</param>
+            <returns>A task that represents the asynchronous operation. The task result is the output of the Python script.</returns>
+            <remarks>
+            The method starts a Python process using the provided interpreter and script paths, passing the arguments to the script.
+            It reads the standard output and error streams asynchronously, waits for the process to exit, and then returns the output.
+            Any errors are logged for debugging purposes.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">Thrown if the Python process fails to start.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCssPath(System.String,System.String,System.Boolean)">
+            <summary>
+            Updates the CSS path in an XHTML document by modifying the href attribute of the stylesheet link element.
+            </summary>
+            <param name="xhtmlPath">The path to the XHTML file.</param>
+            <param name="newCssPath">The new path to the CSS file to be set.</param>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            The method loads the XHTML document, searches for a <c>&lt;link&gt;</c> element with a <c>rel</c> attribute of "stylesheet",
+            updates its <c>href</c> attribute to the <paramref name="newCssPath"/>, and saves the document.
+            If the element is not found or an error occurs, it logs the appropriate message if <paramref name="debug"/> is <c>true</c>.</remarks>
+            <exception cref="T:System.Exception">Thrown for issues related to file access or XML processing.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.UpdateCSSAction(System.Boolean)">
+            <summary>
+            Reloads the WebView to apply CSS changes and restores the scroll position after navigation completes.
+            </summary>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method reloads the <see cref="F:EpubReader.app_pages.EbookWindow.MyWebView"/> to apply any CSS updates. It attaches an event handler to <see cref="!:WebView.NavigationCompleted"/> 
+            to restore the scroll position once navigation is complete and successful. Logs messages if <paramref name="debug"/> is <c>true</c>.</remarks>
+            <exception cref="T:System.Exception">Handles any exceptions that occur during the reload or event handling.</exception>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.GoHomeAction(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
             <summary>
-            Runs when the user clicks the Home button. Navigates to the main window.
+            Handles the action to perform when navigating to the home state, including stopping services, saving state, and closing the window.
             </summary>
-            <param name="sender"></param>
-            <param name="e"></param>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The event data.</param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="bullet">
+              <item>
+                Reads and deserializes global settings to check if the translation service is "argos". If so, it stops the Flask server.
+              </item>
+              <item>
+                Saves the current position and calculates the time difference since the last operation.
+              </item>
+              <item>
+                Triggers the <c>WindowClosed</c> event and closes the window.
+              </item>
+            </list>
+            Logs any exceptions encountered during the operation if debug mode is enabled.
+            </remarks>
+            <exception cref="T:System.Exception">Logs the exception message if an error occurs during execution.</exception>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.Backward_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
             <summary>
@@ -389,33 +949,388 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.CheckForward">
+        <member name="M:EpubReader.app_pages.EbookWindow.MoveBackward">
             <summary>
-            Checks whether the user has scrolled to the bottom of the page.
+            Scrolls the WebView content backward by one viewport height and updates the saved position.
             </summary>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>Sets the <c>_chapterNavigated</c> flag to <c>false</c>.</item>
+              <item>Scrolls the WebView up by the height of the viewport using JavaScript.</item>
+              <item>Saves the current scroll position.</item>
+              <item>Checks if further backward navigation is possible.</item>
+            </list>
+            </remarks>
         </member>
-        <member name="M:EpubReader.app_pages.EbookWindow.CheckBackward">
+        <member name="M:EpubReader.app_pages.EbookWindow.MoveForward">
             <summary>
-            Checks whether the user has scrolled to the top of the page.
+            Scrolls the WebView content forward by one viewport height and updates the saved position.
             </summary>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>Sets the <c>_chapterNavigated</c> flag to <c>false</c>.</item>
+              <item>Scrolls the WebView down by the height of the viewport using JavaScript.</item>
+              <item>Saves the current scroll position.</item>
+              <item>Checks if further forward navigation is possible.</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.MoveToNextChapter(System.Boolean)">
+            <summary>
+            Moves to the next chapter in the ebook, handles the end of the book, and updates the ebook status accordingly.
+            </summary>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>
+                Checks if <c>_chapterNavigated</c> is <c>false</c> and initializes required components.
+              </item>
+              <item>
+                If the current chapter is the last one, shows a dialog to ask if the user wants to continue or go home.
+                <list type="bullet">
+                  <item>
+                    If the user chooses to go home, updates the ebook status to "Finished", saves the updated data, and closes the window.
+                  </item>
+                </list>
+              </item>
+              <item>
+                If there are more chapters, updates the <c>ebookPlayOrder</c> to the next chapter, sets the WebView source to the new chapter's path, 
+                and scrolls to the top of the document upon navigation completion.
+              </item>
+              <item>
+                Saves the current position and logs debug information if <paramref name="debug"/> is <c>true</c>.</item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">Logs any exception messages if errors occur during the process.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.MoveToPreviousChapter(System.Boolean)">
+            <summary>
+            Moves to the previous chapter in the ebook and scrolls to the bottom of the page upon navigation completion.
+            </summary>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>
+                Checks if <c>_chapterNavigated</c> is <c>false</c> and initializes required components.
+              </item>
+              <item>
+                Decreases the <c>ebookPlayOrder</c> if it's greater than 1 and updates the WebView source to the previous chapter's path.
+              </item>
+              <item>
+                Upon navigation completion, retrieves the document's height, scrolls to the bottom, and sets <c>_chapterNavigated</c> to <c>true</c>.
+              </item>
+              <item>
+                Saves the current position and logs debug information if <paramref name="debug"/> is <c>true</c>.</item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">Logs any exception messages if errors occur during the process.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CheckForward(System.Boolean)">
+            <summary>
+            Checks if the user has scrolled to the bottom of the current chapter and moves to the next chapter if so.
+            </summary>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method retrieves the current scroll position, document height, and viewport height. It compares the current scroll position 
+            with the last recorded position to determine if the user has scrolled to the bottom. If so, it triggers navigation to the next chapter.
+            Logs debug information if <paramref name="debug"/> is <c>true</c>.</remarks>
+            <exception cref="T:System.Exception">Logs any exception messages if errors occur during the process.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.CheckBackward(System.Boolean)">
+            <summary>
+            Checks if the user has scrolled to the top of the current chapter and moves to the previous chapter if so.
+            </summary>
+            <param name="debug">Optional. A boolean flag indicating whether to log debug information. Defaults to <c>false</c>.</param>
+            <remarks>
+            This method retrieves the current scroll position, document height, and viewport height. It compares the current scroll position 
+            with the last recorded position to determine if the user has scrolled to the top. If so, it triggers navigation to the previous chapter.
+            Logs debug information if <paramref name="debug"/> is <c>true</c>.</remarks>
+            <exception cref="T:System.Exception">Logs any exception messages if errors occur during the process.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.Page_KeyDown(System.Object,Microsoft.UI.Xaml.Input.KeyRoutedEventArgs)">
+            <summary>
+            Handles key down events to navigate through the ebook based on arrow key inputs.
+            </summary>
+            <param name="sender">The object that raised the event.</param>
+            <param name="e">The event data, which contains information about the key pressed.</param>
+            <remarks>
+            This method checks if the left or right arrow key is pressed:
+            <list type="bullet">
+              <item>
+                If the left arrow key is pressed, the method invokes <see cref="M:EpubReader.app_pages.EbookWindow.MoveBackward"/> to navigate to the previous chapter.
+              </item>
+              <item>
+                If the right arrow key is pressed, the method invokes <see cref="M:EpubReader.app_pages.EbookWindow.MoveForward"/> to navigate to the next chapter.
+              </item>
+            </list>
+            </remarks>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.ChangeCommandBarColors">
             <summary>
-            Changes the colors of the CommandBar buttons.
+            Updates the colors and styles of the command bar and viewer based on the user's settings.
             </summary>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>
+                Loads color settings from a JSON configuration file based on the user's theme.
+              </item>
+              <item>
+                Updates the background color of the viewer grid and command bar, as well as the foreground color of command bar buttons.
+              </item>
+              <item>
+                Adjusts the margin of the WebView depending on the ebook viewer setting and updates the CSS accordingly.
+              </item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">Handles exceptions related to file reading and color parsing. If the settings or colors are invalid, default values are used.</exception>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.PaddingButton_OnClick(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for the padding button, updating the padding setting and UI accordingly.
+            </summary>
+            <param name="sender">The object that raised the event.</param>
+            <param name="e">The event data, which contains information about the click event.</param>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>
+                Retrieves the text from the padding TextBox and attempts to convert it to a double.
+              </item>
+              <item>
+                If the conversion is successful and the value is positive, updates the global settings with the new padding value, saves the settings to a file, and updates the UI to reflect the new padding with a success background color.
+              </item>
+              <item>
+                If the conversion fails or the value is not valid, displays an error message in the TextBox and updates the background color to indicate an error.
+              </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.FontSizeButton_OnClick(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for the font size button, updating the font size setting and UI accordingly.
+            </summary>
+            <param name="sender">The object that raised the event.</param>
+            <param name="e">The event data, which contains information about the click event.</param>
+            <remarks>
+            This method performs the following actions:
+            <list type="bullet">
+              <item>
+                Retrieves the text from the font size TextBox and attempts to convert it to a double.
+              </item>
+              <item>
+                If the conversion is successful and the value is positive, updates the global settings with the new font size, saves the settings to a file, and updates the UI with a success background color.
+              </item>
+              <item>
+                Updates the font size in the settings page and applies the new CSS to reflect the updated font size.
+              </item>
+              <item>
+                If the conversion fails or the value is not valid, displays an error message in the TextBox and updates the background color to indicate an error.
+              </item>
+            </list>
+            </remarks>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.ParseHexColor(System.String)">
             <summary>
-            Parses
+            Converts a hex color string to a <see cref="T:Windows.UI.Color"/> object.
             </summary>
-            <param name="hexColor"></param>
-            <returns></returns>
+            <param name="hexColor">A string representing the color in hexadecimal format, optionally prefixed with '#'.</param>
+            <returns>A <see cref="T:Windows.UI.Color"/> object representing the color.</returns>
+            <remarks>
+            The method assumes the hex color string is in the format "RRGGBB". The alpha (opacity) value is set to fully opaque (255).
+            </remarks>
+            <exception cref="T:System.FormatException">Thrown if the hex color string is not in a valid format.</exception>
+            <example>
+            <code>
+            Windows.UI.Color color = ParseHexColor("#FF5733");
+            </code>
+            </example>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.OpenEbookMessage(System.ValueTuple{System.String,System.String})">
             <summary>
-            Prints log messages to the Output window.
+            Opens and logs information about an ebook based on the provided play order and folder path.
             </summary>
-            <param name="data"></param>
+            <param name="data">A tuple containing the play order and folder path of the ebook.</param>
+            <remarks>
+            The method retrieves the path to the ebook content and reads the ebook data using the provided 
+            play order and folder path. It then logs details about the ebook such as its title, content path,
+            play order, and scroll value for debugging purposes.
+            </remarks>
+            <example>
+            <code>
+            OpenEbookMessage(("01", "MyEbooks/Folder1"));
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StartFlaskServer(System.Boolean)">
+            <summary>
+            Starts the Flask server by executing a Python script using the specified Python interpreter.
+            </summary>
+            <param name="debug">Optional flag to enable debugging output. Default is <c>false</c>.</param>
+            <remarks>
+            This method reads the global settings to obtain the path of the Python interpreter and the
+            Python script to execute. It then starts a process to run the Flask server. The script path
+            is constructed from the working directory combined with the script file name. If debugging is
+            enabled, the method logs the script path, output, and any errors to help troubleshoot issues.
+            </remarks>
+            <example>
+            <code>
+            await StartFlaskServer(true);
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StartFlaskServerThread">
+            <summary>
+            Starts the Flask server on a separate thread if the translation service is set to "argos".
+            </summary>
+            <remarks>
+            This method reads the global settings to determine if the translation service is "argos". 
+            If so, it creates and starts a new thread to execute the <see cref="M:EpubReader.app_pages.EbookWindow.StartFlaskServer(System.Boolean)"/> method.
+            The threading ensures that the Flask server starts asynchronously and does not block the main thread.
+            </remarks>
+            <example>
+            <code>
+            StartFlaskServerThread();
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StopFlaskServerThread">
+            <summary>
+            Stops the Flask server if the translation service is set to "argos".
+            </summary>
+            <remarks>
+            This method reads the global settings to determine if the translation service is "argos". 
+            If so, it asynchronously calls the <see cref="M:EpubReader.app_pages.EbookWindow.StopFlaskServer(System.Boolean)"/> method to stop the Flask server.
+            The use of `await` ensures that the server shutdown process completes before the method exits.
+            </remarks>
+            <example>
+            <code>
+            await StopFlaskServerThread();
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.StopFlaskServer(System.Boolean)">
+            <summary>
+            Stops the Flask server by terminating its process.
+            </summary>
+            <param name="debug">If true, enables debug logging to trace method execution.</param>
+            <remarks>
+            This method checks if the Flask process is running and has not already exited. 
+            If so, it forcefully terminates the process and disposes of it to release system resources.
+            Debug messages are logged based on the <paramref name="debug"/> parameter.
+            </remarks>
+            <example>
+            <code>
+            await StopFlaskServer(true);
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.GetTranslation(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Sends a translation request to the Flask server and retrieves the translated text.
+            </summary>
+            <param name="text">The text to be translated.</param>
+            <param name="sourceLanguage">The language code of the source text.</param>
+            <param name="targetLanguage">The language code to translate the text into.</param>
+            <param name="debug">If true, enables debug logging to trace method execution and responses.</param>
+            <returns>A task representing the asynchronous operation, with a string result of the translated text or "ERROR" in case of failure.</returns>
+            <remarks>
+            This method constructs a JSON payload with the text and language information, sends a POST request to a Flask server,
+            and processes the response to extract the translated text. The response is expected to be in JSON format with a 
+            "translated_text" field. Debug logging is optional and provides details about the request and response for troubleshooting.
+            </remarks>
+            <example>
+            <code>
+            string translatedText = await GetTranslation("Hello", "en", "es", true);
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.GetTranslationMymemory(System.String,System.String,System.String,System.String)">
+            <summary>
+            Retrieves a translated text from the MyMemory translation service.
+            </summary>
+            <param name="textToTranslate">The text that needs to be translated.</param>
+            <param name="sourceLanguage">The language code of the source text (e.g., "en" for English).</param>
+            <param name="targetLanguage">The language code to which the text should be translated (e.g., "es" for Spanish).</param>
+            <param name="developerEmail">The email address used for API key identification and support requests. Defaults to "david.valek17@gmail.com".</param>
+            <returns>A task representing the asynchronous operation, with a string result containing the translated text or an error message if the request fails.</returns>
+            <remarks>
+            This method calls the `TranslateText` function to perform the translation using the MyMemory service. The email address provided is used
+            for API key identification and can be customized as needed. The `TranslateText` function handles the communication with the MyMemory API
+            and processes the translation response.
+            </remarks>
+            <example>
+            <code>
+            string translatedText = await GetTranslationMymemory("Hello", "en", "fr");
+            Console.WriteLine(translatedText); // Output will be the translated text in French.
+            </code>
+            </example>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.TranslateText(System.String,System.String,System.String,System.String)">
+            <summary>
+            Translates the given text using the MyMemory translation service API.
+            </summary>
+            <param name="text">The text to be translated.</param>
+            <param name="sourceLanguage">The language code of the source text (e.g., "en" for English).</param>
+            <param name="targetLanguage">The language code to which the text should be translated (e.g., "es" for Spanish).</param>
+            <param name="developerEmail">The email address used for API key identification and support requests.</param>
+            <returns>A task representing the asynchronous operation, with a string result containing the translated text.</returns>
+            <exception cref="T:System.Net.Http.HttpRequestException">Thrown when the HTTP request fails.</exception>
+            <remarks>
+            This method constructs a URL to request a translation from the MyMemory API, sends a GET request, and parses the response.
+            The email address provided is used for API key identification and support requests. Ensure that the email address
+            used is registered with the MyMemory API for proper functioning.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.FontsComboBoxSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event when the selected item in the fonts ComboBox changes.
+            Updates the application's font settings based on the user's selection and applies the new font to the text content.
+            </summary>
+            <param name="sender">The source of the event, typically the ComboBox control.</param>
+            <param name="e">The event arguments containing the details of the selection change.</param>
+            <remarks>
+            This method checks if the application startup process is complete (i.e., `startUp` is at least 2) before updating the font settings.
+            If the startup process is not yet complete, it increments the `startUp` counter. Once the startup is complete, it:
+            - Retrieves the selected font family from the ComboBox.
+            - Deserializes the global settings JSON file to get the current settings.
+            - Updates the `Font` property with the new font family and saves the updated settings back to the JSON file.
+            - Calls `SettingsPage.UpdateBodyFontFamily` to apply the new font to the text content and `UpdateCSSAction` to refresh the CSS with the new font.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.ThemesComboBox_OnSelectionChanged(System.Object,Microsoft.UI.Xaml.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the event when the selected item in the themes ComboBox changes.
+            Updates the application's theme settings based on the user's selection and applies the new theme to the UI components.
+            </summary>
+            <param name="sender">The source of the event, typically the ComboBox control.</param>
+            <param name="e">The event arguments containing the details of the selection change.</param>
+            <remarks>
+            This method checks if the application startup process is complete (i.e., `startUp` is at least 2) before updating the theme settings.
+            If the startup process is not yet complete, it increments the `startUp` counter. Once the startup is complete, it:
+            - Retrieves the selected theme from the ComboBox.
+            - Deserializes the global settings JSON file to get the current settings.
+            - Updates the `Theme` property with the new theme and saves the updated settings back to the JSON file.
+            - Calls `SettingsPage.UpdateBodyTextColor` and `SettingsPage.UpdateBodyBackgroundColor` to apply the new theme's colors to the text and background respectively.
+            - Refreshes the CSS to apply the new theme styles and updates the command bar colors accordingly.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.app_pages.EbookWindow.Settings_OnClick(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)">
+            <summary>
+            Handles the click event for the settings button.
+            Toggles the visibility of the settings popup control.
+            </summary>
+            <param name="sender">The source of the event, typically the button control that was clicked.</param>
+            <param name="e">The event arguments containing the details of the click event.</param>
+            <remarks>
+            This method toggles the `IsOpen` property of the `PopupControl` to show or hide the settings popup.
+            If the popup is currently closed, it will open; if it is currently open, it will close.
+            This provides a way for users to access or hide the settings panel based on their interaction with the settings button.
+            </remarks>
         </member>
         <member name="M:EpubReader.app_pages.EbookWindow.InitializeComponent">
             <summary>
@@ -605,6 +1520,55 @@
             </summary>
         </member>
         <member name="M:EpubReader.app_pages.HomePage.GetBindingConnector(System.Int32,System.Object)">
+            <summary>
+            GetBindingConnector(int connectionId, object target)
+            </summary>
+        </member>
+        <member name="T:EpubReader.MyMainWindow">
+            <summary>
+            An empty page that can be used on its own or navigated to within a Frame.
+            </summary>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:EpubReader.MyMainWindow"/> class.
+            </summary>
+        </member>
+        <member name="E:EpubReader.MyMainWindow.WindowResized">
+            <summary>
+            Occurs when the size of the window changes.
+            </summary>
+            <remarks>
+            The event provides a tuple containing the new width and height of the window.
+            </remarks>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.FrameworkElement_OnSizeChanged(System.Object,Microsoft.UI.Xaml.SizeChangedEventArgs)">
+            <summary>
+            Handles the SizeChanged event for a FrameworkElement.
+            Invokes the WindowResized event with the new width and height of the element.
+            </summary>
+            <param name="sender">The source of the event, which is the FrameworkElement that has changed size.</param>
+            <param name="e">The event data containing the new size of the element.</param>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.NavigationView_OnSelectionChanged(Microsoft.UI.Xaml.Controls.NavigationView,Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs)">
+            <summary>
+            Handles the selection change event for the NavigationView control.
+            Navigates to the appropriate page based on the selected item in the NavigationView pane.
+            </summary>
+            <param name="sender">The source of the event, which is the NavigationView control.</param>
+            <param name="args">The event data containing information about the selection change.</param>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.Connect(System.Int32,System.Object)">
+            <summary>
+            Connect()
+            </summary>
+        </member>
+        <member name="M:EpubReader.MyMainWindow.GetBindingConnector(System.Int32,System.Object)">
             <summary>
             GetBindingConnector(int connectionId, object target)
             </summary>
@@ -953,6 +1917,53 @@
             <summary>
             Initializes a new instance of the <see cref="T:EpubReader.Stats"/> class.
             </summary>
+        </member>
+        <member name="M:EpubReader.Stats.LoadBooks(System.Boolean)">
+            <summary>
+            Loads ebook data from multiple folders, aggregates the reading time, and updates the UI with the 
+            combined statistics. The method also logs detailed debug information if the <paramref name="debug"/> 
+            parameter is set to true.
+            </summary>
+            <param name="debug">Indicates whether detailed debug information should be logged. Defaults to false.</param>
+            <remarks>
+            This method performs the following tasks:
+            <list type="number">
+            <item>
+            <description>
+            Iterates over all ebook folders returned by <see cref="M:EpubReader.code.AppControls.GetListOfAllEbooks"/>.
+            </description>
+            </item>
+            <item>
+            <description>
+            For each folder, attempts to retrieve the associated JSON data file using 
+            <see cref="M:EpubReader.code.FileManagement.GetEbookDataJsonFile(System.String)"/> and parses it into an <see cref="T:EpubReader.code.Ebook"/> object 
+            using <see cref="M:EpubReader.code.JsonHandler.ReadEbookJsonFile(System.String,System.Boolean)"/>.
+            </description>
+            </item>
+            <item>
+            <description>
+            Aggregates the total reading time across all ebooks by summing the <see cref="P:EpubReader.code.Ebook.BookReadTime"/> 
+            values, handling any parsing errors by defaulting to zero time.
+            </description>
+            </item>
+            <item>
+            <description>
+            Combines the reading statistics from all ebooks into a single dictionary, merging the times for 
+            duplicate keys.
+            </description>
+            </item>
+            <item>
+            <description>
+            Adds the combined statistics as a new <see cref="T:EpubReader.Book"/> to the application's list of books, and updates 
+            the UI to display the total reading time for the current day.
+            </description>
+            </item>
+            </list>
+            </remarks>
+            <exception cref="T:System.Exception">
+            Catches any exceptions that occur during the processing of ebooks and logs 
+            them if debug mode is enabled. The method attempts to handle errors gracefully, setting defaults where necessary.
+            </exception>
         </member>
         <member name="M:EpubReader.Stats.GetColorFromValue(System.String)">
             <summary>
@@ -1755,6 +2766,21 @@
             <exception cref="T:System.IO.FileNotFoundException">Thrown when the specified OPF file does not exist.</exception>
             <exception cref="T:System.Xml.XmlException">Thrown when there is an error parsing the OPF file.</exception>
         </member>
+        <member name="T:EpubReader.code.FileManagement">
+            <summary>
+            Class used for file management in the application
+            </summary>
+        </member>
+        <member name="F:EpubReader.code.FileManagement.SupportedEbooksFormats">
+            <summary>
+            List of supported ebook formats
+            </summary>
+        </member>
+        <member name="F:EpubReader.code.FileManagement.EbookDataFileName">
+            <summary>
+            Name of the file used for storing the recent ebooks
+            </summary>
+        </member>
         <member name="M:EpubReader.code.FileManagement.WriteTextToFileAsync(System.String,System.String)">
             <summary>
              Writes string content to file in the application storage
@@ -1864,74 +2890,9 @@
             Dictionary data class used for storing the words and their translations
             </summary>
         </member>
-        <member name="T:EpubReader.MainWindow">
+        <member name="P:EpubReader.code.FileManagement.GlobalDictJson.TranslationsDict">
             <summary>
-            An empty window that can be used on its own or navigated to within a Frame.
-            </summary>
-        </member>
-        <member name="M:EpubReader.MainWindow.InitializeComponent">
-            <summary>
-            InitializeComponent()
-            </summary>
-        </member>
-        <member name="M:EpubReader.MainWindow.Connect(System.Int32,System.Object)">
-            <summary>
-            Connect()
-            </summary>
-        </member>
-        <member name="M:EpubReader.MainWindow.GetBindingConnector(System.Int32,System.Object)">
-            <summary>
-            GetBindingConnector(int connectionId, object target)
-            </summary>
-        </member>
-        <member name="T:EpubReader.MyMainWindow">
-            <summary>
-            An empty page that can be used on its own or navigated to within a Frame.
-            </summary>
-            
-        </member>
-        <member name="M:EpubReader.MyMainWindow.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:EpubReader.MyMainWindow"/> class.
-            </summary>
-        </member>
-        <member name="E:EpubReader.MyMainWindow.WindowResized">
-            <summary>
-            Occurs when the size of the window changes.
-            </summary>
-            <remarks>
-            The event provides a tuple containing the new width and height of the window.
-            </remarks>
-        </member>
-        <member name="M:EpubReader.MyMainWindow.FrameworkElement_OnSizeChanged(System.Object,Microsoft.UI.Xaml.SizeChangedEventArgs)">
-            <summary>
-            Handles the SizeChanged event for a FrameworkElement.
-            Invokes the WindowResized event with the new width and height of the element.
-            </summary>
-            <param name="sender">The source of the event, which is the FrameworkElement that has changed size.</param>
-            <param name="e">The event data containing the new size of the element.</param>
-        </member>
-        <member name="M:EpubReader.MyMainWindow.NavigationView_OnSelectionChanged(Microsoft.UI.Xaml.Controls.NavigationView,Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs)">
-            <summary>
-            Handles the selection change event for the NavigationView control.
-            Navigates to the appropriate page based on the selected item in the NavigationView pane.
-            </summary>
-            <param name="sender">The source of the event, which is the NavigationView control.</param>
-            <param name="args">The event data containing information about the selection change.</param>
-        </member>
-        <member name="M:EpubReader.MyMainWindow.InitializeComponent">
-            <summary>
-            InitializeComponent()
-            </summary>
-        </member>
-        <member name="M:EpubReader.MyMainWindow.Connect(System.Int32,System.Object)">
-            <summary>
-            Connect()
-            </summary>
-        </member>
-        <member name="M:EpubReader.MyMainWindow.GetBindingConnector(System.Int32,System.Object)">
-            <summary>
-            GetBindingConnector(int connectionId, object target)
+            Dictionary used for storing the words and their translations
             </summary>
         </member>
         <member name="T:EpubReader.Program">

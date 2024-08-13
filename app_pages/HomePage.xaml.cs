@@ -180,22 +180,26 @@ namespace EpubReader.app_pages
         public void SelectViewer((string ebookPlayOrder, string ebookFolderPath) navTuple)
         {
             GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-
+string title = JsonHandler.ReadEbookJsonFile(FileManagement.GetEbookDataJsonFile(navTuple.ebookFolderPath)).Title;
+Debug.WriteLine(title);
             switch (settings.EbookViewer)
             {
                 case "epubjs":
                     epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
                     secondWindow.WindowClosed += SecondWindow_WindowClosed;
+                    secondWindow.Title = title;
                     secondWindow.Activate();
                     break;
 
                 case "WebView2":
                     EbookWindow ebookWindow = new EbookWindow(navTuple);
                     ebookWindow.WindowClosed += SecondWindow_WindowClosed;
-                    //Debug.WriteLine($"Current Size = {ebookWindow.AppWindow.Size}");
+                    ebookWindow.Title = title;
                     ebookWindow.Activate();
                     break;
+
             }
+
 
         }
 
