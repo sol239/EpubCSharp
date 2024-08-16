@@ -392,7 +392,7 @@ public class AllBooks
                 var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
 
 
-                DateTime dateLastOpened = DateTime.ParseExact(book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                DateTime dateLastOpened = DateTime.ParseExact(book.DateAdded, "dd/MM/yyyy HH:mm:ss",FileManagement.Culture);
                 books.Add(book.JsonDataPath, dateLastOpened);
             }
 
@@ -447,7 +447,7 @@ public class AllBooks
                 var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
 
 
-                DateTime dateLastOpened = DateTime.ParseExact(book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                DateTime dateLastOpened = DateTime.ParseExact(book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", FileManagement.Culture);
                 books.Add(book.JsonDataPath, dateLastOpened);
             }
 
@@ -978,8 +978,8 @@ public class EpubHandler
                 _ebook.NavigationFilePath = _nvg.FindFilesWithExtensions(_ebookFolderPath, new List<string> { ".ncx", ".nav" });
                 _ebook.Format = "epub";
                 _ebook.FileName = Path.GetFileNameWithoutExtension(fileName);
-                _ebook.DateAdded = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);  // Format: 27/07/2024 08:21:56
-                _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);  // Format: 27/07/2024 08:21:56
+                _ebook.DateAdded = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", FileManagement.Culture);  // Format: 27/07/2024 08:21:56
+                _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", FileManagement.Culture);  // Format: 27/07/2024 08:21:56
 
                 if (debug) { Debug.WriteLine($"ExtractEpub() - Success - Extracted to {destination}"); }
             }

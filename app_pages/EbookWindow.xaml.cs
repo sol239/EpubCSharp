@@ -401,7 +401,7 @@ namespace EpubCSharp.app_pages
 
                 try
                 {
-                    _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                    _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", FileManagement.Culture);
                     if (debug) { Debug.WriteLine($"SavePosition() 3 - Success"); }
                 }
                 catch (Exception ex)

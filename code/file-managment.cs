@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -22,6 +23,9 @@ public class FileManagement
     private static readonly string DictFileName = "globalDict.json";
     private static readonly string EbookDataFolderName = "DATA";
     private static readonly string EbookAllBooksFileName = "allBooks.json";
+
+    public static CultureInfo Culture = new System.Globalization.CultureInfo("en-GB"); // UK English uses "dd/MM/yyyy"
+
 
     /// <summary>
     /// List of supported ebook formats
