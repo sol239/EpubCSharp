@@ -28,7 +28,7 @@ The app currently does not have installer or .exe file. But once you build the a
 
 - To build the app you’ll need this installed in Visual Studio:
 
-![image.png](EpubReader%208468f6ccb553496d94602b82fc69a495/image.png)
+![image.png](docs/EpubReader%208468f6ccb553496d94602b82fc69a495/image.png)
 
 - You will also need these **`C#`** packages:
     - https://www.nuget.org/packages/Microsoft.Windows.SDK.BuildTools/10.0.22621.756?_src=template
