@@ -978,8 +978,8 @@ public class EpubHandler
                 _ebook.NavigationFilePath = _nvg.FindFilesWithExtensions(_ebookFolderPath, new List<string> { ".ncx", ".nav" });
                 _ebook.Format = "epub";
                 _ebook.FileName = Path.GetFileNameWithoutExtension(fileName);
-                _ebook.DateAdded = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");  // Format: 27/07/2024 08:21:56
-                _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");  // Format: 27/07/2024 08:21:56
+                _ebook.DateAdded = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);  // Format: 27/07/2024 08:21:56
+                _ebook.DateLastOpened = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);  // Format: 27/07/2024 08:21:56
 
                 if (debug) { Debug.WriteLine($"ExtractEpub() - Success - Extracted to {destination}"); }
             }
