@@ -170,10 +170,11 @@ The app was coded in **`C#`**. It used [**WIN UI](https://learn.microsoft.com/en
 ![image.png](EpubReader%208468f6ccb553496d94602b82fc69a495/image%2018.png)
 
 - **app_pages/** = directory containing pages used for displaying **Home, All book, book viewer, …**
-    - **Home = HomePage.xaml**
+    - **Home = HomePage.xaml**, The app starts with this page.
     - **All books = AllBooks.xaml**
     - **Stats = Stats.xaml**
-    - **Settings = SettingsPage.xaml**
+    - **Settings = SettingsPage.xaml**, the app is on the first start loaded with default settings, which 
+    can be found in /code/file-management.cs/CreateGlobalSettingsFile()
     - **Custom viewer = EbookWindow.xaml**
     - **epubjs viewer = epubjsWindow1.xaml**
 - **code/**
