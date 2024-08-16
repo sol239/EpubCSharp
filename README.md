@@ -205,3 +205,4 @@ If you need help, contact me: david.valek17@gmail.com
 You can find this doc at: [https://www.notion.so/EpubReader-8468f6ccb553496d94602b82fc69a495](https://www.notion.so/EpubReader-8468f6ccb553496d94602b82fc69a495?pvs=21)
 
 ---
+>>>>>>> master-gitlab
