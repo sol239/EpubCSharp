@@ -362,8 +362,8 @@ namespace EpubCSharp.app_pages
         {
             bool debug = false;
 
-            if (!_state)
-            {
+                if (_selectedEbook != null)
+                {
                 try
                 {
                     string selectedLang = _languageDict.Keys.ToList()[languageComboBox.SelectedIndex];
@@ -375,11 +375,6 @@ namespace EpubCSharp.app_pages
                 {
                     if (debug) { Debug.WriteLine("LanguageComboBoxSelectionChanged() - Fail - " + ex.Message); }
                 }
-            }
-
-            else
-            {
-                _state = false;
             }
         }
 

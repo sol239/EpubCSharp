@@ -7,9 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="App window">
+    SizeChanged="EbookWindow_OnSizeChanged"
+Title = "App title">
 
-    <Grid Name="ViewerGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Name="ViewerGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" KeyDown="Page_KeyDown">
         <!-- Set the background color for the Grid -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,15 +26,26 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <Ellipse 
+        Name ="ArgosEllipse"
+        Width="5" 
+        Height="5" 
+        Fill="#ff9cb3" 
+        HorizontalAlignment="Left" 
+        VerticalAlignment="Top"
+        Margin="10,10,0,0" 
+        Visibility="Collapsed"
+        Canvas.ZIndex="1" />
+
         <Grid>
             <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact"  IsTabStop="False" OverflowButtonVisibility="Collapsed">
-                <AppBarButton x:Name="Backward" Label="Backward">
+                <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72B;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
 
-                <AppBarButton x:Name="Forward" Label="Forward">
+                <AppBarButton x:Name="Forward" Label="Forward" Click="Forward_Click">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72A;" />
                     </AppBarButton.Icon>
@@ -45,8 +58,7 @@
                 </AppBarButton>
 
 
-
-                <AppBarButton x:Name="Home" Label="Home">
+                <AppBarButton x:Name="Home" Label="Home" Click="GoHomeAction">
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </AppBarButton.Icon>
@@ -59,14 +71,10 @@
             </AppBarButton> -->
             </CommandBar>
 
-            <TextBox x:Name="DummyTextBox" Visibility="Collapsed" IsTabStop="False"/>
-
-
-
         </Grid>
 
         <!-- WebView -->
-        <WebView2 x:Name="MyWebView"  
+        <WebView2 Grid.Column ="0"  x:Name="MyWebView"  
                Grid.Row="1"
                Grid.ColumnSpan="2"
                Source=""
@@ -78,16 +86,16 @@
 
         </WebView2>
 
-        <Popup x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
+        <Popup Grid.Column="0" Grid.Row="0"  x:Name="PopupControl" IsOpen="False" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
             <Border     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="Black" BorderThickness="1" Padding="10">
                 <StackPanel>
 
-                    <StackPanel  Name="FontSizeStackPanel"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
                         <TextBox Header="Font Size" x:Name="FontSizeBox" Width="300" Height="Auto" PlaceholderText="Enter viewer Font size..." />
                         <Button Content=">" Click="FontSizeButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
                     </StackPanel>
 
-                    <StackPanel Name="Padding"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Spacing="10" Margin="10" Height="Auto">
                         <TextBox Header ="Padding" x:Name="PaddingBox" Width="300" Height="Auto" PlaceholderText="Enter viewer padding..." />
                         <Button Content=">" Click="PaddingButton_OnClick" Width="40" Height="Auto" Margin="0,26,0,0"/>
                     </StackPanel>
@@ -96,18 +104,12 @@
                         <!-- ComboBox items -->
                     </ComboBox>
 
-                    <ComboBox x:Name="fontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="fontsComboBoxSelectionChanged">
+                    <ComboBox x:Name="FontsComboBox" Width="200" Height="58" PlaceholderText="Select Font" Header="Font" Margin="5" SelectionChanged="FontsComboBoxSelectionChanged">
                         <!-- ComboBox items -->
                     </ComboBox>
 
                 </StackPanel>
             </Border>
         </Popup>
-
-
-
-
-
-        <Frame x:Name="EbookFrame" />
     </Grid>
 </Window>

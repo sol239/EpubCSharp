@@ -21,6 +21,12 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="code\script.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="code\translation_script.py">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="scripts\**" />
   </ItemGroup>
 
@@ -34,6 +40,8 @@
     <None Remove="app_pages\SettingsPage.xaml" />
     <None Remove="app_pages\StatsPage.xaml" />
     <None Remove="Assets\iso639I_reduced.json" />
+    <None Remove="code\script.js" />
+    <None Remove="code\translation_script.py" />
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +105,17 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NewFolder\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="code\app_controls.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="code\epub-handler.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="code\file-managment.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
   <!--
