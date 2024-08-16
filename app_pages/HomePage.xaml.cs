@@ -73,8 +73,8 @@ namespace EpubCSharp.app_pages
         public void LoadImages2(double stackPanelWidth = 200)
         {
             ImageStackPanel.Children.Clear();
-            //            List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened");
-            List<string> ebooksPaths = JsonSerializer.Deserialize<List<string>>(
+            List<Ebook> ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated("DateLastOpened");
+            /*List<string> ebooksPaths = JsonSerializer.Deserialize<List<string>>(
                 File.ReadAllText(FileManagement.GetEbookAllBooksJsonFile()));
 
             List<Ebook> ebookPaths = new List<Ebook>();
@@ -84,7 +84,7 @@ namespace EpubCSharp.app_pages
                 var ebook = JsonHandler.ReadEbookJsonFile(ebookPath);
                 ebookPaths.Add(ebook);
 
-            }
+            }*/
             foreach (var ebook in ebookPaths)
             {
                 (string ebookPlayOrder, string ebookFolderPath) naValueTuple = (ebook.InBookPosition, ebook.EbookFolderPath);

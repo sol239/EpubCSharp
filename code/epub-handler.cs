@@ -334,31 +334,41 @@ public class AllBooks
         LoadAllBooksFromJson();
         Dictionary<string, string> books = new Dictionary<string, string>();
 
-        foreach (string ebookDataJsonPath in Books)
-        {
-            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-            books.Add(book.JsonDataPath, book.Title);
-        }
-
-        if (ascendingOrder)
-        {
-            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-        else
-        {
-            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-
-        Books = books.Keys.ToList();
-
-        // print the ebooks
-        if (print)
+        try
         {
             foreach (string ebookDataJsonPath in Books)
             {
                 var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {book.Title}");
+                books.Add(book.JsonDataPath, book.Title);
             }
+
+            if (ascendingOrder)
+            {
+                books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else
+            {
+                books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            Books = books.Keys.ToList();
+
+            // print the ebooks
+            if (print)
+            {
+                foreach (string ebookDataJsonPath in Books)
+                {
+                    var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                    Debug.WriteLine($"Title: {book.Title}");
+                }
+            }
+
+            Debug.WriteLine("GetBooksEpubFoldersByName() - Success");
+        }
+
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"GetBooksEpubFoldersByName() - Fail - {ex.Message}");
         }
         return Books;
     }
@@ -375,34 +385,42 @@ public class AllBooks
         LoadAllBooksFromJson();
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
-        foreach (string ebookDataJsonPath in Books)
-        {
-            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-
-
-            DateTime dateLastOpened = DateTime.ParseExact(book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            books.Add(book.JsonDataPath, dateLastOpened);
-        }
-
-        if (ascendingOrder)
-        {
-            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-        else
-        {
-            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-
-        Books = books.Keys.ToList();
-
-        // print he books
-        if (print)
+        try
         {
             foreach (string ebookDataJsonPath in Books)
             {
                 var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {book.Title}");
+
+
+                DateTime dateLastOpened = DateTime.ParseExact(book.DateAdded, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                books.Add(book.JsonDataPath, dateLastOpened);
             }
+
+            if (ascendingOrder)
+            {
+                books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else
+            {
+                books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            Books = books.Keys.ToList();
+
+            // print he books
+            if (print)
+            {
+                foreach (string ebookDataJsonPath in Books)
+                {
+                    var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                    Debug.WriteLine($"Title: {book.Title}");
+                }
+            }
+            Debug.WriteLine("GetBooksEpubFoldersByDateAdded() - Success");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"GetBooksEpubFoldersByDateAdded() - Fail - {ex.Message}");
         }
 
         return Books;
@@ -422,35 +440,45 @@ public class AllBooks
         Dictionary<string, DateTime> books = new Dictionary<string, DateTime>();
 
 
-        foreach (string ebookDataJsonPath in Books)
-        {
-            var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-
-
-            DateTime dateLastOpened = DateTime.ParseExact(book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            books.Add(book.JsonDataPath, dateLastOpened);
-        }
-
-
-        if (ascendingOrder)
-        {
-            books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-        else
-        {
-            books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        }
-
-        Books = books.Keys.ToList();
-
-        // print he books
-        if (print)
+        try
         {
             foreach (string ebookDataJsonPath in Books)
             {
                 var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
-                Debug.WriteLine($"Title: {book.Title}");
+
+
+                DateTime dateLastOpened = DateTime.ParseExact(book.DateLastOpened, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                books.Add(book.JsonDataPath, dateLastOpened);
             }
+
+
+            if (ascendingOrder)
+            {
+                books = books.OrderBy(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else
+            {
+                books = books.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            Books = books.Keys.ToList();
+
+            // print he books
+            if (print)
+            {
+                foreach (string ebookDataJsonPath in Books)
+                {
+                    var book = JsonHandler.ReadEbookJsonFile(ebookDataJsonPath);
+                    Debug.WriteLine($"Title: {book.Title}");
+                }
+            }
+
+            Debug.WriteLine("GetBooksEpubFoldersByDateLastOpened() - Success");
+        }
+
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"GetBooksEpubFoldersByDateLastOpened() - Fail - {ex.Message}");
         }
 
         return Books;
