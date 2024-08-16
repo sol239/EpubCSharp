@@ -4,9 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EpubCSharp.app_pages;
 
 
-namespace EpubReader.code;
+namespace EpubCSharp.code;
 /// <summary>
 /// Class used for file management in the application
 /// </summary>

@@ -8,14 +8,14 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="EpubReader"
+    Name="206d2a92-f7b0-4a9a-8037-1698bbb30aeb"
     Publisher="CN=david_pmv0zjd"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="881794ec-1fa7-40fb-b08d-cc0f8d536091" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="206d2a92-f7b0-4a9a-8037-1698bbb30aeb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>EpubReader</DisplayName>
+    <DisplayName>EpubCSharp</DisplayName>
     <PublisherDisplayName>david_pmv0zjd</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -34,13 +34,12 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="EpubReader"
-        Description="EpubReader"
+        DisplayName="EpubCSharp"
+        Description="EpubCSharp"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\icon.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" >
-        </uap:DefaultTile >
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>

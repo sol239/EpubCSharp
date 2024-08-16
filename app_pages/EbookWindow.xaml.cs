@@ -1,33 +1,35 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Runtime.InteropServices.WindowsRuntime;
+using EpubCSharp.code;
+using Microsoft.UI.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
-using EpubReader.code;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Web.WebView2.Core;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using static EpubCSharp.code.FileManagement;
 using Windows.Storage;
-using static EpubReader.code.FileManagement;
-using ContentDialog = Microsoft.UI.Xaml.Controls.ContentDialog;
-
-// threading
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace EpubReader.app_pages
+namespace EpubCSharp.app_pages
 {
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
@@ -103,7 +105,7 @@ namespace EpubReader.app_pages
         /// <exception cref="FormatException">Thrown if the height values returned from the WebView are not in a valid numeric format.</exception>
         private async void EbookWindow_OnSizeChanged(object sender, WindowSizeChangedEventArgs args)
         {
-          
+
             /*
             int fontSize = 20;  // in px
             int lineHeight = 20; // in px
@@ -203,7 +205,7 @@ namespace EpubReader.app_pages
                 this.Closed -= MainWindow_Closed;
 
                 await StopFlaskServerThread();
-                                await SavePosition();
+                await SavePosition();
                 CalculateTimeDifference();
                 WindowClosed?.Invoke(this, EventArgs.Empty);
                 this.Close();
@@ -390,26 +392,26 @@ namespace EpubReader.app_pages
                 try
                 {
                     _ebook.InBookPosition = _navValueTuple.ebookPlayOrder;
-                    if (debug) {Debug.WriteLine($"SavePosition() 2 - Success");}
+                    if (debug) { Debug.WriteLine($"SavePosition() 2 - Success"); }
                 }
                 catch (Exception ex)
                 {
-                    if (debug) {Debug.WriteLine($"SavePosition() 2 - Fail - {ex.Message}");}
+                    if (debug) { Debug.WriteLine($"SavePosition() 2 - Fail - {ex.Message}"); }
                 }
 
                 try
                 {
                     _ebook.DateLastOpened = DateTime.Now.ToString();
-                    if(debug) {Debug.WriteLine($"SavePosition() 3 - Success");}
+                    if (debug) { Debug.WriteLine($"SavePosition() 3 - Success"); }
                 }
                 catch (Exception ex)
                 {
-                    if (debug) {Debug.WriteLine($"SavePosition() 3 - Fail - {ex.Message}");}
+                    if (debug) { Debug.WriteLine($"SavePosition() 3 - Fail - {ex.Message}"); }
                 }
             }
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"An error occurred in SavePosition: {ex.Message}");}
+                if (debug) { Debug.WriteLine($"An error occurred in SavePosition: {ex.Message}"); }
             }
 
             finally
@@ -430,7 +432,7 @@ namespace EpubReader.app_pages
                 }
                 catch (Exception ex)
                 {
-                    if (debug) {Debug.WriteLine($"SavePosition() - Fail - {ex.Message}");}
+                    if (debug) { Debug.WriteLine($"SavePosition() - Fail - {ex.Message}"); }
                 }
             }
         }
@@ -475,7 +477,7 @@ namespace EpubReader.app_pages
 
                 catch
                 {
-openTime = DateTime.Now;
+                    openTime = DateTime.Now;
                 }
 
                 try
@@ -486,7 +488,7 @@ openTime = DateTime.Now;
 
                 catch
                 {
-closeTime = DateTime.Now;
+                    closeTime = DateTime.Now;
                 }
 
                 TimeSpan readTime = new TimeSpan(0, 0, 0, 0);
@@ -518,12 +520,12 @@ closeTime = DateTime.Now;
                     JsonHandler.StoreJsonEbookFile(_ebook, filePath);
                 }
 
-                if (debug) {Debug.WriteLine($"CalculateTimeDifference() - Success\n");}
+                if (debug) { Debug.WriteLine($"CalculateTimeDifference() - Success\n"); }
             }
 
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"CalculateTimeDifference() - Fail - {ex.Message}\n");}
+                if (debug) { Debug.WriteLine($"CalculateTimeDifference() - Fail - {ex.Message}\n"); }
             }
 
         }
@@ -578,13 +580,13 @@ closeTime = DateTime.Now;
                     _ebook.StatsRecord1.Add(currentDate, timeDifference.ToString());
                 }
 
-                if (debug) {Debug.WriteLine($"StoreEbookStats() - Success");}
+                if (debug) { Debug.WriteLine($"StoreEbookStats() - Success"); }
 
             }
 
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"StoreEbookStats() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"StoreEbookStats() - Fail - {ex.Message}"); }
             }
         }
 
@@ -605,7 +607,7 @@ closeTime = DateTime.Now;
         /// <description>Scrolls the WebView2 control to the vertical position specified by the <c>ScrollValue</c> property of the eBook.</description>
         /// </item>
         /// <item>
-        /// <description>Sets the XHTML content file path based on the eBook‚Äôs current position using <c>InBookPosition</c>.</description>
+        /// <description>Sets the XHTML content file path based on the eBookís current position using <c>InBookPosition</c>.</description>
         /// </item>
         /// </list>
         /// If an exception occurs during any of these operations, it will be logged if debugging is enabled.
@@ -619,12 +621,12 @@ closeTime = DateTime.Now;
                 await MyWebView.EnsureCoreWebView2Async(null);
                 await MyWebView.CoreWebView2.ExecuteScriptAsync($"window.scrollTo(0, {_ebook.ScrollValue});");
                 _xhtmlPath = FileManagement.GetBookContentFilePath(_navValueTuple.ebookFolderPath, _ebook.InBookPosition);
-if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
+                if (debug) { Debug.WriteLine($"RestorePositionAsync() - Success"); }
             }
 
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"RestorePositionAsync() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"RestorePositionAsync() - Fail - {ex.Message}"); }
             }
         }
 
@@ -669,16 +671,16 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
                     }
                     RestorePositionAsync();
                 }
-                if (debug) {Debug.WriteLine($"EbookViewer_Loaded() - Success");}
+                if (debug) { Debug.WriteLine($"EbookViewer_Loaded() - Success"); }
             }
             catch
             {
-                if (debug) {Debug.WriteLine($"EbookViewer_Loaded() - Fail");}
+                if (debug) { Debug.WriteLine($"EbookViewer_Loaded() - Fail"); }
             }
             finally
             {
                 SaveBookOpenTime();
-                
+
             }
         }
 
@@ -719,11 +721,11 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
                 MyWebView.CoreWebView2.Settings.IsScriptEnabled = true;
                 _xhtmlPath = FileManagement.GetBookContentFilePath(_navValueTuple.ebookFolderPath, _navValueTuple.ebookPlayOrder);
                 MyWebView.Source = new Uri(_xhtmlPath);
-                if (debug) {Debug.WriteLine($"InitializeWebViewAsync() - Success\n");}
+                if (debug) { Debug.WriteLine($"InitializeWebViewAsync() - Success\n"); }
             }
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"InitializeWebViewAsync() - Fail - {ex.Message}\n");}
+                if (debug) { Debug.WriteLine($"InitializeWebViewAsync() - Fail - {ex.Message}\n"); }
             }
         }
 
@@ -808,18 +810,18 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
         /// Thrown if the <paramref name="text"/> or <paramref name="charsToRemove"/> parameters are <c>null</c>.
         /// </exception>
         private static string RemoveLeadingTrailingSymbols(string text, char[] charsToRemove, bool removeLeading)
+        {
+            int index = removeLeading ? 0 : text.Length - 1;
+            int step = removeLeading ? 1 : -1;
+
+            while (index >= 0 && index < text.Length && Array.Exists(charsToRemove, c => c == text[index]))
             {
-                int index = removeLeading ? 0 : text.Length - 1;
-                int step = removeLeading ? 1 : -1;
-
-                while (index >= 0 && index < text.Length && Array.Exists(charsToRemove, c => c == text[index]))
-                {
-                    text = text.Remove(index, 1);
-                    index += step;
-                }
-
-                return text;
+                text = text.Remove(index, 1);
+                index += step;
             }
+
+            return text;
+        }
 
         /// <summary>
         /// Asynchronously removes specified leading and trailing symbols from a given string.
@@ -856,7 +858,7 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
         {
             // Original text
             // Define an array of characters to remove if they are at the start or end
-            char[] charsToRemove = { '.', ',', '!', '?', ':', ';', ' ', '\n', '\r', '\t', '\u2581', '"', '‚Äú', '‚Äù', '‚Äò', '‚Äô', '(', ')', '[', ']', '{', '}', '<', '>', '‚Äû', '¬´', '¬ª' };
+            char[] charsToRemove = { '.', ',', '!', '?', ':', ';', ' ', '\n', '\r', '\t', '\u2581', '"', 'ì', 'î', 'ë', 'í', '(', ')', '[', ']', '{', '}', '<', '>', 'Ñ', '´', 'ª' };
 
             // Remove symbols from the start if they are in the charsToRemove array
             text = RemoveLeadingTrailingSymbols(text, charsToRemove, true);
@@ -895,10 +897,10 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
         private static string RepairTranslation(string text)
         {
             text = text.Replace("\u2581", " ");   // argos translate misbehavior in en->cs translations
-            
+
             // remove trailing whitespaces
             text = text.Trim();
-            
+
             return text;
         }
 
@@ -945,28 +947,25 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
         {
             try
             {
+
+                
+
                 GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
-                // Get the path to the application's installed location
-                StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-                // Define the relative path to the script file
-                string relativePath = "app_pages\\iso639I_reduced.json";
-
                 // Combine the installed location path with the relative path
-                string path = Path.Combine(installedLocation.Path, relativePath);
+                string path = Path.Combine(AppContext.BaseDirectory, "Assets\\iso639I_reduced.json");
 
                 string json = File.ReadAllText(path);
                 Dictionary<string, string> languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
 
                 string code = languageDict[endoLanguageName];
-                if (debug) {Debug.WriteLine($"GetLanguageCode() - Success - {code}");}
+                if (debug) { Debug.WriteLine($"GetLanguageCode() - Success - {code}"); }
                 return code;
             }
 
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"GetLanguageCode() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"GetLanguageCode() - Fail - {ex.Message}"); }
                 return "en";
             }
         }
@@ -1140,7 +1139,7 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
             {
                 _selectedText = messageContent;
             }
-            
+
             MyWebView.Focus(FocusState.Programmatic);
 
         }
@@ -1190,16 +1189,11 @@ if (debug) {Debug.WriteLine($"RestorePositionAsync() - Success");}
 
         private static async Task<string> RunPythonScript(string text, string sourceLanguage, string targetLanguage, bool debug = false)
         {
-GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-
-            // Get the path to the application's installed location
-            StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-            // Define the relative path to the script file
-            string relativePath = "code\\translation_script.py";
+            GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
             // Combine the installed location path with the relative path
-            string path = Path.Combine(installedLocation.Path, relativePath);
+            string path = Path.Combine(AppContext.BaseDirectory, "code\\translation_script.py");
+
 
             // Path to the Python interpreter and the script
             string pythonPath = settings.PythonPath;
@@ -1237,7 +1231,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 if (!string.IsNullOrEmpty(errors))
                 {
                     // Handle errors as needed
-                    if (debug) {Debug.WriteLine($"Python errors: {errors}");}
+                    if (debug) { Debug.WriteLine($"Python errors: {errors}"); }
                 }
 
                 return output.Trim();
@@ -1267,16 +1261,16 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 {
                     linkElement.SetAttributeValue("href", newCssPath);
                     xhtmlDocument.Save(xhtmlPath);
-                    if (debug) {Debug.WriteLine("UpdateCssPath() - Success\n");}
+                    if (debug) { Debug.WriteLine("UpdateCssPath() - Success\n"); }
                 }
                 else
                 {
-                    if (debug) {Debug.WriteLine("No <link> element with rel=\"stylesheet\" found.");}
+                    if (debug) { Debug.WriteLine("No <link> element with rel=\"stylesheet\" found."); }
                 }
             }
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"UpdateCssPath() - Fail - {ex.Message}\n");}
+                if (debug) { Debug.WriteLine($"UpdateCssPath() - Fail - {ex.Message}\n"); }
             }
         }
 
@@ -1302,16 +1296,16 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                     }
                     else
                     {
-                        if (debug) {Debug.WriteLine("Navigation failed.");}
+                        if (debug) { Debug.WriteLine("Navigation failed."); }
                     }
                 };
 
-                if (debug) {Debug.WriteLine("UpdateCSSAction() - Success\n");}
+                if (debug) { Debug.WriteLine("UpdateCSSAction() - Success\n"); }
             }
 
             catch
             {
-                if (debug) {Debug.WriteLine("UpdateCSSAction() - Fail\n");}
+                if (debug) { Debug.WriteLine("UpdateCSSAction() - Fail\n"); }
             }
 
         }
@@ -1510,16 +1504,16 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
 
 
                                 _navValueTuple.ebookPlayOrder = 1.ToString();
-                                await SavePosition(); 
+                                await SavePosition();
                                 CalculateTimeDifference();
                                 WindowClosed?.Invoke(this, EventArgs.Empty);
                                 this.Close();
 
-                                if (debug) {Debug.WriteLine("GoHomeAction() - Success\n");}
+                                if (debug) { Debug.WriteLine("GoHomeAction() - Success\n"); }
                             }
                             catch (Exception ex)
                             {
-                                if (debug) {Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n");}
+                                if (debug) { Debug.WriteLine($"GoHomeAction() - Fail - {ex.Message}\n"); }
                             }
                         }
                     }
@@ -1546,7 +1540,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                         {
                             if (args.IsSuccess)
                             {
-                                if (debug) {Debug.WriteLine("MoveToNextChapter - Navigation completed.");}
+                                if (debug) { Debug.WriteLine("MoveToNextChapter - Navigation completed."); }
 
                                 documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
                                 windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
@@ -1556,7 +1550,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                             }
                             else
                             {
-                                if (debug) {Debug.WriteLine("Navigation failed.");}
+                                if (debug) { Debug.WriteLine("Navigation failed."); }
                             }
                         };
                     }
@@ -1564,7 +1558,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 }
                 catch (Exception ex)
                 {
-                    if (debug) {Debug.WriteLine($"MoveToNextChapter() - Fail - {ex.Message}\n");}
+                    if (debug) { Debug.WriteLine($"MoveToNextChapter() - Fail - {ex.Message}\n"); }
                 }
             }
 
@@ -1637,7 +1631,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                     {
                         if (args.IsSuccess)
                         {
-                            if (debug) {Debug.WriteLine("MoveToPreviousChapter - Navigation completed.");}
+                            if (debug) { Debug.WriteLine("MoveToPreviousChapter - Navigation completed."); }
                             documentHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("document.body.scrollHeight;");
                             windowHeight = await MyWebView.CoreWebView2.ExecuteScriptAsync("window.innerHeight;");
                             wantedScroll = (float.Parse(documentHeight)).ToString();
@@ -1648,14 +1642,14 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                         }
                         else
                         {
-                            if (debug) {Debug.WriteLine("Navigation failed.");}
+                            if (debug) { Debug.WriteLine("Navigation failed."); }
                         }
                     };
                     await SavePosition();
                 }
                 catch (Exception ex)
                 {
-                    if (debug) {Debug.WriteLine($"MoveToPreviousChapter() - Fail - {ex.Message}\n");}
+                    if (debug) { Debug.WriteLine($"MoveToPreviousChapter() - Fail - {ex.Message}\n"); }
                 }
             }
         }
@@ -1684,12 +1678,12 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                     MoveToNextChapter();
                 }
 
-                if (debug) {Debug.WriteLine("CheckForward() - Success\n");}
+                if (debug) { Debug.WriteLine("CheckForward() - Success\n"); }
             }
 
             catch
             {
-                if (debug) {Debug.WriteLine("CheckForward() - Fail\n");}
+                if (debug) { Debug.WriteLine("CheckForward() - Fail\n"); }
             }
             _lastScroll = scrollY;
         }
@@ -1717,12 +1711,12 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
 
                     MoveToPreviousChapter();
                 }
-                if (debug) {Debug.WriteLine("CheckBackward() - Success\n");}
+                if (debug) { Debug.WriteLine("CheckBackward() - Success\n"); }
             }
 
             catch
             {
-                if (debug) {Debug.WriteLine("CheckBackward() - Fail\n");}
+                if (debug) { Debug.WriteLine("CheckBackward() - Fail\n"); }
             }
 
             _lastScroll = scrollY;
@@ -1782,7 +1776,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             Windows.UI.Color _foregroundColor = ParseHexColor("#000000");
             Windows.UI.Color _buttonColor;
 
-        GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+            GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
 
             try
@@ -1900,7 +1894,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                     settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
-                     SettingsPage.UpdateBodyFontSize(settings.FontSize);
+                    SettingsPage.UpdateBodyFontSize(settings.FontSize);
                     UpdateCSSAction();
                 }
             }
@@ -1994,20 +1988,8 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                     JsonSerializer.Deserialize<GlobalSettingsJson>(
                         File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
 
-                string workingDirectory = Directory.GetCurrentDirectory();
-
-                // Define the Python script file name
-                // Get the path to the application's installed location
-                StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-                // Define the relative path to the script file
-                string relativePath = "code\\translation_script.py";
-
-                // Combine the installed location path with the relative path
-                string scriptFileName = Path.Combine(installedLocation.Path, relativePath);
-
                 // Combine the working directory with the script file name
-                string scriptPath = Path.Combine(workingDirectory, scriptFileName);
+                string scriptPath = Path.Combine(AppContext.BaseDirectory, "code\\translation_script.py");
 
                 if (debug)
                 {
@@ -2040,7 +2022,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             }
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"StartFlaskServer() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"StartFlaskServer() - Fail - {ex.Message}"); }
             }
 
         }
@@ -2067,7 +2049,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
             if (settings.TranslationService == "argos")
             {
                 await Task.Run(() => StartFlaskServer(debug: false));
-                
+
 
             }
         }
@@ -2116,13 +2098,13 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 {
                     _flaskProcess.Kill(); // Forcefully terminate the process
                     _flaskProcess.Dispose();
-                    if (debug) {Debug.WriteLine($"StopFlaskServer() - Success");}
+                    if (debug) { Debug.WriteLine($"StopFlaskServer() - Success"); }
                 }
             }
 
             catch (Exception e)
             {
-                if (debug) {Debug.WriteLine($"StopFlaskServer() - Fail - {e.Message}");}
+                if (debug) { Debug.WriteLine($"StopFlaskServer() - Fail - {e.Message}"); }
             }
         }
 
@@ -2280,7 +2262,7 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                         {
                             status = statusElement.GetString();
                             Debug.WriteLine($"Initialization status: {status}");
-                            if (!( status.Contains("not started") || status.Contains("in progress")))
+                            if (!(status.Contains("not started") || status.Contains("in progress")))
                             {
                                 break;
                             }
@@ -2355,8 +2337,8 @@ GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(Fil
                 while (true)
                 {
                     string statusResult = await CheckInitializationStatus(sourceLanguage, targetLanguage, debug);
-                    
-Debug.WriteLine($"statusResult = {statusResult}");
+
+                    Debug.WriteLine($"statusResult = {statusResult}");
                     if (!statusResult.Contains("ERROR"))
                     {
                         _isArgosReady = true;
@@ -2373,7 +2355,7 @@ Debug.WriteLine($"statusResult = {statusResult}");
                 }
             }
             CheckArgosState();
-                        translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
+            translationResult = await GetTranslation(text, sourceLanguage, targetLanguage, debug);
             Debug.WriteLine($"translationResult = {translationResult}");
             return translationResult;
         }
@@ -2465,7 +2447,7 @@ Debug.WriteLine($"statusResult = {statusResult}");
             {
                 _startUp++;
             }
-            
+
         }
 
         /// <summary>
@@ -2557,6 +2539,3 @@ Debug.WriteLine($"statusResult = {statusResult}");
     }
 
 }
-
-
-

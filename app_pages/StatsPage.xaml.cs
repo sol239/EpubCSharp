@@ -1,24 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using EpubReader.app_pages;
-using EpubReader.code;
+using System.Runtime.InteropServices.WindowsRuntime;
+using EpubCSharp.code;
 using Microsoft.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 using Windows.UI;
-
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace EpubReader
+namespace EpubCSharp.app_pages
 {
     /// <summary>
     /// A page that displays a grouped collection of items.
     /// </summary>
-    public sealed partial class Stats : Page
+    public sealed partial class StatsPage : Page
     {
         private int _currentMonth;
         private string _timeSpan2;
@@ -31,9 +38,9 @@ namespace EpubReader
         public List<Book> Books { get; set; } = new List<Book>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Stats"/> class.
+        /// Initializes a new instance of the <see cref="StatsPage"/> class.
         /// </summary>
-        public Stats()
+        public StatsPage()
         {
             InitializeComponent();
             LoadBooks();
@@ -100,34 +107,34 @@ namespace EpubReader
                     try
                     {
                         jsonDataFilePath = FileManagement.GetEbookDataJsonFile(ebookFolderPath);
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Success");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Success"); }
                     }
 
                     catch (Exception ex)
                     {
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Fail - {ex.Message}");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 1 Fail - {ex.Message}"); }
                     }
 
                     try
                     {
                         ebook = JsonHandler.ReadEbookJsonFile(jsonDataFilePath);
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Success");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Success"); }
                     }
                     catch
                     {
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Fail");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 2 Fail"); }
                     }
 
                     try
                     {
                         _timeSpan += TimeSpan.Parse(ebook.BookReadTime);
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Success");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Success"); }
                     }
 
                     catch
                     {
                         _timeSpan += TimeSpan.Parse("00:00:00");
-                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Fail");}
+                        if (debug) { Debug.WriteLine($"LoadBooks() - 3 Fail"); }
                     }
 
                     finally
@@ -147,12 +154,12 @@ namespace EpubReader
                                     TimeSpan newTimeSpan = timeSpan.Add(timeSpan2);
                                     _combinedDict[entry.Key] = newTimeSpan.ToString();
                                 }
-if (debug) { Debug.WriteLine($"LoadBooks() 4 - Success");}
+                                if (debug) { Debug.WriteLine($"LoadBooks() 4 - Success"); }
                             }
 
                             catch (Exception ex)
                             {
-                                if (debug) { Debug.WriteLine($"LoadBooks() 4 - Fail - {ex.Message}");}
+                                if (debug) { Debug.WriteLine($"LoadBooks() 4 - Fail - {ex.Message}"); }
                             }
                         }
 
@@ -169,22 +176,22 @@ if (debug) { Debug.WriteLine($"LoadBooks() 4 - Success");}
                     TimeSpan _timeSpan2 = TimeSpan.Parse(_combinedDict[DateTime.Now.ToString("yyyy-MM-dd")]);
 
                     TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: {_timeSpan2.Hours}h {_timeSpan2.Minutes}m {_timeSpan2.Seconds}s";
-if (debug) { Debug.WriteLine($"LoadBooks() 5 - Success");}
+                    if (debug) { Debug.WriteLine($"LoadBooks() 5 - Success"); }
 
                 }
 
                 catch (Exception ex)
                 {
                     TimeSpentPerBookTextBlock.Text = $"{DateTime.Now.ToString("yy-MMM-dd ddd")}: 0s";
-if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}");}
+                    if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}"); }
                 }
 
-                if (debug) { Debug.WriteLine($"LoadBooks() - Success");}
+                if (debug) { Debug.WriteLine($"LoadBooks() - Success"); }
             }
 
             catch (Exception ex)
             {
-                if (debug) { Debug.WriteLine($"LoadBooks() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"LoadBooks() - Fail - {ex.Message}"); }
             }
 
         }
@@ -268,10 +275,10 @@ if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}");}
                 else
                 {
                     return EbookWindow.ParseHexColor("#000000");
-                } 
+                }
             }
 
-            catch 
+            catch
             {
                 return EbookWindow.ParseHexColor("#000000");
             }
@@ -410,33 +417,33 @@ if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}");}
             {
                 Debug.WriteLine($"CalendarView_SelectedDatesChanged() - Fail - {ex.Message}\n");
             }
-           
+
         }
 
-            /* Deprecated
-        private void SetupChart(string selectedDate)
+        /* Deprecated
+    private void SetupChart(string selectedDate)
+    {
+
+        DateTime date = DateTime.Parse(selectedDate);
+        List<string> dates = GetAllValidDates(date.Year, date.Month);
+        Debug.WriteLine(String.Join(", ", dates));
+
+        var lineSeries = new LineSeries<double>
         {
-            
-            DateTime date = DateTime.Parse(selectedDate);
-            List<string> dates = GetAllValidDates(date.Year, date.Month);
-            Debug.WriteLine(String.Join(", ", dates));
+            Values = new double[] { 3, 5, 7, 4, 2, 6, 8, 5, 9, 3 }
 
-            var lineSeries = new LineSeries<double>
-            {
-                Values = new double[] { 3, 5, 7, 4, 2, 6, 8, 5, 9, 3 }
+            // line plot containg reading times per month
+            //Value = new
+        };
+                    // Assign the series to the chart
+        lineChart.Series = new ISeries[] { lineSeries };
 
-                // line plot containg reading times per month
-                //Value = new
-            };
-                        // Assign the series to the chart
-            lineChart.Series = new ISeries[] { lineSeries };
+        // Optionally configure axes
+        lineChart.XAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
+        lineChart.YAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
 
-            // Optionally configure axes
-            lineChart.XAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
-            lineChart.YAxes = new Axis[] { new Axis { Labeler = value => value.ToString() } };
-            
-        }
-        */
+    }
+    */
     }
 
 
@@ -463,4 +470,3 @@ if (debug) { Debug.WriteLine($"LoadBooks() 5 - Fail - {ex.Message}");}
         public Dictionary<string, string> TimeDict { get; set; }
     }
 }
-

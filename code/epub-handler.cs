@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace EpubReader.code;
+namespace EpubCSharp.code;
 
 /// <summary>
 /// Represents an eBook with various metadata and file paths.

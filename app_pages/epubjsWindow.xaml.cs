@@ -1,25 +1,36 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
+using EpubCSharp.code;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EpubReader.code;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Web.WebView2.Core;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace EpubReader.app_pages
+namespace EpubCSharp.app_pages
 {
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class epubjsWindow1 : Window
+    /// <summary>
+    /// An empty window that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class epubjsWindow : Window
     {
         //  the current ebook being read.
         private Ebook _ebook;
@@ -46,7 +57,7 @@ namespace EpubReader.app_pages
         /// <summary>
         /// Constructor initializes the component and subscribes to Loaded and Unloaded events.
         /// </summary>
-        public epubjsWindow1((string ebookPlayOrder, string ebookFolderPath) data)
+        public epubjsWindow((string ebookPlayOrder, string ebookFolderPath) data)
         {
             this.InitializeComponent();
             navValueTuple = data;
@@ -322,7 +333,7 @@ namespace EpubReader.app_pages
 
             string htmlCode = appPath + "\\" + "scripts" + "\\" + "epubjs-reader" + "\\" + "index.html";
             string jsCodePath = appPath + "\\" + "scripts" + "\\" + "epubjs-reader" + "\\" + "ebookLocator.js";
-            await WriteJavaScriptFile(jsCodePath, jsPathConverter(_ebook.ContentPath) );
+            await WriteJavaScriptFile(jsCodePath, jsPathConverter(_ebook.ContentPath));
 
             // print content of the js file:
             string jsCode = await File.ReadAllTextAsync(jsCodePath);

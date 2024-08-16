@@ -10,7 +10,7 @@ using Windows.Storage.Pickers;
 using WinRT.Interop;
 
 
-namespace EpubReader.code
+namespace EpubCSharp.code
 {
     /// <summary>
     /// Class to handle global app controls from different pages.
@@ -229,17 +229,9 @@ namespace EpubReader.code
                     try
                     {
 
-                        // Get the path to the application's installed location
-                        StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-                        // Define the relative path to the script file
-                        string relativePath = "code\\script.js";
-
-                        // Combine the installed location path with the relative path
-                        string path = Path.Combine(installedLocation.Path, relativePath);
 
                         // Path to the external script
-                        string scriptPath = path;
+                        string scriptPath = Path.Combine(AppContext.BaseDirectory, "code\\script.js");
 
                         // Create a script element with the src attribute
                         XElement scriptElement = new XElement(XName.Get("script", "http://www.w3.org/1999/xhtml"),

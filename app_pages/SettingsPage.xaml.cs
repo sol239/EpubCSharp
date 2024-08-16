@@ -3,21 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using EpubCSharp.code;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using EpubReader.app_pages;
-using EpubReader.code;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace EpubReader
+namespace EpubCSharp.app_pages
 {
-
     /// <summary>
     /// Represents global settings configuration loaded from a JSON file.
     /// </summary>
@@ -266,7 +271,7 @@ namespace EpubReader
         public SettingsPage()
         {
             this.InitializeComponent();
-            MyMainWindow.WindowResized += OnSizeChanged; 
+            MyMainWindow.WindowResized += OnSizeChanged;
             this.Unloaded += OnHomePageUnloaded;
 
             LoadLangDict();
@@ -399,11 +404,11 @@ namespace EpubReader
                 // Write the modified content back to the CSS file
                 File.WriteAllText(cssFilePath, modifiedCssContent);
 
-                if (debug) {Debug.WriteLine($"UpdateBodyFontFamily() - Success - {newFontFamily}");}
+                if (debug) { Debug.WriteLine($"UpdateBodyFontFamily() - Success - {newFontFamily}"); }
             }
             catch (Exception ex)
             {
-if (debug) {Debug.WriteLine($"UpdateBodyFontFamily() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"UpdateBodyFontFamily() - Fail - {ex.Message}"); }
             }
         }
 
@@ -451,7 +456,7 @@ if (debug) {Debug.WriteLine($"UpdateBodyFontFamily() - Fail - {ex.Message}");}
         /// </summary>
         /// <param name="color">The new text color to be applied.</param>
         /// <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
-        
+
         public static void UpdateBodyTextColor(string color, bool debug = false)
         {
 
@@ -491,7 +496,7 @@ if (debug) {Debug.WriteLine($"UpdateBodyFontFamily() - Fail - {ex.Message}");}
         /// Updates the font size for the body element in the CSS file.
         /// </summary>
         /// <param name="fontSize">The new font size to be applied, including units (e.g., "16px").</param>
-/// <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
+        /// <param name="debug"> A boolean indicating whether to output debug information. If true, debug messages will be logged. </param>
 
         public static void UpdateBodyFontSize(string fontSize, bool debug = false)
         {
@@ -518,13 +523,13 @@ if (debug) {Debug.WriteLine($"UpdateBodyFontFamily() - Fail - {ex.Message}");}
                 // Write the modified content back to the CSS file
                 File.WriteAllText(cssFilePath, modifiedCssContent);
 
-if (debug) {Debug.WriteLine($"UpdateBodyFontSize() - Success - {fontSize}");}
+                if (debug) { Debug.WriteLine($"UpdateBodyFontSize() - Success - {fontSize}"); }
             }
             catch (Exception ex)
             {
-                if (debug) {Debug.WriteLine($"UpdateBodyFontSize() - Fail - {ex.Message}");}
+                if (debug) { Debug.WriteLine($"UpdateBodyFontSize() - Fail - {ex.Message}"); }
             }
-            
+
         }
 
         /// <summary>
@@ -753,12 +758,13 @@ if (debug) {Debug.WriteLine($"UpdateBodyFontSize() - Success - {fontSize}");}
                 settings.Theme = theme;
                 File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                 UpdateBodyTextColor(Themes[theme]["text-color"]);
-UpdateBodyBackgroundColor(Themes[theme]["background-color"]);
+                UpdateBodyBackgroundColor(Themes[theme]["background-color"]);
             }
 
             else
             {
-                _startUp++; }
+                _startUp++;
+            }
 
         }
 
@@ -791,14 +797,9 @@ UpdateBodyBackgroundColor(Themes[theme]["background-color"]);
         /// </summary>
         private void LoadLangDict()
         {
-            // Get the path to the application's installed location
-            StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-            // Define the relative path to the script file
-            string relativePath = "app_pages\\iso639I_reduced.json";
 
             // Combine the installed location path with the relative path
-            string path = Path.Combine(installedLocation.Path, relativePath);
+            string path = Path.Combine(AppContext.BaseDirectory, "Assets\\iso639I_reduced.json");
 
             string json = File.ReadAllText(path);
             _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);

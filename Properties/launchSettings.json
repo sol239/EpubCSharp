@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "EpubReader (Package)": {
+    "EpubCSharp (Package)": {
       "commandName": "MsixPackage"
     },
-    "EpubReader (Unpackaged)": {
+    "EpubCSharp (Unpackaged)": {
       "commandName": "Project"
     }
   }

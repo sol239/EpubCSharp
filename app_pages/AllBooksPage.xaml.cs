@@ -4,23 +4,29 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using EpubCSharp.code;
 using System.Text.Json;
-using Windows.Storage;
-using EpubReader.app_pages;
-using EpubReader.code;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace EpubReader
+namespace EpubCSharp.app_pages
 {
-
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AllBooks : Page
+    public sealed partial class AllBooksPage : Page
     {
         private (string ebookPlayOrder, string ebookFolderPath) _navValueTuple;
 
@@ -46,12 +52,12 @@ namespace EpubReader
         /// <summary>
         /// Initializes a new instance of the <see cref="AllBooks"/> class and sets up its components.
         /// </summary>
-        public AllBooks()
+        public AllBooksPage()
         {
             this.InitializeComponent();
             LoadLangDict();
 
-            MyMainWindow.WindowResized += OnSizeChanged; 
+            MyMainWindow.WindowResized += OnSizeChanged;
             this.Unloaded += OnAllBooksUnloaded;
 
             Ebooks = new ObservableCollection<Ebook>();
@@ -74,7 +80,7 @@ namespace EpubReader
             switch (settings.EbookViewer)
             {
                 case "epubjs":
-                    epubjsWindow1 secondWindow = new epubjsWindow1(navTuple);
+                    epubjsWindow secondWindow = new epubjsWindow(navTuple);
                     secondWindow.WindowClosed += SecondWindow_WindowClosed;
                     secondWindow.Title = title;
                     secondWindow.Activate();
@@ -89,7 +95,7 @@ namespace EpubReader
 
             }
         }
-        
+
         /// <summary>
         /// Handles the event when the AllBooks control is unloaded.
         /// </summary>
@@ -107,7 +113,7 @@ namespace EpubReader
         /// <param name="tp">
         /// A tuple containing the new width and height of the window.
         /// </param>
-        private void OnSizeChanged( object sender, (double width, double height) tp )
+        private void OnSizeChanged(object sender, (double width, double height) tp)
         {
             _actualWidth = tp.width;
             _actualHeight = tp.height;
@@ -123,7 +129,8 @@ namespace EpubReader
                 AllBooksView.Width = _actualWidth - detailsPanel.Width;
             }
 
-            else {
+            else
+            {
                 AllBooksView.Width = _actualWidth;
             }
 
@@ -149,7 +156,7 @@ namespace EpubReader
             try
             {
                 Ebooks.Clear();
-                List<Ebook> ebookPaths = new List<Ebook>() {};
+                List<Ebook> ebookPaths = new List<Ebook>() { };
                 ebookPaths = RecentEbooksHandler.GetRecentEbooksPathsUpdated(method, ascendingOrder, print);
 
                 foreach (var ebook in ebookPaths)
@@ -160,7 +167,7 @@ namespace EpubReader
                 }
                 if (debug) { Debug.WriteLine("PopulateEbooks() - Success"); }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (debug) { Debug.WriteLine("PopulateEbooks() - Fail - " + e.Message); }
             }
@@ -173,27 +180,19 @@ namespace EpubReader
         /// A boolean indicating whether to output debug information. If true, debug messages will be logged.
         /// </param>
         private void LoadLangDict(bool debug = false)
+        {
+            try
             {
-                try
-                {
-                    // Get the path to the application's installed location
-                    StorageFolder installedLocation = Windows.ApplicationModel.Package.Current.InstalledLocation;
-
-                    // Define the relative path to the script file
-                    string relativePath = "app_pages\\iso639I_reduced.json";
-
-                    // Combine the installed location path with the relative path
-                    string path = Path.Combine(installedLocation.Path, relativePath);
-
-                    string json = File.ReadAllText(path);
-                    _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (debug) { Debug.WriteLine("LoadLangDict() - Success"); }
-                }
-                catch (Exception e)
-                {
-                    if (debug) { Debug.WriteLine("LoadLangDict() - Fail - " + e.Message); }
-                }
+                string path = Path.Combine(AppContext.BaseDirectory, "Assets\\iso639I_reduced.json");
+                string json = File.ReadAllText(path);
+                _languageDict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                if (debug) { Debug.WriteLine("LoadLangDict() - Success"); }
             }
+            catch (Exception e)
+            {
+                if (debug) { Debug.WriteLine("LoadLangDict() - Fail - " + e.Message); }
+            }
+        }
 
         /// <summary>
         /// Handles the click event on an item in the AllBooksView control, updating the details panel with information about the selected book.
@@ -232,7 +231,8 @@ namespace EpubReader
                         bookReadTime.Text = $"Read Time: {_selectedEbook.BookReadTime.Split(":")[0]}h {_selectedEbook.BookReadTime.Split(":")[1]}m {_selectedEbook.BookReadTime.Split(":")[2]}s";
 
                     }
-                    else {
+                    else
+                    {
                         bookReadTime.Text = $"Read Time: 0h 0m 0s";
                     }
 
@@ -251,7 +251,7 @@ namespace EpubReader
                     {
                         languageComboBox.SelectedIndex = 1;
                     }
-                    
+
                     if (debug) { Debug.WriteLine("AllBooksView_ItemClick() - Success - Details panel visible"); }
                 }
 
@@ -475,7 +475,4 @@ namespace EpubReader
         }
     }
 
-
-
 }
-
