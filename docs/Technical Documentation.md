@@ -6,17 +6,17 @@ The app was coded in **`C#`**. It uses [**WIN UI](https://learn.microsoft.com/en
 
 ### Structure
 
-![image.png](Technical%20Documentation%20data/image.png)
+![image.png](Technical%20Documentation%20b5af8669873848ee8557f61019959381/image.png)
 
-![image.png](Technical%20Documentation%20data/image%201.png)
+![image.png](Technical%20Documentation%20b5af8669873848ee8557f61019959381/image%201.png)
 
 - **app_pages/** = directory containing pages used for displaying **Home, All book, book viewer, …**
     - **Home = HomePage.xaml**
-    - **All books = AllBooks.xaml**
-    - **Stats = Stats.xaml**
+    - **All books = AllBooksPage.xaml**
+    - **Stats = StatsPage.xaml**
     - **Settings = SettingsPage.xaml**
     - **Custom viewer = EbookWindow.xaml**
-    - **epubjs viewer = epubjsWindow1.xaml**
+    - **epubjs viewer = epubjsWindow.xaml**
 - **code/**
     - **app_controls.cs** = there are some methods used by multiple pages: updating css, injecting JS into html files, …
     - **epub-handler.cs**  = handles operations with epub file: extracting epub archive, extracting metadata from its files and than storing the data in the app’s own storage.
@@ -27,8 +27,9 @@ The app was coded in **`C#`**. It uses [**WIN UI](https://learn.microsoft.com/en
     - **epubjs-reader/** = contains files used by **epubjs** translation service (https://github.com/futurepress/epub.js)
     - **ebook.js** = a back-up script for handling WebView2, is not used.
     - **script.js** = a back-up script for handling WebView2, is not used.
+- **docs/** = contains the app’s documentation
+- **Assets/** = contains the app’s icon and iso639I.json file used for selecting language.
 - **App.xaml** = is the initial window of the app which is started as  the first one.
-- **doc.xml** = exported xml comment from entire solution
 - **README.md** = readme file used in gitlab/github.
 
 For more informations about used classes and methods please view their comments.
