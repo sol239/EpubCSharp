@@ -104,7 +104,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="docs\" />
     <Folder Include="NewFolder\" />
   </ItemGroup>
   <ItemGroup>

@@ -30,7 +30,7 @@ The app currently does not have installer or .exe file. But once you build the a
 
 - To build the app you’ll need this installed in Visual Studio:
 
-![image.png](docs/image.png)
+![image.png](docs/README%20data/image.png)
 
 - You will also need these **`C#`** **packages**:
     - https://www.nuget.org/packages/Microsoft.Windows.SDK.BuildTools/10.0.22621.756?_src=template
@@ -48,7 +48,7 @@ The app currently does not have installer or .exe file. But once you build the a
     
     If you installed all of above packages, you can run the app by building it in Visual Studio:
     
-    ![image.png](docs/image%201.png)
+    ![image.png](docs/README%20data/image%201.png)
     
     **Always** use **`Debug`** configuration, other than x64 arch was not tested. If build fails, deploy the solution and then rebuild it. (You can do these in VS `Build` menu.)
     
