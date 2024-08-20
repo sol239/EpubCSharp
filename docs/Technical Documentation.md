@@ -6,9 +6,9 @@ The app was coded in **`C#`**. It uses [**WIN UI](https://learn.microsoft.com/en
 
 ### Structure
 
-![image.png](Technical%20Documentation%20b5af8669873848ee8557f61019959381/image.png)
+![image.png](Technical%20Documentation%20data/image.png)
 
-![image.png](Technical%20Documentation%20b5af8669873848ee8557f61019959381/image%201.png)
+![image.png](Technical%20Documentation%20data/image%201.png)
 
 - **app_pages/** = directory containing pages used for displaying **Home, All book, book viewer, …**
     - **Home = HomePage.xaml**

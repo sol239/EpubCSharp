@@ -1,14 +1,36 @@
-# How to use
+# User Documentation
+
+## Storing Data
+
+The app uses its own local folder, which can be found at: `{User}\AppData\Local\Packages\EpubCSharp_ttbk31g8t3316\LocalState` 
+
+There will be these folders and files:
+
+- **ebooks/**  = this directory contains another directory per each added ebook, an ebook dir has random name since using ebook’s name causes error because of Windows max path lenghth.
+    - ebook directory = this directory constains extracted .epub files plus one extra directory called **DATA** = the directory contains ebook’s metadata used in the app: title, readtime, dateAdded, cover path, …
+- **settings/**
+    - allBooks.json = the file contains data used for displaying ebooks covers at the home page and the all books page.
+    - globalDict.json = the file contains data used for displaying saved translations at the dict page
+    - globalSettings.json = the file contains settings you can find at the settings page
+- **ebook_viewer-style.css** =  the file where is stored general style used in all ebooks (fonts, background color, etc..)
+
+---
+
+## How to use
+
+### Run the app
+
+If you want to run the app please follow README.md Installation instructions.
 
 ### Add book:
 
 You ran the app for the first time, you’ll see this:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image.png)
+![image.png](User%20Documentation%20data/image.png)
 
 You can add .epub ebook by clicking on the Add Book button. After you click on the button, the file explorer will be opened and you will be able to select .epub file. After the book was added, you should see this:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%201.png)
+![image.png](User%20Documentation%20data/image%201.png)
 
 If you tap on book cover, book viewer will be opened.
 
@@ -16,25 +38,25 @@ If you tap on book cover, book viewer will be opened.
 
 When you tap on **All books** ( the section in navigation menu ) you will be redirected to another page where all your ebooks are displayed based on selected sorting option:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%202.png)
+![image.png](User%20Documentation%20data/image%202.png)
 
 You can choose different sortion option from the left upper corner combobox:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%203.png)
+![image.png](User%20Documentation%20data/image%203.png)
 
 If you tap on a book in **All books** you will be able to see more information about the book. By tapping on **Read** you will be able to open ebook viewer. By tapping on **Delete** book will be removed from app storage with its reading statistics. If you want to use **translations,** please select book’s language.
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%204.png)
+![image.png](User%20Documentation%20data/image%204.png)
 
 ### Stats page:
 
 When you tap on **Stats** ( the section in navigation menu ) you will be redirected to another page where you will see how much time you spent reading: per each day, all time:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%205.png)
+![image.png](User%20Documentation%20data/image%205.png)
 
 ### Settings page:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%206.png)
+![image.png](User%20Documentation%20data/image%206.png)
 
 You can select these options:
 
@@ -43,9 +65,9 @@ You can select these options:
 
 If you want to save changed values, click on the button next to the box you typed in, once you click on the button next to the text box, it will change its color to red if wrong value, green if correct value.
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%207.png)
+![image.png](User%20Documentation%20data/image%207.png)
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%208.png)
+![image.png](User%20Documentation%20data/image%208.png)
 
 - **Ebook font** = font style used in ebook viewer
 - **Themes** = custom-made themes, they change background color
@@ -81,9 +103,9 @@ If you want to save changed values, click on the button next to the box you type
 
 After you save some translations in **Book viewer,** they will be displayed in **Dictionary:**
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%209.png)
+![image.png](User%20Documentation%20data/image%209.png)
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2010.png)
+![image.png](User%20Documentation%20data/image%2010.png)
 
 If its the text is too long it will be wrapped, to see full translation please click on it as in the screeshot on the left. The sctrucure of each segment is:
 
@@ -96,13 +118,13 @@ If its the text is too long it will be wrapped, to see full translation please c
 
 After you click on book cover in **Home** or **All books** Read button, new window with the book will be opened. You can move forward by the menu’s:  ←, → buttons or by pressing Arrow left, Arrow right keys. 
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2011.png)
+![image.png](User%20Documentation%20data/image%2011.png)
 
 If you tap on a word or select text, its translation will be displayed:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2012.png)
+![image.png](User%20Documentation%20data/image%2012.png)
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2013.png)
+![image.png](User%20Documentation%20data/image%2013.png)
 
 You can save translations by clicking on **Save**. You can find saved translations in the main menu: **Dictionary**. 
 
@@ -110,21 +132,23 @@ You can save translations by clicking on **Save**. You can find saved translatio
 
 If you tap on **settings icon**, settings menu will be displayed ( it’s more limited than main settings menu):
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2014.png)
+![image.png](User%20Documentation%20data/image%2014.png)
 
-If you tap on **home icon**, the book viewer will be closed and saved. **DO NOT** close the book window differently, since your stats and page location will **NOT** be saved.
+If you tap on **home icon**, the book viewer will be closed and saved. **DO NOT** close the book window differently, since your stats and page location will **NOT** be saved. 
+
+You can scroll with the menu **`->**` ,**`<-`** buttons or with `ArrowUp/Left` , `ArrowDown/Right` keys.
 
 ### Themes:
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2015.png)
+![image.png](User%20Documentation%20data/image%2015.png)
 
 Pure White
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/da69a2cd-fe5e-4d78-b563-960af6420840.png)
+![image.png](User%20Documentation%20data/da69a2cd-fe5e-4d78-b563-960af6420840.png)
 
 Dark Blue
 
-![image.png](How%20to%20use%20e1003039613b42e8823410165924bdd5/image%2016.png)
+![image.png](User%20Documentation%20data/image%2016.png)
 
 Woodlawn
 

@@ -8,7 +8,7 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="206d2a92-f7b0-4a9a-8037-1698bbb30aeb"
+    Name="EpubCSharp"
     Publisher="CN=david_pmv0zjd"
     Version="1.0.0.0" />
 
