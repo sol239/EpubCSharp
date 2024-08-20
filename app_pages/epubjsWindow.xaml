@@ -39,17 +39,6 @@ Title = "App title">
 
         <Grid>
             <CommandBar x:Name="MyCommandBar" Grid.Row="0" Grid.ColumnSpan="2" DefaultLabelPosition="Bottom" IsSticky="True" ClosedDisplayMode="Compact"  IsTabStop="False" OverflowButtonVisibility="Collapsed">
-                <AppBarButton x:Name="Backward" Label="Backward" Click="Backward_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon Glyph="&#xE72B;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-
-                <AppBarButton x:Name="Forward" Label="Forward" Click="Forward_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon Glyph="&#xE72A;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
 
                 <AppBarButton x:Name="Settings" Label="Settings" Click="Settings_OnClick">
                     <AppBarButton.Icon>

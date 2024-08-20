@@ -62,6 +62,8 @@ namespace EpubCSharp.app_pages
 
         private static bool _isArgosReady = false;
 
+        private string _htmlIndexPath;
+
         /// <summary>
         /// Event handler for the WindowClosed event.
         /// </summary>
@@ -339,7 +341,7 @@ namespace EpubCSharp.app_pages
 
 
 
-            string htmlCode = appPath + "\\" + "scripts" + "\\" + "epubjs-reader" + "\\" + "index.html";
+            _htmlIndexPath = appPath + "\\" + "scripts" + "\\" + "epubjs-reader" + "\\" + "index.html";
             string jsCodePath = appPath + "\\" + "scripts" + "\\" + "epubjs-reader" + "\\" + "ebookLocator.js";
             await WriteJavaScriptFile(jsCodePath, jsPathConverter(_ebook.ContentPath));
 
@@ -348,7 +350,7 @@ namespace EpubCSharp.app_pages
             Debug.WriteLine($"\n{jsCode}\n");
 
 
-            Debug.WriteLine($"HTML Code Path: {htmlCode}");
+            Debug.WriteLine($"HTML Code Path: {_htmlIndexPath}");
 
 
             Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--disable-web-security");
@@ -360,12 +362,14 @@ namespace EpubCSharp.app_pages
 
             var environment = await CoreWebView2Environment.CreateWithOptionsAsync("", "", environmentOptions);
 
-            MyWebView.Source = new Uri(htmlCode);
-
-            await MyWebView.EnsureCoreWebView2Async(null);
+            MyWebView.Source = new Uri(_htmlIndexPath);
+            
+            await MyWebView.EnsureCoreWebView2Async();
             MyWebView.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+
+            UpdateEpubJsBackground();
         }
-    
+
 
 
         /// <summary>
@@ -1895,8 +1899,6 @@ namespace EpubCSharp.app_pages
 
             MyCommandBar.Background = new SolidColorBrush(_backgroundColor);
             MyCommandBar.Foreground = new SolidColorBrush(_foregroundColor);
-            Forward.Foreground = Backward.Foreground = Settings.Foreground = Home.Foreground = new SolidColorBrush(_buttonColor);
-
         }
 
         /// <summary>
@@ -2563,12 +2565,34 @@ namespace EpubCSharp.app_pages
                 SettingsPage.UpdateBodyBackgroundColor(SettingsPage.Themes[theme]["background-color"]);
                 UpdateCSSAction();
                 ChangeCommandBarColors();
+                UpdateEpubJsBackground();
             }
 
             else
             {
                 _startUp++;
             }
+        }
+
+        private void UpdateEpubJsBackground()
+        {
+            GlobalSettingsJson globalSettings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
+
+            // Path to your HTML file
+            string filePath = _htmlIndexPath;
+
+            // Read the content of the HTML file
+            string htmlContent = File.ReadAllText(filePath);
+
+            // Find the existing background-color property in the style tag and replace it
+            string updatedHtmlContent = htmlContent.Replace(
+                "background-color: #232c40;", // Current color in your HTML file
+                $"background-color: {SettingsPage.Themes[globalSettings.Theme]["background-color"]};" // New color
+            );
+
+            // Save the updated HTML content back to the file
+            File.WriteAllText(filePath, updatedHtmlContent);
+            UpdateCSSAction();
         }
 
         /// <summary>

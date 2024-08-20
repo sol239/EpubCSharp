@@ -3285,7 +3285,8 @@ EPUBJS.Reader = function(bookPath, _options) {
 	this.rendition = book.renderTo("viewer", {
 		ignoreClass: "annotator-hl",
 		width: "100%",
-		height: "100%"
+		height: "100%",
+		allowScriptedContent: true
 	});
 
 	if(this.settings.previousLocationCfi) {
