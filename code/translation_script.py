@@ -2,6 +2,8 @@
 import argostranslate.package
 import argostranslate.translate
 import threading
+import os
+import signal
 
 app = Flask(__name__)
 
@@ -82,6 +84,17 @@ def translate():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    """
+    Shuts down the Flask application.
+    """
+    shutdown_function = request.environ.get('werkzeug.server.shutdown')
+    if shutdown_function is None:
+        return jsonify({'error': 'Not running with the Werkzeug Server'}), 500
+    shutdown_function()
+    return jsonify({'message': 'Server shutting down...'}), 200
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

@@ -2073,6 +2073,31 @@ namespace EpubCSharp.app_pages
             }
         }
 
+        private static async Task KillFlaskServer()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.PostAsync("http://127.0.0.1:5000/shutdown", null);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        Debug.WriteLine("Server response: " + responseContent);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Error: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Exception caught: {ex.Message}");
+                }
+            }
+        }
+
         /// <summary>
         /// Stops the Flask server by terminating its process.
         /// </summary>
@@ -2091,8 +2116,13 @@ namespace EpubCSharp.app_pages
         {
             try
             {
+                // Call the method to kill the Flask server
+                Task.Run(async () => await KillFlaskServer()).Wait();
+
                 if (_flaskProcess != null && !_flaskProcess.HasExited)
                 {
+
+
                     try
                     {
                         _flaskProcess.Kill(); // Forcefully terminate the process_flaskProcess.Kill(); // Forcefully terminate the process
@@ -2112,6 +2142,8 @@ namespace EpubCSharp.app_pages
                     {
                          Debug.WriteLine($"StopFlaskServer() 1.2 - Error: {e.Message}"); 
                     }
+
+                    
 
                     Debug.WriteLine($"StopFlaskServer() - Success");
                 }
