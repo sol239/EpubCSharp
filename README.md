@@ -73,6 +73,5 @@ Epub reader is currently finished, features, known issues and bugs are listed he
 
 If you need help, contact me: david.valek17@gmail.com
 
-You can find this doc at: [https://www.notion.so/EpubReader-8468f6ccb553496d94602b82fc69a495](EpubCSharp%208468f6ccb553496d94602b82fc69a495.md)
 
 ---
