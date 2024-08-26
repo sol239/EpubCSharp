@@ -264,7 +264,7 @@ public class FileManagement
         globalSettings.TranslationService = "My Memory";
         globalSettings.Language = "English";
         globalSettings.Theme = "Woodlawn";
-        globalSettings.FontSize = "1.5rem";
+        globalSettings.FontSize = "150%";
         globalSettings.Padding = "60";
 
         File.WriteAllText(filePath, JsonSerializer.Serialize(globalSettings));

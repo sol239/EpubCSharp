@@ -245,9 +245,9 @@ namespace EpubCSharp.app_pages
 
             PaddingBox.Text = globalSettings.Padding;
 
-            if (double.TryParse(globalSettings.FontSize.Split("rem")[0], out double fontSizeValue))
+            if (double.TryParse(globalSettings.FontSize.Split("%")[0], out double fontSizeValue))
             {
-                int fontSizeValueInt = (int)(fontSizeValue * 10);
+                int fontSizeValueInt = (int)(fontSizeValue / 10);
                 if (fontSizeValueInt > 0)
                 {
                     FontSizeBox.Text = fontSizeValueInt.ToString();
@@ -1979,7 +1979,7 @@ namespace EpubCSharp.app_pages
                 if (!string.IsNullOrWhiteSpace(fontSize) && paddingValue > 0)
                 {
                     GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                    settings.FontSize = $"{(paddingValue / 10).ToString()}rem";
+                    settings.FontSize = $"{(paddingValue / 10).ToString()}%";
                     File.WriteAllText(FileManagement.GetGlobalSettingsFilePath(), JsonSerializer.Serialize(settings));
                     FontSizeBox.Background = new SolidColorBrush(EbookWindow.ParseHexColor("#c9ffad"));
                     SettingsPage.UpdateBodyFontSize(settings.FontSize);
