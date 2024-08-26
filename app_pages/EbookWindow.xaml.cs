@@ -1337,10 +1337,7 @@ namespace EpubCSharp.app_pages
             {
 
                 GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                if (settings.TranslationService == "argos")
-                {
-                    StopFlaskServer();
-                }
+                await StopFlaskServerThread();
 
                 await SavePosition();
                 CalculateTimeDifference();
@@ -2096,15 +2093,33 @@ namespace EpubCSharp.app_pages
             {
                 if (_flaskProcess != null && !_flaskProcess.HasExited)
                 {
-                    _flaskProcess.Kill(); // Forcefully terminate the process
-                    _flaskProcess.Dispose();
-                    if (debug) { Debug.WriteLine($"StopFlaskServer() - Success"); }
+                    try
+                    {
+                        _flaskProcess.Kill(); // Forcefully terminate the process_flaskProcess.Kill(); // Forcefully terminate the process
+                        Debug.WriteLine("StopFlaskServer() 1.1 - Success");
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine($"StopFlaskServer() 1.1 - Error: {e.Message}");
+                    }
+
+                    try
+                    {
+                        _flaskProcess.Dispose();
+                        Debug.WriteLine("StopFlaskServer() 1.2 - Success");
+                    }
+                    catch (Exception e)
+                    {
+                         Debug.WriteLine($"StopFlaskServer() 1.2 - Error: {e.Message}"); 
+                    }
+
+                    Debug.WriteLine($"StopFlaskServer() - Success");
                 }
             }
 
             catch (Exception e)
             {
-                if (debug) { Debug.WriteLine($"StopFlaskServer() - Fail - {e.Message}"); }
+                Debug.WriteLine($"StopFlaskServer() - Fail - {e.Message}"); 
             }
         }
 

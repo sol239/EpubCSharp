@@ -1425,12 +1425,7 @@ namespace EpubCSharp.app_pages
         {
             try
             {
-
-                GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
-                if (settings.TranslationService == "argos")
-                {
-                    StopFlaskServer();
-                }
+                await StopFlaskServerThread();
 
                 await SavePosition();
                 CalculateTimeDifference();
@@ -2160,7 +2155,7 @@ namespace EpubCSharp.app_pages
             GlobalSettingsJson settings = JsonSerializer.Deserialize<GlobalSettingsJson>(File.ReadAllText(FileManagement.GetGlobalSettingsFilePath()));
             if (settings.TranslationService == "argos")
             {
-                StopFlaskServer();
+                StopFlaskServer(true);
             }
         }
 
@@ -2182,12 +2177,10 @@ namespace EpubCSharp.app_pages
         {
             try
             {
-                if (_flaskProcess != null && !_flaskProcess.HasExited)
-                {
-                    _flaskProcess.Kill(); // Forcefully terminate the process
-                    _flaskProcess.Dispose();
-                    if (debug) { Debug.WriteLine($"StopFlaskServer() - Success"); }
-                }
+                _flaskProcess.Kill(); // Forcefully terminate the process
+                _flaskProcess.Dispose();
+                Debug.WriteLine($"StopFlaskServer() - Success");
+
             }
 
             catch (Exception e)
